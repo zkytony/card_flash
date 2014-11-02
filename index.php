@@ -2,15 +2,13 @@
 ob_start(); // turn on output buffer
 extract($_POST);
 session_start();
+require_once "database.php";
 if (isset($_POST['submit']))
 {
   //User submitted
-  $db_hostname='localhost';
-  $db_database='flashcard';
-  $db_username='kaiyu';
-  $db_password='123abc';
+  $db=dbinfo();
 
-  $con=mysqli_connect($db_hostname, $db_username, $db_password, $db_database);
+  $con=mysqli_connect($db['hostname'], $db['username'], $db['password'], $db['database']);
 
   if (!$con) die ("Unable to connect to MySQL: " . mysqli_error($con));
   
@@ -27,7 +25,7 @@ if (isset($_POST['submit']))
           INDEX(`username`(10))) ENGINE MyISAM;";
   if (!mysqli_query($con, $query))
   {
-    die ("Unable to create table $tablename " . mysqli_errors($con));               
+    die ("Unable to create table $tablename " . mysqli_error($con));               
   }
   
   $username=$_POST['username'];
@@ -47,6 +45,7 @@ if (isset($_POST['submit']))
     $_SESSION['loggedIn']=true;
     $_SESSION['username']=$username;
     $_SESSION['password']=$password;
+    $_SESSION['userid']=$rows['userid']; // this is necessary
     header("location:home.php");
   } else {
     $_SESSION['loggedIn']=false;
@@ -70,12 +69,12 @@ if (isset($_POST['submit']))
 // Html for header
 function top_html()
 {
-  ?>
-    <head>
-      <title>Flash Cards</title>
-      <meta char-set='utf-8'>
-      <link rel='stylesheet' type='text/css' href='main.css'>
-    </head>
+?>
+  <head>
+    <title>Flash Cards</title>
+    <meta char-set='utf-8'>
+    <link rel='stylesheet' type='text/css' href='main.css'>
+  </head>
 <?php
 }
 
@@ -85,7 +84,7 @@ function form_login()
 ?>
   <div class="form-login">
     <h3>Login</h3>
-    <form name="login "action="<?php echo $_SERVER['PHP_SELF'];?>" name="login" method="post">
+    <form name="login " action="<?php echo $_SERVER['PHP_SELF'];?>"  method="post">
       <p><label for="username">Username: </label><input class='input-field' name="username" id="username" title="Username" type="text" maxLength="10"></p>
       <p><label for="password">Password: </label><input class="input-field"name="password" id="password" title="Password" type="password" maxLength="15"></p>
       <p><input name="submit" id="submit" type="submit" value="Log in"/>
