@@ -5,10 +5,10 @@ session_start();
 if (isset($_POST['submit']))
 {
   //User submitted
-  $db_hostname='localhost';
-  $db_database='flashcard';
-  $db_username='kaiyu';
-  $db_password='123abc';
+  $db_hostname='xxxx';
+  $db_database='xxxx';
+  $db_username='xxxx';
+  $db_password='xxxx';
 
   $con=mysqli_connect($db_hostname, $db_username, $db_password, $db_database);
 
