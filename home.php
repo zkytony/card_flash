@@ -5,6 +5,7 @@ if (!$_SESSION['loggedIn'])
     header("location:index.php");
 }
 require_once "template.php";
+require_once "database.php";
 ?>
 <html>
   <head>
@@ -17,6 +18,11 @@ require_once "template.php";
     top_bar();
     deck_list();
     option_panel();
+    if ($_SESSION['new_deck'])
+    {
+      echo "<h3 class='notify'>Added a new deck</h3>";
+      $_SESSION['new_deck']=false;
+    }
     ?>
   </body>
 </html>
@@ -26,6 +32,39 @@ function deck_list()
 ?>
   <div class="deck-list">
     <h5>Here are your decks</h5>
+    <?php 
+    // get user's decks
+    $db=dbinfo();
+    $con=mysqli_connect($db['hostname'], $db['username'], $db['password'], $db['database']);
+
+    if (!$con) die ("Unable to connect to MySQL " . mysqli_error($con));
+    
+    $tablename='decks';
+    $result=mysqli_query($con, "SHOW TABLES LIKE '$tablename'");
+    $exists=mysqli_num_rows($result) > 0;
+    if (!$exists)
+    {
+      echo "The table $tablename does not exist!";
+    } else {
+      $current_userid=$_SESSION['userid'];
+      $select_query="SELECT `title` FROM `$tablename` WHERE `userid`='$current_userid';";
+      $result=mysqli_query($con, $select_query);
+      if (!$result)
+      {
+        echo ("Unable to select from $tablename " . mysqli_error($con));
+      } else {
+        // selected
+        echo "<ul>";
+        while($row=mysqli_fetch_assoc($result))
+        {
+          $title=$row['title'];
+          echo "<li><a href='#'>$title</a></li>";
+        }
+        echo "</ul>";
+      }
+    }
+    
+    ?>
   </div>
 <?php
 }

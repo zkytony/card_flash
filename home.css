@@ -61,3 +61,27 @@
 .panel-button a {
     font-size:16px;
 }
+
+.notify {
+    float:left;
+    border:1px solid blue;
+    margin:10px;
+}
+
+.deck-field {
+    width:250px;
+    height:30px;
+}
+
+#title {
+    margin-left:40px;
+}
+
+#submit-deck {
+    background-color:orange;
+    font-size:18px;
+}
+
+#submit-deck:hover {
+    background-color:cyan;
+}
