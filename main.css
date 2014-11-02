@@ -1,0 +1,27 @@
+* {
+    padding:0px;
+    margin:0px;
+}
+
+.form-login {
+    width:350px;
+    height:200px;
+    border:2px solid black;
+    margin:auto;
+    position:relative;
+    top:100px;
+}
+
+.form-login h3 {
+    text-align:center;
+    margin-bottom:30px;
+    margin-top:20px;
+}
+
+.form-login form {
+    text-align:center;
+}
+
+.input-field {
+    width:150px;
+}

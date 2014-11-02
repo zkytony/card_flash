@@ -1,0 +1,9 @@
+.deck-form-div {
+    width:350px;
+    border:1px solid black;
+    position:relative;
+    float:left;
+    left:35%;
+    margin-top:10%;
+    padding:15px;
+}

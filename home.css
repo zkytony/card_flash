@@ -1,0 +1,63 @@
+* {
+    padding:0px;
+    margin:0px;
+}
+
+.top-bar {
+    border-bottom:2px solid red;
+    padding-left:15px;
+    padding-top:5px;
+    width:100%;
+    float:left
+}
+
+.info-span h3 {
+    width:100px;
+    float:left;
+}
+
+#logout-button {
+    color:blue;
+    float:left;
+    background-color:none;
+    border:none;
+    font-size:17px;
+}
+
+#logout-button:hover {
+    color:green;
+}
+
+.deck-list {
+    float:left;
+    position:relative;
+    width:150px;
+    padding:15px;
+    margin:15px;
+    border:1px solid black;
+}
+
+.option-panel {
+    float:left;
+    position:relative;
+    width:550px;
+    margin:10px;
+    padding:5px;
+    border:1px solid black;
+}
+
+.panel-button {
+    float:left;
+    width:100px;
+    height:40px;
+    padding:5px;
+    border-right:1px solid grey;
+}
+
+.panel-button:hover {
+    background:silver;
+}
+
+.panel-button a {
+    font-size:16px;
+}
