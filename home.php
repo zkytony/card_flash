@@ -18,6 +18,7 @@ require_once "database.php";
     top_bar();
     deck_list();
     option_panel();
+    card_in_deck();
     if ($_SESSION['new_deck'])
     {
       echo "<h3 class='notify'>Added a new deck</h3>";
@@ -47,7 +48,7 @@ function deck_list()
       echo "The table $tablename does not exist!";
     } else {
       $current_userid=$_SESSION['userid'];
-      $select_query="SELECT `title` FROM `$tablename` WHERE `userid`='$current_userid';";
+      $select_query="SELECT `deckid`,`title` FROM `$tablename` WHERE `userid`='$current_userid';";
       $result=mysqli_query($con, $select_query);
       if (!$result)
       {
@@ -58,7 +59,26 @@ function deck_list()
         while($row=mysqli_fetch_assoc($result))
         {
           $title=$row['title'];
-          echo "<li><a href='#'>$title</a></li>";
+          $deckid=$row['deckid'];
+          echo "<li>";
+          echo "<a href='#'>$title</a>";
+
+          // get all tags 
+          $tablename='tags';
+          $select_query="SELECT `tag` FROM `$tablename` WHERE `deckid`='$deckid';";
+          $select_result=mysqli_query($con, $select_query);
+          if (!$select_result) die ("Unable to select from $tablename" . mysqli_error($con));
+
+          // selected
+          echo "<span class='tag-span'>";
+          while($tag_row=mysqli_fetch_assoc($select_result))
+          {
+            $tag=$tag_row['tag'];
+            echo "<p class='one-tag'>";
+            echo $tag;
+            echo "</p>";
+          }
+          echo "</li>";
         }
         echo "</ul>";
       }
@@ -80,6 +100,15 @@ function option_panel()
     <a href="new_card.php">New Card</a>
     <h6>Current deck: </h6>
   </div>
+  </div>
+<?php
+}
+
+function card_in_deck()
+{
+?>
+  <div class="card-area">
+    <h3>Not implemented yet. Place showing the cards</h3>
   </div>
 <?php
 }

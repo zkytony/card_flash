@@ -34,7 +34,6 @@ if (isset($_POST['submit-deck']))
   }
 
   // mysql::num_rows: return number of rows in a query result
-
   // select to get number of rows
   $select_query="SELECT * FROM `$tablename`;";
   if (!$result=mysqli_query($con, $select_query)) 
@@ -53,9 +52,47 @@ if (isset($_POST['submit-deck']))
     die ("Error in inserting into $tablename " . mysqli_error($con));
   }
   
+  // tags and categories
+  $category_str=$_POST['category'];
+  $tags=split_to_tags($category_str);
+
+  // check if the table of relationship between tags and decks exists, if not create one
+  $tablename='tags';
+  $query="CREATE TABLE IF NOT EXISTS `$tablename` (
+          `rid` VARCHAR(32) UNIQUE NOT NULL,
+          `tag` VARCHAR(32) NOT NULL,
+          `deckid` VARCHAR(32) NOT NULL,
+          PRIMARY KEY(`rid`),
+          FOREIGN KEY(`deckid`) REFERENCES decks(`deckid`)
+          ) ENGINE MyISAM;";
+  
+  if (!mysqli_query($con, $query))
+  {
+    die ("Unable to create table $tablename " . mysqli_error($con));
+  }
+
+  $select_query="SELECT * FROM `$tablename`;";
+  if (!$result=mysqli_query($con, $select_query))
+    die ("Error in selecting from $tablename " . mysqli_error($con));
+
+  $num_rows=$result->num_rows;
+
+  for ($i=0; $i<sizeof($tags); $i++)
+  {
+    $rid = "RE" . $num_rows;
+    $num_rows++;
+    
+    // insert this tag-deckid relationship to the table
+    $insert_query="INSERT INTO `$tablename` (`rid`, `tag`, `deckid`)
+                       VALUES ('$rid', '$tags[$i]', '$deckid');";
+    if (!mysqli_query($con, $insert_query))
+      die ("Unable to insert into $tablename " . mysqli_error($con));
+  }
+
+  // everything done
   $_SESSION['new_deck']=true;
   header("location:home.php");
-}
+} // end of main script
 ?>
 <html>
   <head>
@@ -72,6 +109,13 @@ if (isset($_POST['submit-deck']))
   </body>
 </html>
 <?php 
+
+function split_to_tags($str)
+{
+  $tags=preg_split("/[\s,]+/",$str);
+  return $tags;
+}
+
 function deck_form()
 {
 ?>

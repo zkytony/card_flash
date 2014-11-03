@@ -3,6 +3,10 @@
     margin:0px;
 }
 
+ul {
+    list-style-type:none;
+}
+
 .top-bar {
     border-bottom:2px solid red;
     padding-left:15px;
@@ -37,6 +41,11 @@
     border:1px solid black;
 }
 
+.deck-list ul li a {
+    float:left;
+    width:100%;
+}
+
 .option-panel {
     float:left;
     position:relative;
@@ -68,20 +77,22 @@
     margin:10px;
 }
 
-.deck-field {
-    width:250px;
-    height:30px;
+.tag-span {
+    padding:5px;
+    width:100%;
+    float:left;
 }
 
-#title {
-    margin-left:40px;
+.one-tag {
+    background-color:#FCFCF;
+    margin-right:3px;
+    font-size:10px;
+    float:left;
 }
 
-#submit-deck {
-    background-color:orange;
-    font-size:18px;
-}
-
-#submit-deck:hover {
-    background-color:cyan;
+.card-area {
+    width:700px;
+    min-height:300px;
+    border:1px solid black;
+    float:left;
 }
