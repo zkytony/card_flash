@@ -1,0 +1,40 @@
+Goal of this project is to create a flashcard application that help
+people learning new knowledge, and communicate what they made to drive
+the user community.
+
+Plan:
+----------
+Not UI:
+
+Concern:
+- What fundemental features are needed
+- How to implement a feature
+- How to combine different features together
+- Is it easy to improve/modify your code during update
+- Tests
+
+[1]
+Login;
+Create Decks;
+Create and flip cards; (Right now)
+Show cards in a deck in home page;
+
+[2]
+User register
+Better manage the data
+Share the deck
+Self quiz
+
+[3]
+Analysis of data
+New/Innovative experience
+Star system
+
+----------
+UI:
+
+Concern:
+- How to arrange different parts
+- How to display all sorts of things
+- User experience
+- Other designs related to user's usage (e.g. analysis of user's behaviors)
