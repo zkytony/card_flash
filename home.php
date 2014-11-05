@@ -11,7 +11,7 @@ require_once "database.php";
   <head>
     <title>Home-<?php echo $_SESSION['username'] ?></title>
     <meta charset="utf-8">
-    <link rel="stylesheet" type="text/css" href="home.css">
+    <link rel="stylesheet" type="text/css" href="./css/home.css">
   </head>
   <body>
     <?php 

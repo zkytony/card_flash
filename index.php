@@ -73,7 +73,7 @@ function top_html()
   <head>
     <title>Flash Cards</title>
     <meta char-set='utf-8'>
-    <link rel='stylesheet' type='text/css' href='main.css'>
+    <link rel='stylesheet' type='text/css' href='./css/main.css'>
   </head>
 <?php
 }

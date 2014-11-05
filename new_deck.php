@@ -98,8 +98,8 @@ if (isset($_POST['submit-deck']))
   <head>
     <title>New Deck-<?php echo $_SESSION['username'] ?></title>
     <meta charset="utf-8">
-    <link rel="stylesheet" type="text/css" href="home.css">
-    <link rel="stylesheet" type="text/css" href="deck.css">
+    <link rel="stylesheet" type="text/css" href="./css/home.css">
+    <link rel="stylesheet" type="text/css" href="./css/deck.css">
   </head>
   <body>
     <?php 

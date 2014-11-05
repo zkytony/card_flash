@@ -10,8 +10,8 @@ require_once "template.php";
   <head>
     <title>New Card-<?php echo $_SESSION['username'] ?></title>
     <meta charset="utf-8">
-    <link rel="stylesheet" type="text/css" href="home.css">
-    <link rel="stylesheet" type="text/css" href="card.css">
+    <link rel="stylesheet" type="text/css" href="./css/home.css">
+    <link rel="stylesheet" type="text/css" href="./css/card.css">
   </head>
   <body>
     <?php 
