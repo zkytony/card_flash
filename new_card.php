@@ -5,6 +5,7 @@ if (!$_SESSION['loggedIn'])
     header("location:index.php");
 }
 require_once "template.php";
+require_once "quill.php";
 ?>
 <html>
   <head>
@@ -12,6 +13,8 @@ require_once "template.php";
     <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" href="./css/home.css">
     <link rel="stylesheet" type="text/css" href="./css/card.css">
+    <link rel="stylesheet" type="text/css" href="./css/m_quill.css">
+    <script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
   </head>
   <body>
     <?php 
@@ -19,6 +22,7 @@ require_once "template.php";
     card_form();
     preview_card();
     ?>
+    <script src="./script/new_card.js"></script>
   </body>
 </html>
 <?php 
@@ -42,7 +46,7 @@ function card_front()
 ?>
   <div class="card-frame" id="card_front_edit">
    Title: <input class="card-field" id="card_name" type="text" name="card_name"  />
-    Subdescription: <input class="card-sub" id="card_sub" type="text" name="card_sub" />
+    Subdescription: <input class="card-field card-sub" id="card_sub" type="text" name="card_sub" />
   </div>
 <?php
 }
@@ -51,7 +55,9 @@ function card_back()
 {
 ?>
   <div class="card-frame" id="card_back_edit">
-    <textarea class="card-textarea" id="card_content" name="card_content" resizable="false" value="Put a rich text editor here."></textarea>
+    <?php 
+    build_editor(); // from quill.php
+    ?>
   </div>
 <?php
 }
