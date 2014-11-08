@@ -6,6 +6,8 @@ if (!$_SESSION['loggedIn'])
 }
 require_once "template.php";
 require_once "quill.php";
+require_once "database.php";
+
 if (isset($_POST['submit-card']))
 {
   //User submitted
@@ -28,12 +30,16 @@ if (isset($_POST['submit-card']))
 
   // get current deck id
   $tablename='users';
-  $select_query="SELECT `current_deckid` FROM `$tablename` WHERE `userid`='$userid';";
+  $select_query="SELECT `current_deckid` FROM `$tablename` 
+                 WHERE `userid`='$userid';";
   if (!$result=mysqli_query($con, $select_query)) 
     die ("Error in selecting from $tablename " . mysqli_error($con));
   $deckid=$result['current_deckid'];
   
-  $insert_query="INSERT INTO `$tablename` (`cardid`,`title`,`sub`,`content`,`userid`,`deckid`,`create_time`) VALUES ('$cardid','$title','$sub','$content','$userid','$deckid','NOW()');";
+  $insert_query="INSERT INTO `$tablename` (`cardid`,`title`,
+                     `sub`,`content`,`userid`,`deckid`,`create_time`) 
+                     VALUES ('$cardid','$title','$sub','$content',
+                     '$userid','$deckid','NOW()');";
 
   if (!mysqli_query($con, $insert_query))
     die ("Unable to insert into $tablename" . mysqli_error($con));
@@ -57,19 +63,7 @@ if (isset($_POST['submit-card']))
     <?php 
     require_once "database.php";
     top_bar();
-    $db=dbinfo();
-
-    $con=mysqli_connect($db['hostname'], $db['username'], $db['password'], $db['database']);
-
-    if (!$con) die ("Unable to connect to MySQL ");
-
-    $tablename='users';
-    $userid=$_SESSION['userid'];
-    $select_query="SELECT `deckid` FROM `$tablename` WHERE `userid`='$userid';";
-    if (!$result=mysqli_query($con, $select_query)) 
-      die ("Error in selecting from $tablename " . mysqli_error($con));
-    $deckid=$result;
-    echo "Current deck: $deckid";
+    echo get_current_deck_title();
     card_form();
     preview_card();
     ?>

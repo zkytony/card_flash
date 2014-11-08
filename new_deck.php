@@ -59,8 +59,8 @@ if (isset($_POST['submit-deck']))
   }
 
   // last thing - update current_deckid
-  $tablename='users'
-  $update_query="UPDATE `$tablename` SET `current_deckid`='$deckid' WHERE `userid`='$userid';";
+  $tablename='users';
+  $update_query="UPDATE `$tablename` SET `deckid`='$deckid' WHERE `userid`='$userid';";
   if (!mysqli_query($con, $update_query))
     die ("Unable to update $tablename " . mysqli_error($con));
 

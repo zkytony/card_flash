@@ -102,4 +102,41 @@ function init_tags_table($con)
     die ("Unable to create table $tablename " . mysqli_error($con));
   }
 }
+
+// use userid to get current deckid 
+// and then get the title for that deck
+function get_current_deck_title()
+{
+  $db=dbinfo();
+
+  $con=mysqli_connect($db['hostname'], $db['username'], $db['password'], $db['database']);
+
+  if (!$con) die ("Unable to connect to MySQL ");
+
+  $tablename='users';
+  $userid=$_SESSION['userid'];
+  $select_query="SELECT `deckid` FROM `$tablename` WHERE `userid`='$userid';";
+  if (!$result=mysqli_query($con, $select_query)) 
+    die ("Error in selecting from $tablename " . mysqli_error($con));
+  $deckid="";
+  while ($row=mysqli_fetch_assoc($result))
+  {
+    $deckid=$row['deckid'];
+    break;
+  }
+  // get the name of deck
+  $tablename='decks';
+  $select_query="SELECT `title` FROM `$tablename` WHERE `deckid`='$deckid';";
+  if (!$result=mysqli_query($con, $select_query)) 
+    die ("Error in selecting from $tablename " . mysqli_error($con));
+  $deck_title="";
+  while ($row=mysqli_fetch_assoc($result))
+  {
+    $deck_title=$row['title'];
+    break;
+  }
+
+  return $deck_title;
+// end of method get_deck_title
+}
 ?>
