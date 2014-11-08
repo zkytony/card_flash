@@ -27,7 +27,7 @@ if (isset($_POST['submit']))
 
   $query="SELECT * FROM users WHERE username='$username' AND password='$password'";
   $result=mysqli_query($con, $query);
-  if(!result) die("Database access failed: " . mysql_error());
+  if(!$result) die("Database access failed: " . mysql_error());
   $success=false;
   while($rows=mysqli_fetch_assoc($result)) // fetch the row; $row need not to be used
   {
@@ -82,6 +82,7 @@ function form_login()
       <p><label for="username">Username: </label><input class='input-field' name="username" id="username" title="Username" type="text" maxLength="10"></p>
       <p><label for="password">Password: </label><input class="input-field"name="password" id="password" title="Password" type="password" maxLength="15"></p>
       <p><input name="submit" id="submit" type="submit" value="Log in"/>
+        <a href="sign_up.php">Sign up</a></p>
     </form>
   </div>
 <?php
