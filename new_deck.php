@@ -16,26 +16,10 @@ if (isset($_POST['submit-deck']))
   if (!$con) die ("Unable to connect to MySQL ");
 
   $tablename='decks';
-  // create the table for decks if not exists
-  // relates to users table
-  $query="CREATE TABLE IF NOT EXISTS `$tablename` (
-          `deckid` VARCHAR(32) UNIQUE NOT NULL,
-          `title` VARCHAR(128) NOT NULL,
-          `userid` VARCHAR(32) NOT NULL,
-          `create_time` DATE NOT NULL,
-          PRIMARY KEY (`deckid`),
-          INDEX(`title`(10)),
-          FOREIGN KEY (`userid`) REFERENCES users(`userid`) 
-         ) ENGINE MyISAM;";
-
-  if (!mysqli_query($con, $query))
-  {
-    die ("Unable to create table $tablename " . mysqli_error($con));
-  }
-
+  
   // mysql::num_rows: return number of rows in a query result
   // select to get number of rows
-  $select_query="SELECT * FROM `$tablename`;";
+  $select_query="SELECT `deckid` FROM `$tablename`;";
   if (!$result=mysqli_query($con, $select_query)) 
     die ("Error in selecting from $tablename " . mysqli_error($con));
 
@@ -45,8 +29,7 @@ if (isset($_POST['submit-deck']))
   $userid=$_SESSION['userid']; // you must use individual variables to store them
 
   // insert user's new deck to table; !Values should be single quote. Columns dont have quote
-  $insert_query="INSERT INTO $tablename (deckid, title, userid, create_time) 
-                     VALUES ('$deckid','$title','$userid','NOW()');";
+  $insert_query="INSERT INTO $tablename (deckid, title, userid, create_time) VALUES ('$deckid','$title','$userid','NOW()');";
   if (!mysqli_query($con, $insert_query))
   {
     die ("Error in inserting into $tablename " . mysqli_error($con));
@@ -56,21 +39,7 @@ if (isset($_POST['submit-deck']))
   $category_str=$_POST['category'];
   $tags=split_to_tags($category_str);
 
-  // check if the table of relationship between tags and decks exists, if not create one
   $tablename='tags';
-  $query="CREATE TABLE IF NOT EXISTS `$tablename` (
-          `rid` VARCHAR(32) UNIQUE NOT NULL,
-          `tag` VARCHAR(32) NOT NULL,
-          `deckid` VARCHAR(32) NOT NULL,
-          PRIMARY KEY(`rid`),
-          FOREIGN KEY(`deckid`) REFERENCES decks(`deckid`)
-          ) ENGINE MyISAM;";
-  
-  if (!mysqli_query($con, $query))
-  {
-    die ("Unable to create table $tablename " . mysqli_error($con));
-  }
-
   $select_query="SELECT * FROM `$tablename`;";
   if (!$result=mysqli_query($con, $select_query))
     die ("Error in selecting from $tablename " . mysqli_error($con));
@@ -88,6 +57,12 @@ if (isset($_POST['submit-deck']))
     if (!mysqli_query($con, $insert_query))
       die ("Unable to insert into $tablename " . mysqli_error($con));
   }
+
+  // last thing - update current_deckid
+  $tablename='users'
+  $update_query="UPDATE `$tablename` SET `current_deckid`='$deckid' WHERE `userid`='$userid';";
+  if (!mysqli_query($con, $update_query))
+    die ("Unable to update $tablename " . mysqli_error($con));
 
   // everything done
   $_SESSION['new_deck']=true;

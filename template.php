@@ -9,6 +9,7 @@ function top_bar()
       <form action="logout.php" method="post">
         <input type="submit" value="logout" id="logout-button">
       </form>
+      <a href="home.php">Home</a>
     </span>
   </div>
 <?php

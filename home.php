@@ -24,6 +24,11 @@ require_once "database.php";
       echo "<h3 class='notify'>Added a new deck</h3>";
       $_SESSION['new_deck']=false;
     }
+    if ($_SESSION['new_card'])
+    {
+      echo "<h3 class='notify'>Added a new deck</h3>";
+      $_SESSION['new_card']=false;
+    }
     ?>
   </body>
 </html>

@@ -14,8 +14,12 @@ ul {
     float:left
 }
 
+.info-span a {
+    margin-left:5px;
+}
+
 .info-span h3 {
-    width:100px;
+    width:150px;
     float:left;
 }
 

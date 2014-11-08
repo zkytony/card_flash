@@ -2,10 +2,47 @@
 session_start();
 if (!$_SESSION['loggedIn'])
 {
-    header("location:index.php");
+  header("location:index.php");
 }
 require_once "template.php";
 require_once "quill.php";
+if (isset($_POST['submit-card']))
+{
+  //User submitted
+  $db=dbinfo();
+
+  $con=mysqli_connect($db['hostname'], $db['username'], $db['password'], $db['database']);
+
+  if (!$con) die ("Unable to connect to MySQL ");
+
+  $tablename='cards';
+  $select_query="SELECT `cardid`, FROM `$tablename`;";
+  if (!$result=mysqli_query($con, $select_query)) 
+    die ("Error in selecting from $tablename " . mysqli_error($con));
+  $num_rows=$result->num_rows;
+  $cardid='card' . $num_rows;
+  $title=$_POST['card_title'];
+  $sub=$_POST['card_sub'];
+  $content=$_POST['card_content'];
+  $userid=$_SESSION['userid'];
+
+  // get current deck id
+  $tablename='users';
+  $select_query="SELECT `current_deckid` FROM `$tablename` WHERE `userid`='$userid';";
+  if (!$result=mysqli_query($con, $select_query)) 
+    die ("Error in selecting from $tablename " . mysqli_error($con));
+  $deckid=$result['current_deckid'];
+  
+  $insert_query="INSERT INTO `$tablename` (`cardid`,`title`,`sub`,`content`,`userid`,`deckid`,`create_time`) VALUES ('$cardid','$title','$sub','$content','$userid','$deckid','NOW()');";
+
+  if (!mysqli_query($con, $insert_query))
+    die ("Unable to insert into $tablename" . mysqli_error($con));
+
+  // succeeded
+  $_SESSION['new_card']=true;
+  header("location:home.php");
+  // end of main script
+}
 ?>
 <html>
   <head>
@@ -18,7 +55,21 @@ require_once "quill.php";
   </head>
   <body>
     <?php 
+    require_once "database.php";
     top_bar();
+    $db=dbinfo();
+
+    $con=mysqli_connect($db['hostname'], $db['username'], $db['password'], $db['database']);
+
+    if (!$con) die ("Unable to connect to MySQL ");
+
+    $tablename='users';
+    $userid=$_SESSION['userid'];
+    $select_query="SELECT `deckid` FROM `$tablename` WHERE `userid`='$userid';";
+    if (!$result=mysqli_query($con, $select_query)) 
+      die ("Error in selecting from $tablename " . mysqli_error($con));
+    $deckid=$result;
+    echo "Current deck: $deckid";
     card_form();
     preview_card();
     ?>
@@ -29,13 +80,14 @@ require_once "quill.php";
 function card_form()
 {
 ?>
-  <div class="card-form">
-    <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
+  <div class="card-div">
+    <form name="card_form" id="card_form" "action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
       <?php 
       card_front();
       card_back();
       ?>
-      <input type="submit" value="Done" id="submit" name="card_submit" class="submit-card"/>
+      <textarea class="hidden" id="hidden_input" name="hidden_input" style="display:none"></textarea>
+      <input type="submit" value="Done" id="submit" name="submit-card" onsubmit="onsubmit()" class="submit-card"/>
     </form>
   </div>
 <?php
@@ -45,7 +97,7 @@ function card_front()
 {
 ?>
   <div class="card-frame" id="card_front_edit">
-   Title: <input class="card-field" id="card_name" type="text" name="card_name"  />
+    Title: <input class="card-field" id="card_title" type="text" name="card_title"  />
     Subdescription: <input class="card-field card-sub" id="card_sub" type="text" name="card_sub" />
   </div>
 <?php
@@ -77,4 +129,3 @@ function preview_card()
 <?php
 }
 ?>
-

@@ -2,31 +2,25 @@
 ob_start(); // turn on output buffer
 extract($_POST);
 session_start();
+if ($_SESSION['loggedIn']) // if already logged in
+{
+    header("Location:home.php");
+}
+
 require_once "database.php";
+$db=dbinfo();
+
+$con=mysqli_connect($db['hostname'], $db['username'], $db['password'], $db['database']);
+
+if (!$con) die ("Unable to connect to MySQL: " . mysqli_error($con)); // connected to mysql
+
+init_tables($con); // make sure all tables are there
+
 if (isset($_POST['submit']))
 {
-  //User submitted
-  $db=dbinfo();
+  // User submitted
 
-  $con=mysqli_connect($db['hostname'], $db['username'], $db['password'], $db['database']);
-
-  if (!$con) die ("Unable to connect to MySQL: " . mysqli_error($con));
-  
-  // connected to mysql
   $tablename='users';
-
-  // attention, you must use ` to quote names
-  $query="CREATE TABLE IF NOT EXISTS `$tablename` (
-          `userid` VARCHAR(32) UNIQUE NOT NULL,
-          `username` VARCHAR(128) NOT NULL,
-          `password` VARCHAR(128) NOT NULL,
-          `register_time` DATE NOT NULL,
-          PRIMARY KEY(`userid`),
-          INDEX(`username`(10))) ENGINE MyISAM;";
-  if (!mysqli_query($con, $query))
-  {
-    die ("Unable to create table $tablename " . mysqli_error($con));               
-  }
   
   $username=$_POST['username'];
   $password=$_POST['password'];
