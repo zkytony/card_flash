@@ -68,6 +68,7 @@ function top_html()
     <title>Flash Cards</title>
     <meta char-set='utf-8'>
     <link rel='stylesheet' type='text/css' href='./css/main.css'>
+    <link rel="shortcut icon" href="favicon.ico">
   </head>
 <?php
 }
