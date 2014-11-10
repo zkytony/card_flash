@@ -17,7 +17,7 @@ Concern:
 
 [1]
 Login;
-Create Decks;
+Create Decks; (2 days)
 Create and flip cards; (Right now)
 Show cards in a deck in home page;
 

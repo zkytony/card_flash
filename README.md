@@ -11,7 +11,7 @@ Required:
 * Set up a local server (WAMP/MAMP/LAMP),and configure PHP, MySQL
   (do change the information in `database.php` to your local
   database's information)
- *Remeber to restart Apache by: * `sudo service apache2 restart`
+ *Remeber to restart Apache by:* `sudo service apache2 restart`
 * Git
 * AJAX
 

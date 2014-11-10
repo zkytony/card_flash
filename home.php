@@ -14,6 +14,7 @@ require_once "database.php";
     <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" href="./css/home.css">
     <script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
+    <script src="./script/datawork.js"></script>
   </head>
   <body>
     <?php 

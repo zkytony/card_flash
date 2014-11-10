@@ -3,3 +3,4 @@ $(".deck-item").click(function() {
     var deckTitle = $(this).text();
     $("#current_deck").html(deckTitle);
 });
+
