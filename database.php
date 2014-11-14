@@ -120,14 +120,30 @@ function connect()
 // "`col1`,`col2`..."
 // $restrict_str should be a string for other restriction when
 // selecting such as 'ORDERED BY', 'WHERE', 'LIKE' and so on
-function select_from($tablename, $columns, $restrict_str)
+// $con is the mysqli_connect object
+function select_from($tablename, $columns, $restrict_str, $con)
 {
-  $query="SELECT " . $columns . "FROM `$tablename`" 
+  $query="SELECT " . $columns . "FROM `$tablename`";
   $query.=$restrict_str;
-  $con=connect();
   
-  if (!$result=mysqli_query($con, $select_query)) 
+  if (!$result=mysqli_query($con, $query)) 
     die ("Error in selecting from $tablename " . mysqli_error($con));
+  
   return $result;
+}
+
+// Perform a INSERT query to the specified table
+// $columns should be a string of columns in this format:
+// "`col1`,`col2`..."
+// $values is the string that stores each value corresponding
+// to each column (the ordering should be the same as in $columns)
+function insert_into($tablename, $columns, $values, $con)
+{
+  $query="INSERT INTO `$tablename` (" . $columns . ")";
+  $query.="VALUES (" . $values . ");";
+  if (!mysqli_query($con, $query))
+  {
+    die ("Error in inserting into $tablename " . mysqli_error($con));
+  }
 }
 ?>

@@ -14,6 +14,7 @@ require_once "database.php";
     <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" href="./css/home.css">
     <script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
+    <script src="./script/home.js"></script>
   </head>
   <body>
     <?php 
@@ -32,7 +33,6 @@ require_once "database.php";
       $_SESSION['new_card']=false;
     }
     ?>
-    <script src="./script/home.js"></script>
   </body>
 </html>
 
@@ -45,7 +45,11 @@ function deck_list()
 ?>
   <div class="deck-list">
     <h5>Here are your decks</h5>
-    <script>showDeckList(<?php echo $_SESSION['userid']?>);</script>
+    <div id="deck-list-div">
+      <script>
+       showDeckList("<?php echo $_SESSION['userid']?>");
+      </script>
+    </div>
   </div>
 <?php
 }
@@ -60,7 +64,9 @@ function option_panel()
     <div class="panel-button" id="create-card">
       <a href="new_card.php">New Card</a>
         <h6>Current deck: </h6>
-        <script>currentDeck();</script>
+        <span id="current-deck-span">
+          <script>currentDeck();</script>
+        </span>
     </div>
   </div>
 <?php

@@ -82,7 +82,7 @@ function get_current_deck_title()
   $column="`deckid`";
   $restrict_str="WHERE `userid`='" . $userid . "';";
 
-  $result=select_from($tablename, $column, $restrict_str);
+  $result=select_from($tablename, $column, $restrict_str, $con);
 
   $deckid="";
   while ($row=mysqli_fetch_assoc($result))
@@ -94,7 +94,7 @@ function get_current_deck_title()
   $tablename='decks';
   $column="`title`";
   $restrict_str="WHERE `deckid`='" . $deckid . "';";
-  $result = select_from($tablename, $column, $restrict_str);
+  $result = select_from($tablename, $column, $restrict_str, $con);
   
   $deck_title="";
   while ($row=mysqli_fetch_assoc($result))
