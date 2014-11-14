@@ -71,6 +71,42 @@ if (isset($_POST['submit-card']))
   </body>
 </html>
 <?php 
+// use userid to get current deckid 
+// and then get the title for that deck
+function get_current_deck_title()
+{
+  $con=connect();
+  $tablename='users';
+  $userid=$_SESSION['userid'];
+
+  $column="`deckid`";
+  $restrict_str="WHERE `userid`='" . $userid . "';";
+
+  $result=select_from($tablename, $column, $restrict_str);
+
+  $deckid="";
+  while ($row=mysqli_fetch_assoc($result))
+  {
+    $deckid=$row['deckid'];
+    break;
+  }
+  // get the name of deck
+  $tablename='decks';
+  $column="`title`";
+  $restrict_str="WHERE `deckid`='" . $deckid . "';";
+  $result = select_from($tablename, $column, $restrict_str);
+  
+  $deck_title="";
+  while ($row=mysqli_fetch_assoc($result))
+  {
+    $deck_title=$row['title'];
+    break;
+  }
+
+  return $deck_title;
+  // end of method get_deck_title
+}
+
 function card_form()
 {
 ?>

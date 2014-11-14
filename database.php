@@ -103,40 +103,31 @@ function init_tags_table($con)
   }
 }
 
-// use userid to get current deckid 
-// and then get the title for that deck
-function get_current_deck_title()
+function connect()
 {
   $db=dbinfo();
 
   $con=mysqli_connect($db['hostname'], $db['username'], $db['password'], $db['database']);
 
   if (!$con) die ("Unable to connect to MySQL ");
+  return $con;
+}
 
-  $tablename='users';
-  $userid=$_SESSION['userid'];
-  $select_query="SELECT `deckid` FROM `$tablename` WHERE `userid`='$userid';";
+// Perform a SELECT query and returns the results as a mysqli 
+// result object. To get the rows from this object, you should
+// use mysqli_fetch_assoc
+// $columns should be a string of columns in this format:
+// "`col1`,`col2`..."
+// $restrict_str should be a string for other restriction when
+// selecting such as 'ORDERED BY', 'WHERE', 'LIKE' and so on
+function select_from($tablename, $columns, $restrict_str)
+{
+  $query="SELECT " . $columns . "FROM `$tablename`" 
+  $query.=$restrict_str;
+  $con=connect();
+  
   if (!$result=mysqli_query($con, $select_query)) 
     die ("Error in selecting from $tablename " . mysqli_error($con));
-  $deckid="";
-  while ($row=mysqli_fetch_assoc($result))
-  {
-    $deckid=$row['deckid'];
-    break;
-  }
-  // get the name of deck
-  $tablename='decks';
-  $select_query="SELECT `title` FROM `$tablename` WHERE `deckid`='$deckid';";
-  if (!$result=mysqli_query($con, $select_query)) 
-    die ("Error in selecting from $tablename " . mysqli_error($con));
-  $deck_title="";
-  while ($row=mysqli_fetch_assoc($result))
-  {
-    $deck_title=$row['title'];
-    break;
-  }
-
-  return $deck_title;
-// end of method get_deck_title
+  return $result;
 }
 ?>
