@@ -44,9 +44,8 @@ ul {
     border:1px solid black;
 }
 
-.deck-list ul li a {
-    float:left;
-    width:100%;
+.deck-title {
+    text-align:left;
 }
 
 .option-panel {

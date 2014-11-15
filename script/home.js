@@ -20,9 +20,24 @@ function showDeckList(userid) {
 
 function displayDeckList(json_str) {
     var listDiv = document.getElementById("deck-list-div");
-    alert(json_str);
-    json_data = JSON.parse(json_str);
-    alert(json_data.count);
+    deckData = JSON.parse(json_str);
+    var htmlString = "<table>";
+    // dealing with the JavaScript object:
+    for (var deckTitle in deckData) {
+        htmlString += "<tr><th class='deck-title'>";
+        htmlString += "<a href='#'>" + deckTitle + "</a>";
+        htmlString += "</th></tr>";
+        tagsArr = deckData[deckTitle];
+        htmlString += "<tr class='tags'>";
+        for (var i = 0; i < tagsArr.length; i++) {
+            htmlString += "<td class='one-tag'>";
+            htmlString += tagsArr[i];
+            htmlString += "</td>";
+        }
+        htmlString += "</tr>";
+    }
+    htmlString += "</table>";
+    $("#deck-list-div").append(htmlString);
 }
 
 function currentDeck(userid) {
