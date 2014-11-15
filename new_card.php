@@ -11,17 +11,13 @@ require_once "database.php";
 if (isset($_POST['submit-card']))
 {
   //User submitted
-  $db=dbinfo();
+  $con=connect();
 
-  $con=mysqli_connect($db['hostname'], $db['username'], $db['password'], $db['database']);
-
-  if (!$con) die ("Unable to connect to MySQL ");
-
-  $tablename='cards';
-  $select_query="SELECT `cardid`, FROM `$tablename`;";
-  if (!$result=mysqli_query($con, $select_query)) 
-    die ("Error in selecting from $tablename " . mysqli_error($con));
+  // count number of rows
+  $column="`cardid`";
+  $result=select_from("cards", $column, "", $con);
   $num_rows=$result->num_rows;
+
   $cardid='card' . $num_rows;
   $title=$_POST['card_title'];
   $sub=$_POST['card_sub'];
@@ -29,20 +25,20 @@ if (isset($_POST['submit-card']))
   $userid=$_SESSION['userid'];
 
   // get current deck id
-  $tablename='users';
-  $select_query="SELECT `current_deckid` FROM `$tablename` 
-                 WHERE `userid`='$userid';";
-  if (!$result=mysqli_query($con, $select_query)) 
-    die ("Error in selecting from $tablename " . mysqli_error($con));
-  $deckid=$result['current_deckid'];
-  
-  $insert_query="INSERT INTO `$tablename` (`cardid`,`title`,
-                     `sub`,`content`,`userid`,`deckid`,`create_time`) 
-                     VALUES ('$cardid','$title','$sub','$content',
-                     '$userid','$deckid','NOW()');";
-
-  if (!mysqli_query($con, $insert_query))
-    die ("Unable to insert into $tablename" . mysqli_error($con));
+  $column="`deckid`";
+  $restrict_str="WHERE `userid`='$userid'";
+  $result=select_from("users", $column, $restrict_str, $con);
+  $deckid="";
+  while ($row=mysqli_fetch_assoc($result)) 
+  {
+    $deckid=$row['deckid'];
+  }
+  // insert the card into table
+  $columns="`cardid`,`title`,`sub`,`content`,";
+  $columns.="`userid`,`deckid`,`create_time`";
+  $values="'$cardid','$title','$sub','$content',";
+  $values.="'$userid','$deckid',NOW()";
+  insert_into("cards", $columns, $values, $con);
 
   // succeeded
   $_SESSION['new_card']=true;
@@ -81,7 +77,6 @@ function get_current_deck_title()
 
   $column="`deckid`";
   $restrict_str="WHERE `userid`='" . $userid . "';";
-
   $result=select_from($tablename, $column, $restrict_str, $con);
 
   $deckid="";
@@ -116,7 +111,7 @@ function card_form()
       card_front();
       card_back();
       ?>
-      <textarea class="hidden" id="hidden_input" name="hidden_input" style="display:none"></textarea>
+      <textarea class="hidden" id="hidden_input" name="card_content" style="display:none"></textarea>
       <input type="submit" value="Done" id="submit" name="submit-card" onsubmit="onsubmit()" class="submit-card"/>
     </form>
   </div>
