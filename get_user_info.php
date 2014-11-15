@@ -19,6 +19,10 @@ if (isset($_GET['action']) && !empty($_GET['action']))
     case 'currentDeck': 
       echo get_current_deck($userid, $con); 
       break;
+    case 'updateDisplay':
+      $deckid=$_GET['deckid'];
+      echo update_displaying_deck($userid, $deckid, $con);
+      break;
     }
 }
 
@@ -59,17 +63,16 @@ function get_current_deck($userid, $con)
   {
     $current_deckid=$row['deckid'];
   }
-  $tablename="decks";
-  $column="`title`";
-  $restrict_str="WHERE `deckid`='" . $current_deckid . "';";
-  $result=select_from($tablename, $column, $restrict_str, $con);
-  $current_deckTitle="";
-  while ($row=mysqli_fetch_assoc($result))
-  {
-    $current_deckTitle=$row['title'];
-  }  
-  
-  $return_str = array($current_deckid => $current_deckTitle);
-  return json_encode($return_str);
+  return $current_deckid;
+}
+
+function update_displaying_deck($userid, $deckid, $con)
+{
+  $tablename="users";
+  $column="deckid";
+  $value="$deckid";
+  $restrict_str="WHERE `userid`='" . $userid . "'";
+  update_table($tablename, $column, $value, $restrict_str, $con);
+  echo "success";
 }
 ?>

@@ -157,28 +157,28 @@ function insert_into($tablename, $columns, $values, $con)
 // Ordering of $values should be according to the ordering
 // of $columns
 function update_table($tablename, $columns,
-                      $values, $restric_str, $con)
+                      $values, $restrict_str, $con)
 {
-  $set_str="SET ";
+  $set_str=" SET ";
   $columns_arr=preg_split("/[\s,]+/", $columns);
   $values_arr=preg_split("/[\s,]+/", $values);
   $len=sizeof($columns_arr);
   for ($i=0; $i<$len; $i++)
   {
-    $set_str.="`$columns_arr[i]` = '$values_arr[i]";
-    if (i<$len-1)
+    $set_str.="`$columns_arr[$i]` = '$values_arr[$i]'";
+    if ($i<$len-1)
     {
       $set_str.=", ";
     } else {
       $set_str.=" ";
     }
   }
-  $query="UPDATE `$tablename";
+  $query="UPDATE `$tablename`";
   $query.=$set_str;
   $query.=$restrict_str;
   if (!mysqli_query($con, $query))
   {
     die ("Error in Update $tablename " . mysqli_error($con));
-  
+  }  
 }
 ?>

@@ -1,17 +1,23 @@
 var deckArr = {};
+var current_deck_global = ""; // for comparing
+var current_userID = "";
 
 // when click the decks, the current deck should change
 $(document).ready(function() {
     $(".deck-title").click(function() {
         var deckTitle = $(this).text();
         $("#current-deck-span").html(deckTitle);
-        if (deckTitle != current_deck_global) {
-            updateCurrentDack(deckTitle);
+        if (deckTitle !== current_deck_global) {
+            var deckID = getDeckIDFromTitle(deckTitle);
+            alert("BEFORE");
+            updateDisplayingDeck(current_userID, deckID);
+            alert("AFTER");
         }
     });
 });
 
 function showDeckList(userid) {
+    current_userID = userid;
     $.ajax({
         url: './get_user_info.php',
         data: {action: 'deckList',
@@ -66,17 +72,33 @@ function currentDeck(userid) {
         data: {action: 'currentDeck',
                userid: userid},
         type: 'get',
-        success: function(output) {
-            deckData = JSON.parse(output);
-            for (var id in deckData) {
-                
-            }
+        success: function(output) {            
+            $("#current-deck-span").html(deckArr[output]);
+            current_deck_global = deckArr[output];
         }
     });
 }
 
 // updates which deck's card is showing
 // updates user's current deck
-function updateDisplayingDeck(deckid) {
-    
+function updateDisplayingDeck(userid, deckid) {
+    $.ajax({
+        url: './get_user_info.php',
+        data: {action: 'updateDisplay',
+               userid: userid,
+               deckid: deckid},
+        type: 'get',
+        success: function(output) {
+            alert(output);
+        }
+    });
+}
+
+function getDeckIDFromTitle(deckTitle) {
+    for (id in deckArr) {
+        if (deckArr[id] === deckTitle) {
+            return id;
+        }
+    }
+    return null;
 }
