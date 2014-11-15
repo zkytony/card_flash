@@ -9,9 +9,7 @@ $(document).ready(function() {
         $("#current-deck-span").html(deckTitle);
         if (deckTitle !== current_deck_global) {
             var deckID = getDeckIDFromTitle(deckTitle);
-            alert("BEFORE");
             updateDisplayingDeck(current_userID, deckID);
-            alert("AFTER");
         }
     });
 });
@@ -89,7 +87,7 @@ function updateDisplayingDeck(userid, deckid) {
                deckid: deckid},
         type: 'get',
         success: function(output) {
-            alert(output);
+            
         }
     });
 }

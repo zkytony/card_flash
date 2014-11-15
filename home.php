@@ -29,7 +29,7 @@ require_once "database.php";
     }
     if ($_SESSION['new_card'])
     {
-      echo "<h3 class='notify'>Added a new deck</h3>";
+      echo "<h3 class='notify'>Added a new card</h3>";
       $_SESSION['new_card']=false;
     }
     ?>
