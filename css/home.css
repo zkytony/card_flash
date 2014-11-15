@@ -88,12 +88,17 @@ ul {
 .one-tag {
     background-color:#FCFCF;
     margin-right:3px;
-    font-size:10px;
+    font-size:13px;
     float:left;
 }
 
+.one-tag:hover {
+    background:yellow;
+}
+
 .card-area {
-    width:700px;
+    width:900px;
+    min-width:500px;
     min-height:300px;
     border:1px solid black;
     float:left;

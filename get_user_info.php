@@ -41,7 +41,8 @@ function get_deck_list($userid, $con)
     {
       $tags_array[]=$tags_row['tag'];
     }
-    $decks[$title]=$tags_array;
+    // you actually don't need to create $decks as 2D array. AMAZING
+    $decks[$deckid][$title]=$tags_array; // deckid => title, title => tags
   }
   return json_encode($decks); // encode as JSON string
 }
@@ -53,11 +54,22 @@ function get_current_deck($userid, $con)
   $restrict_str="WHERE `userid`='" . $userid . "';";
   $result=select_from($tablename, $column, $restrict_str, $con);
 
-  $current_deck="";
+  $current_deckid="";
   while ($row=mysqli_fetch_assoc($result))
   {
-    $current_deck=$row['deckid'];
+    $current_deckid=$row['deckid'];
   }
-  return $current_deck;
+  $tablename="decks";
+  $column="`title`";
+  $restrict_str="WHERE `deckid`='" . $current_deckid . "';";
+  $result=select_from($tablename, $column, $restrict_str, $con);
+  $current_deckTitle="";
+  while ($row=mysqli_fetch_assoc($result))
+  {
+    $current_deckTitle=$row['title'];
+  }  
+  
+  $return_str = array($current_deckid => $current_deckTitle);
+  return json_encode($return_str);
 }
 ?>

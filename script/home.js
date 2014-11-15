@@ -1,8 +1,13 @@
+var deckArr = {};
+
 // when click the decks, the current deck should change
 $(document).ready(function() {
-    $(".deck-item").click(function() {
+    $(".deck-title").click(function() {
         var deckTitle = $(this).text();
-        $("#current_deck").html(deckTitle);
+        $("#current-deck-span").html(deckTitle);
+        if (deckTitle != current_deck_global) {
+            updateCurrentDack(deckTitle);
+        }
     });
 });
 
@@ -22,19 +27,34 @@ function displayDeckList(json_str) {
     var listDiv = document.getElementById("deck-list-div");
     deckData = JSON.parse(json_str);
     var htmlString = "<table>";
+
     // dealing with the JavaScript object:
-    for (var deckTitle in deckData) {
-        htmlString += "<tr><th class='deck-title'>";
-        htmlString += "<a href='#'>" + deckTitle + "</a>";
-        htmlString += "</th></tr>";
-        tagsArr = deckData[deckTitle];
-        htmlString += "<tr class='tags'>";
-        for (var i = 0; i < tagsArr.length; i++) {
-            htmlString += "<td class='one-tag'>";
-            htmlString += tagsArr[i];
-            htmlString += "</td>";
+    // the JSON string is parsed into a JavaScript object
+    // To access the Properties (fields) of a JS object,
+    // simply do this for..in loop
+    for (var deckID in deckData) {
+        // deckID is the key to get the object referenced
+        // by it
+        deckIDObj = deckData[deckID];
+        for (var deckTitle in deckIDObj) {
+            htmlString += "<tr><th class='deck-title'>";
+            htmlString += "<a href='#'>" + deckTitle + "</a>";
+            htmlString += "</th></tr>";
+
+            // accessing the tags array
+            tagsArr = deckIDObj[deckTitle];
+
+            htmlString += "<tr class='tags'>";
+            for (var i = 0; i < tagsArr.length; i++) {
+                htmlString += "<td class='one-tag'>";
+                htmlString += tagsArr[i];
+                htmlString += "</td>";
+            }
+            htmlString += "</tr>";
+            
+            // add to the global array
+            deckArr[deckID] = deckTitle;
         }
-        htmlString += "</tr>";
     }
     htmlString += "</table>";
     $("#deck-list-div").append(htmlString);
@@ -47,7 +67,16 @@ function currentDeck(userid) {
                userid: userid},
         type: 'get',
         success: function(output) {
-            $("#current-deck-span").text = output;
+            deckData = JSON.parse(output);
+            for (var id in deckData) {
+                
+            }
         }
     });
+}
+
+// updates which deck's card is showing
+// updates user's current deck
+function updateDisplayingDeck(deckid) {
+    
 }
