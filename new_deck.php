@@ -9,19 +9,14 @@ require_once "database.php";
 if (isset($_POST['submit-deck']))
 {
   //User submitted
-  $db=dbinfo();
-
-  $con=mysqli_connect($db['hostname'], $db['username'], $db['password'], $db['database']);
-
-  if (!$con) die ("Unable to connect to MySQL ");
+  $con=connect();
 
   $tablename='decks';
   
   // mysql::num_rows: return number of rows in a query result
   // select to get number of rows
-  $select_query="SELECT `deckid` FROM `$tablename`;";
-  if (!$result=mysqli_query($con, $select_query)) 
-    die ("Error in selecting from $tablename " . mysqli_error($con));
+  $column="`deckid`";
+  $result=select_from($tablename, $column, "", $con);
 
   $num_rows=$result->num_rows;
   $deckid='deck' . $_SESSION['username'] . $num_rows;
@@ -29,11 +24,9 @@ if (isset($_POST['submit-deck']))
   $userid=$_SESSION['userid']; // you must use individual variables to store them
 
   // insert user's new deck to table; !Values should be single quote. Columns dont have quote
-  $insert_query="INSERT INTO $tablename (deckid, title, userid, create_time) VALUES ('$deckid','$title','$userid','NOW()');";
-  if (!mysqli_query($con, $insert_query))
-  {
-    die ("Error in inserting into $tablename " . mysqli_error($con));
-  }
+  $columns="`deckid`,`title`,`userid`,`create_time`";
+  $values="'$deckid','$title','$userid',NOW()";
+  insert_into($tablename, $columns, $values, $con);
   
   // tags and categories
   $category_str=$_POST['category'];

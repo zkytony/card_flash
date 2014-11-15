@@ -103,40 +103,82 @@ function init_tags_table($con)
   }
 }
 
-// use userid to get current deckid 
-// and then get the title for that deck
-function get_current_deck_title()
+function connect()
 {
   $db=dbinfo();
 
   $con=mysqli_connect($db['hostname'], $db['username'], $db['password'], $db['database']);
 
   if (!$con) die ("Unable to connect to MySQL ");
+  return $con;
+}
 
-  $tablename='users';
-  $userid=$_SESSION['userid'];
-  $select_query="SELECT `deckid` FROM `$tablename` WHERE `userid`='$userid';";
-  if (!$result=mysqli_query($con, $select_query)) 
+// Perform a SELECT query and returns the results as a mysqli 
+// result object. To get the rows from this object, you should
+// use mysqli_fetch_assoc
+// $columns should be a string of columns in this format:
+// "`col1`,`col2`..."
+// $restrict_str should be a string for other restriction when
+// selecting such as 'ORDERED BY', 'WHERE', 'LIKE' and so on
+// $con is the mysqli_connect object
+function select_from($tablename, $columns, $restrict_str, $con)
+{
+  $query="SELECT " . $columns . "FROM `$tablename`";
+  $query.=$restrict_str;
+  
+  if (!$result=mysqli_query($con, $query)) 
     die ("Error in selecting from $tablename " . mysqli_error($con));
-  $deckid="";
-  while ($row=mysqli_fetch_assoc($result))
-  {
-    $deckid=$row['deckid'];
-    break;
-  }
-  // get the name of deck
-  $tablename='decks';
-  $select_query="SELECT `title` FROM `$tablename` WHERE `deckid`='$deckid';";
-  if (!$result=mysqli_query($con, $select_query)) 
-    die ("Error in selecting from $tablename " . mysqli_error($con));
-  $deck_title="";
-  while ($row=mysqli_fetch_assoc($result))
-  {
-    $deck_title=$row['title'];
-    break;
-  }
+  
+  return $result;
+}
 
-  return $deck_title;
-// end of method get_deck_title
+// Perform a INSERT query to the specified table
+// $columns should be a string of columns in this format:
+// "`col1`,`col2`..."
+// $values is the string that stores each value corresponding
+// to each column (the ordering should be the same as in $columns)
+function insert_into($tablename, $columns, $values, $con)
+{
+  $query="INSERT INTO `$tablename` (" . $columns . ")";
+  $query.="VALUES (" . $values . ");";
+  if (!mysqli_query($con, $query))
+  {
+    die ("Error in inserting into $tablename " . mysqli_error($con));
+  }
+}
+
+// Perform a update query to the specified table
+// Allows updating multiple columns.
+// Required input format:
+// - $columns is a string, each column is separated by a comma ','
+//   e.g. "col1, col2, col3"
+// - $values is a string, each value is separated by a comma ','
+//   e.g. "val1, val2, val3"
+// Ordering of $values should be according to the ordering
+// of $columns
+function update_table($tablename, $columns,
+                      $values, $restrict_str, $con)
+{
+  $set_str=" SET ";
+  $columns_arr=preg_split("/[\s,]+/", $columns);
+  $values_arr=preg_split("/[\s,]+/", $values);
+  $len=sizeof($columns_arr);
+  for ($i=0; $i<$len; $i++)
+  {
+    $set_str.="`$columns_arr[$i]` = '$values_arr[$i]'";
+    if ($i<$len-1)
+    {
+      $set_str.=", ";
+    } else {
+      $set_str.=" ";
+    }
+  }
+  $query="UPDATE `$tablename`";
+  $query.=$set_str;
+  $query.=$restrict_str;
+  if (!mysqli_query($con, $query))
+  {
+    die ("Error in Update $tablename " . mysqli_error($con));
+  }  
 }
 ?>
