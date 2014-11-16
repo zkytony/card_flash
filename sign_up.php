@@ -9,24 +9,19 @@ require_once "database.php";
 
 if (isset($_POST['submit']))
 {
-  $db=dbinfo();
-
-  $con=mysqli_connect($db['hostname'], $db['username'], $db['password'], $db['database']);
-
-  if (!$con) die ("Unable to connect to MySQL: " . mysqli_error($con)); // connected to mysql
+  $con=connect();
   
   $tablename='users';
-  $username=$_POST['username'];
-  $password=$_POST['password'];
+  $username=mysqli_entities_fix_string($con, $_POST['username']);
+  $password=mysqli_entities_fix_string($con, $_POST['password']);
   
-  $query="SELECT `username` FROM `$tablename`;";
-  $result=mysqli_query($con, $query);
-  if (!$result) die ("Cannot select from $tablename " . mysqli_error());
-  
+  $column="`username`";
+  $result=select_from($tablename, $column, "",  $con);
+
   $exists=false;
   while ($row=mysqli_fetch_assoc($result))
   {
-    if ($row['username'] == $username)
+    if (htmlspecialchars_decode($row['username']) == $username)
     {
       $exists=true;
       break;
@@ -37,13 +32,10 @@ if (isset($_POST['submit']))
     echo "<h2>Username already exists</h2>";
   } else {
     $userid=substr($username, 0, 3) . $result->num_rows;
-    var_dump($userid);
-    var_dump($username);
-    $query="INSERT INTO `$tablename` (`userid`,`username`,`password`,`register_time`) VALUES ('$userid','$username','$password', NOW());";
-    if (!mysqli_query($con, $query))
-    {
-      die ("Unable to register for $username " . mysqli_error());
-    }
+    $columns="`userid`,`username`,`password`,`register_time`";
+    $values="'$userid','$username','$password', NOW()";
+    insert_into($tablename, $columns, $values); // insert into 'users'
+
     // registered;
     $_SESSION['loggedIn']=true;
     $_SESSION['username']=$username;

@@ -8,12 +8,8 @@ if ($_SESSION['loggedIn']) // if already logged in
 }
 
 require_once "database.php";
-$db=dbinfo();
 
-$con=mysqli_connect($db['hostname'], $db['username'], $db['password'], $db['database']);
-
-if (!$con) die ("Unable to connect to MySQL: " . mysqli_error($con)); // connected to mysql
-
+$con=connect();
 init_tables($con); // make sure all tables are there
 
 if (isset($_POST['submit']))
@@ -25,9 +21,9 @@ if (isset($_POST['submit']))
   $username=$_POST['username'];
   $password=$_POST['password'];
 
-  $query="SELECT * FROM users WHERE username='$username' AND password='$password'";
-  $result=mysqli_query($con, $query);
-  if(!$result) die("Database access failed: " . mysql_error());
+  $restrict_str="WHERE username='$username' AND password='$password'";
+  $result=select_from("users", "`userid`", $restrict_str, $con);
+
   $success=false;
   while($rows=mysqli_fetch_assoc($result)) // fetch the row; $row need not to be used
   {

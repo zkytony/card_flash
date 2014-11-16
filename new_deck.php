@@ -20,7 +20,7 @@ if (isset($_POST['submit-deck']))
 
   $num_rows=$result->num_rows;
   $deckid='deck' . $_SESSION['username'] . $num_rows;
-  $title=$_POST['title'];
+  $title=mysqli_entities_fix_string($con, $_POST['title']);
   $userid=$_SESSION['userid']; // you must use individual variables to store them
 
   // insert user's new deck to table; !Values should be single quote. Columns dont have quote
@@ -28,8 +28,8 @@ if (isset($_POST['submit-deck']))
   $values="'$deckid','$title','$userid',NOW()";
   insert_into($tablename, $columns, $values, $con);
   
-  // tags and categories
-  $category_str=$_POST['category'];
+  // tags and categories (category is the name of the field in the form)
+  $category_str=mysqli_entities_fix_string($_POST['category']);
   $tags=split_to_tags($category_str);
 
   $tablename='tags';
