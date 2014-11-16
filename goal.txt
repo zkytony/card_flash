@@ -18,8 +18,8 @@ Concern:
 [1]
 Login;
 Create Decks; (2 days)
+Show cards in a deck in home page; (2 days fully)
 Create and flip cards; (Right now)
-Show cards in a deck in home page;
 
 [2]
 User register
