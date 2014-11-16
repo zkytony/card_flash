@@ -113,6 +113,20 @@ function connect()
   return $con;
 }
 
+// Function that prevents MYSQL injection & HTML injection
+// To decode the html entities:
+//    htmlspecialchars_decode($decoded_string)
+function mysqli_entities_fix_string($connect, $string)
+{
+    return htmlentities(mysqli_fix_string($connect, $string));
+}
+
+function mysqli_fix_string($connect, $string)
+{
+    if (get_magic_quotes_gpc()) $string = stripslashes($string);
+    return mysqli_real_escape_string($connect, $string);
+}
+
 // Perform a SELECT query and returns the results as a mysqli 
 // result object. To get the rows from this object, you should
 // use mysqli_fetch_assoc

@@ -19,9 +19,9 @@ if (isset($_POST['submit-card']))
   $num_rows=$result->num_rows;
 
   $cardid='card' . $num_rows;
-  $title=$_POST['card_title'];
-  $sub=$_POST['card_sub'];
-  $content=$_POST['card_content'];
+  $title=mysqli_entities_fix_string($con, $_POST['card_title']);
+  $sub=mysqli_entities_fix_string($con, $_POST['card_sub']);
+  $content=mysqli_entities_fix_string($con, $_POST['card_content']);
   $userid=$_SESSION['userid'];
 
   // get current deck id

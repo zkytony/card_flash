@@ -75,18 +75,9 @@ function option_panel()
 function card_in_deck()
 {
 ?>
-  <div class="card-area">
-    <h3>Not implemented yet. Place showing the cards</h3>
+  <div class="card-area" id="card-display-div">
+    <h3>There is no card</h3>
   </div>
-<?php
-}
-
-function current_deck() 
-{
-?>
-  <h5 id="current_deck">
-    <script>getCurrentDeckTitle();</script>
-  </h5>
 <?php
 }
 ?>

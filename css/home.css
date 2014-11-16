@@ -104,6 +104,17 @@ ul {
     float:left;
 }
 
+.card-tiny {
+    width:150px;
+    height:90px;
+    float:left;
+    border:1px solid black;
+}
+
+.card-tiny:hover {
+    background-color:yellow;
+}
+
 .link-submit {
     background:none;
     border:none;

@@ -33,6 +33,12 @@ function get_deck_list($userid, $con)
   $restrict_str="WHERE `userid`='" . $userid . "';";
   $result=select_from($tablename, $column, $restrict_str, $con);
 
+  // intend to build JSON string in this fashion:
+  // { deckid:
+  //   { title:
+  //     { [tag1, tag2 ...] }
+  //   }
+  // }
   $decks=array();
   while ($row=mysqli_fetch_assoc($result))
   {
@@ -66,6 +72,11 @@ function get_current_deck($userid, $con)
   return $current_deckid;
 }
 
+// this is displaying the cards in the deck in home.php
+// It is not necessary (Maybe yes) to return the content
+// of the card because it will not be shown
+// Content of the card should be retrieved when the user
+// clicks on any spacific card
 function update_displaying_deck($userid, $deckid, $con)
 {
   $tablename="users";
@@ -73,6 +84,29 @@ function update_displaying_deck($userid, $deckid, $con)
   $value="$deckid";
   $restrict_str="WHERE `userid`='" . $userid . "'";
   update_table($tablename, $column, $value, $restrict_str, $con);
-  echo "success";
+
+  // retrieve cards from database
+  $tablename="cards";
+  $column="`cardid`, `title`, `sub`";
+  $restrict_str="WHERE `deckid`='" . $deckid . "'";
+  $result=select_from($tablename, $column, $restrict_str, $con);
+
+  // intend to return JSON string in this fashion:
+  // { cardid: {
+  //         title,
+  //         sub,
+  //   }
+  // }
+  $card_data=array();
+  while ($row=mysqli_fetch_assoc($result))
+  {
+    $cardid=$row['cardid'];
+    $title=$row['title'];
+    $sub=$row['sub'];
+    
+    $card_data[$cardid]["title"]=$title;
+    $card_data[$cardid]["sub"]=$sub;
+  }
+  return json_encode($card_data);
 }
 ?>

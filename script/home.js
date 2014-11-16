@@ -11,6 +11,7 @@ $(document).ready(function() {
             var deckID = getDeckIDFromTitle(deckTitle);
             updateDisplayingDeck(current_userID, deckID);
         }
+        current_deck_global = $(this).text();
     });
 });
 
@@ -70,9 +71,13 @@ function currentDeck(userid) {
         data: {action: 'currentDeck',
                userid: userid},
         type: 'get',
-        success: function(output) {            
+        success: function(output) {
             $("#current-deck-span").html(deckArr[output]);
             current_deck_global = deckArr[output];
+
+            // execute these lines when current deck is fetched
+            var deckID = getDeckIDFromTitle(current_deck_global);
+            updateDisplayingDeck(current_userID, deckID);
         }
     });
 }
@@ -87,13 +92,13 @@ function updateDisplayingDeck(userid, deckid) {
                deckid: deckid},
         type: 'get',
         success: function(output) {
-            
+            displayCards(output);
         }
     });
 }
 
 function getDeckIDFromTitle(deckTitle) {
-    for (id in deckArr) {
+    for (var id in deckArr) {
         if (deckArr[id] === deckTitle) {
             return id;
         }
@@ -101,3 +106,26 @@ function getDeckIDFromTitle(deckTitle) {
     return null;
 }
 
+function displayCards(json_str) {
+    // first, clean whatever is there already
+    $("#card-display-div").children().remove();    
+
+    var cardData = JSON.parse(json_str);
+    if (jQuery.isEmptyObject(cardData)) {
+        var html = "<h3>There is no Card! create one!</h3>";
+        $("#card-display-div").append(html);
+    } else {
+        for (var cardID in cardData) {
+            var oneCard = cardData[cardID];
+            var title = oneCard["title"];
+            var sub = oneCard["sub"];
+            
+            var html = "<div id='" + cardID + "' class='card-tiny'>";
+            html += "<h5>" + title + "</h5>";
+            html += "<h7>" + sub + "</h7>";
+            html += "</div>";
+
+            $("#card-display-div").append(html);
+        }
+    }
+}
