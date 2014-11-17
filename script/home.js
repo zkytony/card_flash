@@ -97,15 +97,6 @@ function updateDisplayingDeck(userid, deckid) {
     });
 }
 
-function getDeckIDFromTitle(deckTitle) {
-    for (var id in deckArr) {
-        if (deckArr[id] === deckTitle) {
-            return id;
-        }
-    }
-    return null;
-}
-
 function displayCards(json_str) {
     // first, clean whatever is there already
     $("#card-display-div").children().remove();    
@@ -120,12 +111,34 @@ function displayCards(json_str) {
             var title = oneCard["title"];
             var sub = oneCard["sub"];
             
+            var wordsInTitle = title.split("[\s,.]+");
+            var wordsInSub = sub.split("[\s,.]+");
+
             var html = "<div id='" + cardID + "' class='card-tiny'>";
-            html += "<h5>" + title + "</h5>";
-            html += "<h7>" + sub + "</h7>";
+            html += "<h4>" + title + "</h4>";
+            html += "<p><i>" + sub + "</i></p>";
             html += "</div>";
 
+            // adjust the font size of the title
             $("#card-display-div").append(html);
+            var pixTitle = getSizeValue($("#"+cardID+" h4").css('font-size')) * title.length;
+            var pixDiv = $(".card-tiny").width();
+            var ratio = (pixTitle / pixDiv) / 3; // dont get more than three lines of space
+            var pixFont = Math.round(25 - ratio * 5);
+            $("#"+cardID+" h4").css("font-size", pixFont + "px");
         }
     }
+}
+
+function getSizeValue (size) {
+    return parseInt(size.substring(0, size.length-2));
+}
+
+function getDeckIDFromTitle(deckTitle) {
+    for (var id in deckArr) {
+        if (deckArr[id] === deckTitle) {
+            return id;
+        }
+    }
+    return null;
 }
