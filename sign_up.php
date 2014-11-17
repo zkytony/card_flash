@@ -34,7 +34,7 @@ if (isset($_POST['submit']))
     $userid=substr($username, 0, 3) . $result->num_rows;
     $columns="`userid`,`username`,`password`,`register_time`";
     $values="'$userid','$username','$password', NOW()";
-    insert_into($tablename, $columns, $values); // insert into 'users'
+    insert_into($tablename, $columns, $values, $con); // insert into 'users'
 
     // registered;
     $_SESSION['loggedIn']=true;

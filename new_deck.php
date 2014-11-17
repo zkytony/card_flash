@@ -29,7 +29,7 @@ if (isset($_POST['submit-deck']))
   insert_into($tablename, $columns, $values, $con);
   
   // tags and categories (category is the name of the field in the form)
-  $category_str=mysqli_entities_fix_string($_POST['category']);
+  $category_str=mysqli_entities_fix_string($con, $_POST['category']);
   $tags=split_to_tags($category_str);
 
   $tablename='tags';
