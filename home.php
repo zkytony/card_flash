@@ -13,7 +13,11 @@ require_once "database.php";
     <title>Home-<?php echo $_SESSION['username'] ?></title>
     <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" href="./css/home.css">
-    <script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
+    <?php 
+    include_jquery();
+    ?>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"</script>
+    <script src="http://code.jquery.com/jquery-2.1.1.js"></script>
     <script src="./script/home.js"></script>
   </head>
   <body>
