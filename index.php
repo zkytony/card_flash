@@ -44,6 +44,7 @@ if (isset($_POST['submit']))
   ob_end_flush(); //Flush (send) the output buffer and turn off output buffering
 }
 ?>
+<!DOCTYPE html>
 <html>
   <?php 
   top_html();

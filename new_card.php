@@ -46,6 +46,7 @@ if (isset($_POST['submit-card']))
   // end of main script
 }
 ?>
+<!DOCTYPE html>
 <html>
   <head>
     <title>New Card-<?php echo $_SESSION['username'] ?></title>

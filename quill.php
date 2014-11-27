@@ -25,7 +25,3 @@ function build_editor()
 <?php
 }
 ?>
-<!DOCTYPE html>
-<html>
-  <script>window.location = "home.php"</script>
-</html>

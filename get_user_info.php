@@ -24,6 +24,8 @@ if (isset($_GET['action']) && !empty($_GET['action']))
       echo update_displaying_deck($userid, $deckid, $con);
       break;
     }
+} else {
+    header("Location:index.php");
 }
 
 function get_deck_list($userid, $con)
@@ -110,7 +112,3 @@ function update_displaying_deck($userid, $deckid, $con)
   return json_encode($card_data);
 }
 ?>
-<!DOCTYPE html>
-<html>
-  <script>window.location = "home.php"</script>
-</html>

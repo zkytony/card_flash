@@ -62,6 +62,7 @@ if (isset($_POST['submit-deck']))
   header("location:home.php");
 } // end of main script
 ?>
+<!DOCTYPE html>
 <html>
   <head>
     <title>New Deck-<?php echo $_SESSION['username'] ?></title>

@@ -18,8 +18,7 @@ function top_bar()
 function include_jquery()
 {
 ?>
-  <script src="http://code.jquery.com/jquery-1.11.1.js"</script>
-  <script src="http://code.jquery.com/jquery-2.1.1.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <?php 
 }
 ?>
