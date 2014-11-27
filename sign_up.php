@@ -61,6 +61,7 @@ function form_signup()
 <?php
 }
 ?>
+<!DOCTYPE html>
 <html>
   <head>
     <title>sign up</title>

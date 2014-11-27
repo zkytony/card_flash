@@ -110,3 +110,7 @@ function update_displaying_deck($userid, $deckid, $con)
   return json_encode($card_data);
 }
 ?>
+<!DOCTYPE html>
+<html>
+  <script>window.location = "home.php"</script>
+</html>
