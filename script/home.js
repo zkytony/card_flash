@@ -105,7 +105,7 @@ function displayCards(json_str) {
 
     var cardData = JSON.parse(json_str);
     if (jQuery.isEmptyObject(cardData)) {
-        var html = "<h3>There is no Card! create one!</h3>";
+        var html = "<h3>There is no Card! Select a deck if currently not, and create a card!</h3>";
         $("#card-display-div").append(html);
     } else {
         for (var cardID in cardData) {

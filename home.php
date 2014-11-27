@@ -79,7 +79,7 @@ function card_in_deck()
 {
 ?>
   <div class="card-area" id="card-display-div">
-    <h3>There is no card</h3>
+    <h3>There is no card. Create/Select a deck</h3>
   </div>
 <?php
 }

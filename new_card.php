@@ -42,6 +42,10 @@ if (isset($_POST['submit-card']))
 
   // succeeded
   $_SESSION['new_card']=true;
+  // because I encounter the issue that deckid is empty after card is submitted,
+  update_table("users", "deckid", "$deckid", 
+               "WHERE `userid`='$userid'", $con);
+  
   header("location:home.php");
   // end of main script
 }
