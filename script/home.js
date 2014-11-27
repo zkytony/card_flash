@@ -4,7 +4,9 @@ var current_userID = "";
 
 // when click the decks, the current deck should change
 $(document).ready(function() {
-    $(".deck-title").click(function() {
+
+    // Since I generate deck-title dynamically, I should do delegation event
+    $(document).on("click", ".deck-title", function() {
         var deckTitle = $(this).text();
         $("#current-deck-span").html(deckTitle);
         if (deckTitle !== current_deck_global) {
