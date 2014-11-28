@@ -15,11 +15,16 @@ Concern:
 - Is it easy to improve/modify your code during update
 - Tests
 
+Current bug/need-for-improvement:
+1. some times the users table's 'deckid' column is not updated/lost
+
 [1]
 Login;
 Create Decks; (2 days)
-Show cards in a deck in home page; (2 days fully)
+Show cards in a deck in home page; (3 days)
 Create and flip cards; (Right now)
+ = able to flip the card on the content
+ = able to enlarge, and go through the whole deck, no new page needed
 
 [2]
 User register
