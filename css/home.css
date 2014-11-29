@@ -130,8 +130,6 @@ ul {
 .card-tiny-button {
     border:1px solid red;
     float:left;
-    top:0px;
-    left:0px;
 }
 
 .card-tiny-button:hover {
@@ -140,7 +138,7 @@ ul {
 
 .card-button-group {
     position:absolute;
-    left:80%;
+    left:60%;
     top:75%;
 }
 

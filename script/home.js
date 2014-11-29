@@ -138,6 +138,8 @@ function displayCards(json_str) {
             html += "<div class='card-button-group'>";
             html += "<button class='card-tiny-button flip-button' title='Flip'>F</botton>";
             html += "<button class='card-tiny-button zoom-button' title='Zoom'>Z</button>";
+            html += "<button class='card-tiny-button zoom-button' title='Edit'>E</button>";
+            html += "<button class='card-tiny-button zoom-button' title='Delete'>D</button>";
             html += "</div></div>";
 
 
