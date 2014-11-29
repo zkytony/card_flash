@@ -195,4 +195,16 @@ function update_table($tablename, $columns,
     die ("Error in Update $tablename " . mysqli_error($con));
   }  
 }
+
+// Perform a Delete query on a specific table (one table only),
+// User needs to specify the restriction, such as 'WHERE", "ORDER BY"...
+function delete_from($tablename, $restrict_str, $limit, $con)
+{
+  $query="DELETE FROM `$tablename`";
+  $query.=$restrict_str . " LIMIT " . $limit . ";";
+  if (!mysqli_query($con, $query))
+  {
+    die ("Error in deleting from $tablename " . mysqli_error($con));
+  }
+}
 ?>
