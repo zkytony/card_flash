@@ -1,4 +1,15 @@
 <?php
+/*
+   Handles the ajax requests relating to the user's info
+   Handling:
+      get_deck_list(),
+      get_current_deck(),
+      update_displaying_deck(),
+      delete_card(),
+
+   p.s. the name of this file may not be appropriate for its use
+ */
+
 session_start();
 if (!$_SESSION['loggedIn'])
 {
@@ -22,6 +33,10 @@ if (isset($_GET['action']) && !empty($_GET['action']))
     case 'updateDisplay':
       $deckid=$_GET['deckid'];
       echo update_displaying_deck($userid, $deckid, $con);
+      break;
+    case 'deleteCard':
+      $cardid=$_GET['cardid'];
+      echo delete_card($cardid, $con);
       break;
     }
 } else {
@@ -74,9 +89,9 @@ function get_current_deck($userid, $con)
   return $current_deckid;
 }
 
-// this is displaying the cards in the deck in home.php
-// the content of the card will be shown, when user
-// flips the card. 
+// fetch the title, subtitle, content of the card
+// based on userid and deckid, and returns a json string
+// containing these data
 function update_displaying_deck($userid, $deckid, $con)
 {
   $tablename="users";
@@ -111,5 +126,15 @@ function update_displaying_deck($userid, $deckid, $con)
     $card_data[$cardid]['content']=$content;
   }
   return json_encode($card_data);
+}
+
+function delete_card($cardid, $con)
+{
+  // delete the card from table `cards`
+  $tablename="cards";
+  $restrict_str="WHERE `cardid` = '$cardid'";
+  $limit = 1;
+  delete_from($tablename, $restrict_str, $limit, $con);
+  return "success";
 }
 ?>

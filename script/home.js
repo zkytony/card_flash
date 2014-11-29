@@ -30,7 +30,29 @@ $(document).ready(function() {
     });
 
     $(document).on("click", ".delete-button", function() {
+        var id = $(this).parent().attr("id"); // parent is the button grp
+        var cardID = id.split("-")[2]; // id is button-group-cardidxx
+        var deckID = cardDeck[cardID];
         
+        var sure = confirm("Delete this card?");
+        if (sure) {
+            $.ajax({
+                url: './get_user_info.php',
+                data: {action: 'deleteCard',
+                       userid: current_userID,
+                       cardid: cardID},
+                type: 'get',
+                success: function(output) {
+                    if (output == "success") {
+                        alert("Deleted successfully");
+                        updateDisplayingDeck(current_userID, deckID);
+                        delete cardDeck[cardID]; // delete the key
+                    } else {
+                        alert("Delete Failed");
+                    }
+                }
+            });
+        }
     });
 
 });
@@ -103,7 +125,7 @@ function currentDeck(userid) {
 }
 
 // updates which deck's card is showing
-// updates user's current deck
+// display the cards
 function updateDisplayingDeck(userid, deckid) {
     $.ajax({
         url: './get_user_info.php',
@@ -148,8 +170,8 @@ function displayCards(json_str, deckID) {
             html += "<div class='card-button-group' id='button-group-" + cardID + "'>";
             html += "<button class='card-tiny-button flip-button' title='Flip'>F</botton>";
             html += "<button class='card-tiny-button zoom-button' title='Zoom'>Z</button>";
-            html += "<button class='card-tiny-button zoom-button' title='Edit'>E</button>";
-            html += "<button class='card-tiny-button zoom-button' title='Delete'>D</button>";
+            html += "<button class='card-tiny-button edit-button' title='Edit'>E</button>";
+            html += "<button class='card-tiny-button delete-button' title='Delete'>D</button>";
             html += "</div></div>";
 
             cardDeck[cardID] = deckID; // fill in this JS object
