@@ -1,4 +1,4 @@
-var deckArr = {};
+var deckArr = {}; // an object that matches deck IDs with deck titles
 var current_deck_global = ""; // for comparing
 var current_userID = "";
 
@@ -16,7 +16,13 @@ $(document).ready(function() {
         current_deck_global = $(this).text();
     });
 
-    
+    $(document).on("click", ".flip-button", function() {
+        
+    });
+
+    $(document).on("click", ".zoom-button", function() {
+        
+    });
 });
 
 function showDeckList(userid) {
@@ -128,8 +134,11 @@ function displayCards(json_str) {
 
             var html = "<div id='" + cardID + "' class='card-tiny'>";
             html += "<h4>" + title + "</h4>";
-            html += "<p><i>" + content + "</i></p>";
-            html += "</div>";
+            html += "<p><i>" + sub + "</i></p>";
+            html += "<div class='card-button-group'>";
+            html += "<button class='card-tiny-button flip-button' title='Flip'>F</botton>";
+            html += "<button class='card-tiny-button zoom-button' title='Zoom'>Z</button>";
+            html += "</div></div>";
 
 
             // adjust the font size of the title

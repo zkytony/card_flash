@@ -108,6 +108,7 @@ ul {
     width:180px;
     height:110px;
     float:left;
+    position:relative;
     border:1px solid black;
 }
 
@@ -124,6 +125,23 @@ ul {
 .card-tiny p {
     text-align:center;
     font-size:15px;
+}
+
+.card-tiny-button {
+    border:1px solid red;
+    float:left;
+    top:0px;
+    left:0px;
+}
+
+.card-tiny-button:hover {
+    background-color:cyan;
+}
+
+.card-button-group {
+    position:absolute;
+    left:80%;
+    top:75%;
 }
 
 .link-submit {
