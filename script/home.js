@@ -5,7 +5,7 @@ var current_userID = "";
 // when click the decks, the current deck should change
 $(document).ready(function() {
 
-    // Since I generate deck-title dynamically, I should do delegation event
+    // for dynamically generated divs, you should handle event in this way
     $(document).on("click", ".deck-title", function() {
         var deckTitle = $(this).text();
         $("#current-deck-span").html(deckTitle);
@@ -15,6 +15,8 @@ $(document).ready(function() {
         }
         current_deck_global = $(this).text();
     });
+
+    
 });
 
 function showDeckList(userid) {
@@ -99,6 +101,13 @@ function updateDisplayingDeck(userid, deckid) {
     });
 }
 
+// expect JSON string in this fashion:
+// { cardid: {
+//         title,
+//         sub,
+//         content,
+//   }
+// }
 function displayCards(json_str) {
     // first, clean whatever is there already
     $("#card-display-div").children().remove();    
@@ -112,14 +121,16 @@ function displayCards(json_str) {
             var oneCard = cardData[cardID];
             var title = oneCard["title"];
             var sub = oneCard["sub"];
+            var content = oneCard["content"];
             
             var wordsInTitle = title.split("[\s,.]+");
             var wordsInSub = sub.split("[\s,.]+");
 
             var html = "<div id='" + cardID + "' class='card-tiny'>";
             html += "<h4>" + title + "</h4>";
-            html += "<p><i>" + sub + "</i></p>";
+            html += "<p><i>" + content + "</i></p>";
             html += "</div>";
+
 
             // adjust the font size of the title
             $("#card-display-div").append(html);

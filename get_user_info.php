@@ -75,10 +75,8 @@ function get_current_deck($userid, $con)
 }
 
 // this is displaying the cards in the deck in home.php
-// It is not necessary (Maybe yes) to return the content
-// of the card because it will not be shown
-// Content of the card should be retrieved when the user
-// clicks on any spacific card
+// the content of the card will be shown, when user
+// flips the card. 
 function update_displaying_deck($userid, $deckid, $con)
 {
   $tablename="users";
@@ -89,7 +87,7 @@ function update_displaying_deck($userid, $deckid, $con)
 
   // retrieve cards from database
   $tablename="cards";
-  $column="`cardid`, `title`, `sub`";
+  $column="`cardid`, `title`, `sub`, `content`";
   $restrict_str="WHERE `deckid`='" . $deckid . "'";
   $result=select_from($tablename, $column, $restrict_str, $con);
 
@@ -97,17 +95,20 @@ function update_displaying_deck($userid, $deckid, $con)
   // { cardid: {
   //         title,
   //         sub,
+  //         content,
   //   }
   // }
   $card_data=array();
   while ($row=mysqli_fetch_assoc($result))
   {
-    $cardid=$row['cardid'];
-    $title=$row['title'];
-    $sub=$row['sub'];
+    $cardid=htmlspecialchars_decode($row['cardid']);
+    $title=htmlspecialchars_decode($row['title']);
+    $sub=htmlspecialchars_decode($row['sub']);
+    $content=htmlspecialchars_decode($row['content']);
     
-    $card_data[$cardid]["title"]=$title;
-    $card_data[$cardid]["sub"]=$sub;
+    $card_data[$cardid]['title']=$title;
+    $card_data[$cardid]['sub']=$sub;
+    $card_data[$cardid]['content']=$content;
   }
   return json_encode($card_data);
 }

@@ -75,6 +75,9 @@ function option_panel()
 <?php
 }
 
+// the content in the deck is get displayed when
+// loading the deck list. So this message is for
+// those who don't have a deck yet
 function card_in_deck()
 {
 ?>
