@@ -16,6 +16,7 @@ require_once "database.php";
     <link rel="stylesheet" type="text/css" href="./css/home.css">
     <?php 
     include_jquery();
+    include_important_scripts();
     ?>
     <script src="./script/home.js"></script>
   </head>

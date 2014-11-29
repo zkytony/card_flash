@@ -119,9 +119,9 @@ function displayCards(json_str) {
     } else {
         for (var cardID in cardData) {
             var oneCard = cardData[cardID];
-            var title = oneCard["title"];
-            var sub = oneCard["sub"];
-            var content = oneCard["content"];
+            var title = filterHTMLTags(oneCard["title"]);
+            var sub = filterHTMLTags(oneCard["sub"]);
+            var content = filterHTMLTags(oneCard["content"]);
             
             var wordsInTitle = title.split("[\s,.]+");
             var wordsInSub = sub.split("[\s,.]+");

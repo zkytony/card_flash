@@ -21,4 +21,11 @@ function include_jquery()
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <?php 
 }
+
+function include_important_scripts()
+{
+?>
+  <script src="script/functions.js"></script>
+<?php
+}
 ?>

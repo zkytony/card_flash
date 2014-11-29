@@ -7,6 +7,7 @@ if (!$_SESSION['loggedIn'])
 require_once "template.php";
 require_once "quill.php";
 require_once "database.php";
+require_once "functions.php";
 
 if (isset($_POST['submit-card']))
 {
@@ -60,6 +61,7 @@ if (isset($_POST['submit-card']))
     <link rel="stylesheet" type="text/css" href="./css/m_quill.css">
     <?php 
     include_jquery();
+    include_important_scripts();
     ?>
   </head>
   <body>
