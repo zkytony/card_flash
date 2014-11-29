@@ -1,4 +1,5 @@
-var deckArr = {}; // an object that matches deck IDs with deck titles
+var deckIDTitles = {}; // an object that matches deck IDs with deck titles
+var cardDeck = {}; // an object that matches card IDs with deck IDs
 var current_deck_global = ""; // for comparing
 var current_userID = "";
 
@@ -23,6 +24,15 @@ $(document).ready(function() {
     $(document).on("click", ".zoom-button", function() {
         
     });
+
+    $(document).on("click", ".edit-button", function() {
+        
+    });
+
+    $(document).on("click", ".delete-button", function() {
+        
+    });
+
 });
 
 function showDeckList(userid) {
@@ -68,7 +78,7 @@ function displayDeckList(json_str) {
             htmlString += "</tr>";
             
             // add to the global array
-            deckArr[deckID] = deckTitle;
+            deckIDTitles[deckID] = deckTitle;
         }
     }
     htmlString += "</table>";
@@ -82,8 +92,8 @@ function currentDeck(userid) {
                userid: userid},
         type: 'get',
         success: function(output) {
-            $("#current-deck-span").html(deckArr[output]);
-            current_deck_global = deckArr[output];
+            $("#current-deck-span").html(deckIDTitles[output]);
+            current_deck_global = deckIDTitles[output];
 
             // execute these lines when current deck is fetched
             var deckID = getDeckIDFromTitle(current_deck_global);
@@ -102,7 +112,7 @@ function updateDisplayingDeck(userid, deckid) {
                deckid: deckid},
         type: 'get',
         success: function(output) {
-            displayCards(output);
+            displayCards(output, deckid);
         }
     });
 }
@@ -114,7 +124,7 @@ function updateDisplayingDeck(userid, deckid) {
 //         content,
 //   }
 // }
-function displayCards(json_str) {
+function displayCards(json_str, deckID) {
     // first, clean whatever is there already
     $("#card-display-div").children().remove();    
 
@@ -135,13 +145,14 @@ function displayCards(json_str) {
             var html = "<div id='" + cardID + "' class='card-tiny'>";
             html += "<h4>" + title + "</h4>";
             html += "<p><i>" + sub + "</i></p>";
-            html += "<div class='card-button-group'>";
+            html += "<div class='card-button-group' id='button-group-" + cardID + "'>";
             html += "<button class='card-tiny-button flip-button' title='Flip'>F</botton>";
             html += "<button class='card-tiny-button zoom-button' title='Zoom'>Z</button>";
             html += "<button class='card-tiny-button zoom-button' title='Edit'>E</button>";
             html += "<button class='card-tiny-button zoom-button' title='Delete'>D</button>";
             html += "</div></div>";
 
+            cardDeck[cardID] = deckID; // fill in this JS object
 
             // adjust the font size of the title
             $("#card-display-div").append(html);
@@ -159,8 +170,8 @@ function getSizeValue (size) {
 }
 
 function getDeckIDFromTitle(deckTitle) {
-    for (var id in deckArr) {
-        if (deckArr[id] === deckTitle) {
+    for (var id in deckIDTitles) {
+        if (deckIDTitles[id] === deckTitle) {
             return id;
         }
     }
