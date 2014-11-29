@@ -138,8 +138,8 @@ ul {
 
 .card-button-group {
     position:absolute;
-    left:60%;
-    top:75%;
+    right:1%;
+    bottom:1%;
 }
 
 .link-submit {
