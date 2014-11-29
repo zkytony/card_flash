@@ -31,4 +31,3 @@ function filter_html_tags($html_str)
 }
 
 ?>
-
