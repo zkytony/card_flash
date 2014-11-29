@@ -18,8 +18,8 @@ if (isset($_POST['submit']))
 
   $tablename='users';
   
-  $username=$_POST['username'];
-  $password=$_POST['password'];
+  $username=mysqli_entities_fix_string($con, $_POST['username']);
+  $password=mysqli_entities_fix_string($con, $_POST['password']);
 
   $restrict_str="WHERE username='$username' AND password='$password'";
   $result=select_from("users", "`userid`", $restrict_str, $con);
