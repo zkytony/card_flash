@@ -95,7 +95,7 @@ $(document).ready(function() {
     });
 });
 
-// prevents the browser to direct to new_card.php if the current deck is empty
+// prevents the browser to direct to new_card.php if no current deck is specified
 function checkCurrentDeck(event) {
     if (typeof current_deck_global  === 'undefined' || current_deck_global == "") {
         alert("Select a deck first");
@@ -105,8 +105,6 @@ function checkCurrentDeck(event) {
 	} else { // IE<9 variant:
 	    event.returnValue = false
 	}
-    } else {
-        alert(current_deck_global);
     }
 };
 

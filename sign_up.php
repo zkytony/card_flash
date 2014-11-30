@@ -46,7 +46,7 @@ if (isset($_POST['submit']))
     if (!$change_password) {
       $userid=substr($username, 0, 3) . $result->num_rows; // result has been obtained previously
       // ensure uniqueness
-      $userid=ensure_unique_id($userid, "users", "`userid`", $con); 
+      $userid=ensure_unique_id($userid, "users", "userid", $con); 
 
       $columns="`userid`,`username`,`password`,`register_time`,`activate`";
       $values="'$userid','$username','$password', NOW(), '1'";

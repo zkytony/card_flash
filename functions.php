@@ -35,22 +35,22 @@ function filter_html_tags($html_str)
 // Note:
 // 1. each id is expected in this format: PREFIXnnn, where
 // nnn is a number
-// 2. $id_column is expected to be in this format: "`col`"
+// 2. $id_column is expected to be in this format: "col"
 function ensure_unique_id($id, $tablename, $id_column, $con)
 {
-  $id_arr=break_id($id);
+  $id_arr=break_id($id);  
+  $result=select_from($tablename, "`$id_column`", 
+                      "WHERE `$id_column` = '$id'", $con);
 
-  $result=select_from($tablename, $id_column, "", $con);
-  while($row=mysqli_fetch_assoc($result))
+  while($result->num_rows != 0)
   {
-    while($id == $row[$id_column])
-    {
-      $cur_id=break_id($row[$id_column]);
-      $id_arr['number']=$cur_id['number']++;
+    $id_arr['number']=$id_arr['number'] + 1;
+    $id=$id_arr['prefix'] . $id_arr['number'];
 
-      // put them together
-      $id=$id_arr['prefix'] . $id_arr['number'];
-    }
+    // :: This method should be improved -- queries shouldn't
+    // be executed that many of times
+    $result=select_from($tablename, "`$id_column`", 
+                        "WHERE `$id_column` = '$id'", $con);
   }
   return $id;
 }
@@ -62,12 +62,12 @@ function break_id($id)
 {
   $result=array();
   for ($i=0; $i<strlen($id); $i++)
-  {
-    if (!is_int($id[$i]))
+  {   
+    if ("0" < $id[$i] && $id[$i]< "9")
     {
-      $result['prefix']+=$id[$i];
+      $result['number'] .= $id[$i];
     } else {
-      $result['number']+=$id[$i];
+      $result['prefix'] .= $id[$i];
     }
   }
   $result['number']=intval($result['number']);
