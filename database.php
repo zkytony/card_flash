@@ -142,11 +142,11 @@ function mysqli_fix_string($connect, $string)
 function select_from($tablename, $columns, $restrict_str, $con)
 {
   $query="SELECT " . $columns . "FROM `$tablename`";
-  $query.=$restrict_str + ";";
+  $query.=$restrict_str . ";";
   
   if (!$result=mysqli_query($con, $query)) 
     die ("Error in selecting from $tablename " . mysqli_error($con));
-  
+
   return $result;
 }
 
@@ -169,9 +169,9 @@ function insert_into($tablename, $columns, $values, $con)
 // Allows updating multiple columns.
 // Required input format:
 // - $columns is a string, each column is separated by a comma ','
-//   e.g. "col1, col2, col3"
+//   e.g. "`col1`, `col2`, `col3`"
 // - $values is a string, each value is separated by a comma ','
-//   e.g. "val1, val2, val3"
+//   e.g. "'val1', 'val2', 'val3'"
 // Ordering of $values should be according to the ordering
 // of $columns
 function update_table($tablename, $columns,
@@ -183,7 +183,8 @@ function update_table($tablename, $columns,
   $len=sizeof($columns_arr);
   for ($i=0; $i<$len; $i++)
   {
-    $set_str.="`$columns_arr[$i]` = '$values_arr[$i]'";
+      $set_str.="$columns_arr[$i] = $values_arr[$i]";
+
     if ($i<$len-1)
     {
       $set_str.=", ";
