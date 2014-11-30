@@ -22,13 +22,18 @@ if (isset($_POST['submit']))
   $password=mysqli_entities_fix_string($con, $_POST['password']);
 
   $restrict_str="WHERE username='$username' AND password='$password'";
-  $result=select_from("users", "`userid`", $restrict_str, $con);
+  $result=select_from("users", "`userid`, `activate`", $restrict_str, $con);
 
   $success=false;
   while($rows=mysqli_fetch_assoc($result)) // fetch the row; $row need not to be used
   {
-    $success=true;
-    break;
+    if ($rows['activate']) 
+    {
+      $success=true;
+    } else {
+      $success=false;
+    }
+    break; // only can be 1 match
   }
   if ($success)
   {

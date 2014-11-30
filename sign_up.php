@@ -15,19 +15,29 @@ if (isset($_POST['submit']))
   $username=mysqli_entities_fix_string($con, $_POST['username']);
   $password=mysqli_entities_fix_string($con, $_POST['password']);
   
-  $column="`username`";
+  $column="`username`, `activate`";
   $result=select_from($tablename, $column, "",  $con);
 
-  $exists=false;
+  // if currently the username exists AND it is activate, then
+  // sign up fails; Otherwise it succeeds; when there is already
+  // the username but is not activate, change the password to the
+  // current one used for sign up
+  $available=true;
+  $change_password=false;
   while ($row=mysqli_fetch_assoc($result))
   {
-    if (htmlspecialchars_decode($row['username']) == $username)
+    if ($row['username'] == $username && $row['activate'] == true)
     {
-      $exists=true;
+      $available=false;
+      break;
+    } else if ($row['username'] == $username 
+               && $row['activate'] == false) {
+      $available=true;
+      $change_password=true;
       break;
     }
   }
-  if ($exists)
+  if (!$available)
   {
     echo "<h2>Username already exists</h2>";
   } else {
@@ -52,7 +62,7 @@ function form_signup()
   <div class="form-signup">
     <h3>Sign up</h3>
     <form name="signup" action="<?php echo $_SERVER['PHP_SELF'];?>"  method="post">
-      <p><label for="username">Username: </label><input pattern=".{3,}" required title="3 characters minimum" class='input-field' name="username" id="username" title="Username" type="text" maxLength="10"></p>
+      <p><label for="username">Username: </label><input pattern="[a-zA-Z0-9]{3,}" required title="3 characters minimum, no special characters" class='input-field' name="username" id="username" title="Username" type="text" maxLength="10"></p>
       <p><label for="password">Password: </label><input pattern=".{3,}" required title="3 characters minimum" class="input-field" name="password" id="password" title="Password" type="password" maxLength="15"></p>
       <p><input name="submit" id="submit-signup" type="submit" value="sign up"/></p>
     <a href="index.php">Back</a>
