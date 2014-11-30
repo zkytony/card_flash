@@ -66,7 +66,7 @@ function option_panel()
       <a href="new_deck.php">New Deck</a>
     </div>
     <div class="panel-button" id="create-card">
-      <a href="new_card.php">New Card</a>
+      <a href="new_card.php" id="new-card-link" onclick="checkCurrentDeck(event)">New Card</a>
         <h6>Current deck: </h6>
         <span id="current-deck-span">
           <script>currentDeck("<?php echo $_SESSION['userid']?>");</script>

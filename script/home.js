@@ -95,6 +95,21 @@ $(document).ready(function() {
     });
 });
 
+// prevents the browser to direct to new_card.php if the current deck is empty
+function checkCurrentDeck(event) {
+    if (typeof current_deck_global  === 'undefined' || current_deck_global == "") {
+        alert("Select a deck first");
+        
+        if (event.preventDefault) {  // W3C variant
+	    event.preventDefault()
+	} else { // IE<9 variant:
+	    event.returnValue = false
+	}
+    } else {
+        alert(current_deck_global);
+    }
+};
+
 function showDeckList(userid) {
     current_userID = userid;
     $.ajax({
