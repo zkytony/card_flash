@@ -142,6 +142,20 @@ ul {
     bottom:1%;
 }
 
+.deck-button-group {
+    position:absolute;
+    right:5%;
+}
+
+.deck-tiny-button {
+    border:1px solid green;
+    float:left;
+}
+
+.deck-tiny-button:hover {
+    background-color:pink;
+}
+
 .link-submit {
     background:none;
     border:none;
