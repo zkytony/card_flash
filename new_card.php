@@ -20,6 +20,8 @@ if (isset($_POST['submit-card']))
   $num_rows=$result->num_rows;
 
   $cardid='card' . $num_rows;
+  $cardid=ensure_unique_id($cardid, "cards", "`cardid`", $con);
+
   $title=mysqli_entities_fix_string($con, $_POST['card_title']);
   $sub=mysqli_entities_fix_string($con, $_POST['card_sub']);
   $content=mysqli_entities_fix_string($con, $_POST['card_content']);
@@ -36,9 +38,9 @@ if (isset($_POST['submit-card']))
   }
   // insert the card into table
   $columns="`cardid`,`title`,`sub`,`content`,";
-  $columns.="`userid`,`deckid`,`create_time`";
+  $columns.="`userid`,`deckid`,`create_time`,`deleted`";
   $values="'$cardid','$title','$sub','$content',";
-  $values.="'$userid','$deckid',NOW()";
+  $values.="'$userid','$deckid',NOW(), '0'";
   insert_into("cards", $columns, $values, $con);
 
   // succeeded
@@ -97,7 +99,7 @@ function get_current_deck_title()
   // get the name of deck
   $tablename='decks';
   $column="`title`";
-  $restrict_str="WHERE `deckid`='$deckid"'";
+  $restrict_str="WHERE `deckid`='$deckid'";
   $result = select_from($tablename, $column, $restrict_str, $con);
   
   $deck_title="";

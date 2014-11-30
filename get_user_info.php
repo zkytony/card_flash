@@ -47,7 +47,7 @@ function get_deck_list($userid, $con)
 {
   $tablename="decks";
   $column="`title`,`deckid`";
-  $restrict_str="WHERE `userid`='$userid' AND `deleted` = 'false'";
+  $restrict_str="WHERE `userid`='$userid' AND `deleted` = '0'";
   $result=select_from($tablename, $column, $restrict_str, $con);
 
   // intend to build JSON string in this fashion:
@@ -61,8 +61,8 @@ function get_deck_list($userid, $con)
   {
     $title=$row['title'];
     $deckid=$row['deckid'];
-    $tags_result=select_from("tags", "`tag`", 
-                             "WHERE `deckid`='$deckid'", $con);
+    $restrict_str="WHERE `deckid`='$deckid' AND `deleted` = '0'";
+    $tags_result=select_from("tags", "`tag`", $restrict_str, $con);
     $tags_array=array();
     while($tags_row=mysqli_fetch_assoc($tags_result))
     {
@@ -103,7 +103,7 @@ function update_displaying_deck($userid, $deckid, $con)
   // retrieve cards from database
   $tablename="cards";
   $column="`cardid`, `title`, `sub`, `content`";
-  $restrict_str="WHERE `deckid`='" . $deckid . "'";
+  $restrict_str="WHERE `deckid`='$deckid' AND `deleted` = '0'";
   $result=select_from($tablename, $column, $restrict_str, $con);
 
   // intend to return JSON string in this fashion:

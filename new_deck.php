@@ -6,33 +6,32 @@ if (!$_SESSION['loggedIn'])
 }
 require_once "template.php";
 require_once "database.php";
+require_once "functions.php";
+
 if (isset($_POST['submit-deck']))
 {
   //User submitted
   $con=connect();
-
-  $tablename='decks';
   
   // mysql::num_rows: return number of rows in a query result
   // select to get number of rows
-  $column="`deckid`";
-  $result=select_from($tablename, $column, "", $con);
+  $result=select_from('decks',"`deckid`","",$con);
 
   $num_rows=$result->num_rows;
   $deckid='deck' . $_SESSION['username'] . $num_rows;
+  $deckid=ensure_unique_id($deckid, "decks", "`deckid`", $con);
   $title=mysqli_entities_fix_string($con, $_POST['title']);
   $userid=$_SESSION['userid']; // you must use individual variables to store them
 
   // insert user's new deck to table; !Values should be single quote. Columns dont have quote
-  $columns="`deckid`,`title`,`userid`,`create_time`";
-  $values="'$deckid','$title','$userid',NOW()";
-  insert_into($tablename, $columns, $values, $con);
+  $columns="`deckid`,`title`,`userid`,`create_time`,`deleted`";
+  $values="'$deckid','$title','$userid',NOW(), '0'";
+  insert_into('decks', $columns, $values, $con);
   
   // tags and categories (category is the name of the field in the form)
   $category_str=mysqli_entities_fix_string($con, $_POST['category']);
   $tags=split_to_tags($category_str);
 
-  $tablename='tags';
   $result=select_from('tags', '*', "", $con);
 
   $num_rows=$result->num_rows;
@@ -40,11 +39,12 @@ if (isset($_POST['submit-deck']))
   for ($i=0; $i<sizeof($tags); $i++)
   {
     $rid = "RE" . $num_rows;
+    $rid = ensure_unique_id($rid, "tags", "`rid`", $con);
     $num_rows++;
     
     // insert this tag-deckid relationship to the table
-    $columns="`rid`, `tag`, `deckid`";
-    $values="'$rid', '$tags[$i]', '$deckid';";
+    $columns="`rid`, `tag`, `deckid`, `deleted`";
+    $values="'$rid', '$tags[$i]', '$deckid', '0'";
     insert_into('tags', $columns, $values, $con);
   }
 
@@ -87,8 +87,7 @@ function deck_form()
   <div class="deck-form-div">
     <form name="deck_form" action="<?php echo $_SERVER['PHP_SELF'];?>"  method="post">
       Title:<input class="deck-field" type="text" name="title" id="title"/>
-      Category:<input class="deck-field" type="text" name="category" id="category"/>
-      <h5>Categories you have used: </h5>
+      Tags:<input class="deck-field" type="text" name="category" id="category"/>
       <input type="submit" name="submit-deck" id="submit-deck" value="Submit" />
     </form>
   </div>
