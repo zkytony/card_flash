@@ -43,9 +43,9 @@ function ensure_unique_id($id, $tablename, $id_column, $con)
   $result=select_from($tablename, $id_column, "", $con);
   while($row=mysqli_fetch_assoc($result))
   {
-    while($id == $row[$idcolumn])
+    while($id == $row[$id_column])
     {
-      $cur_id=break_id($row[$idcolumn]);
+      $cur_id=break_id($row[$id_column]);
       $id_arr['number']=$cur_id['number']++;
 
       // put them together

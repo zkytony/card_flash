@@ -38,6 +38,10 @@ if (isset($_GET['action']) && !empty($_GET['action']))
       $cardid=$_GET['cardid'];
       echo delete_card($cardid, $con);
       break;
+    case 'deleteDeck':
+      $deckid=$_GET['deckid'];
+      echo delete_deck($deckid, $con);
+      break;
     }
 } else {
     header("Location:index.php");
@@ -136,7 +140,40 @@ function delete_card($cardid, $con)
   $column="`deleted`";
   $value="'1'";
   $restrict_str="WHERE `cardid` = '$cardid'";
-  update_table('cards', $column, $value, $restrict_str, $con);
+  update_table("cards", $column, $value, $restrict_str, $con);
+  return "success";
+}
+
+// delete the deck. Mark it as deleted by setting the corresponding
+// value in the `deleted` column
+function delete_deck($deckid, $con)
+{
+  // first mark all cards in this deck as deleted
+  $result=select_from("cards", "`cardid`", 
+                      "WHERE `deckid` = '$deckid'", $con);
+  while ($row=mysqli_fetch_assoc($result))
+  {
+    delete_card($row['cardid'], $con);
+  }
+
+  // then, mark all tags of this deck as delted
+  $result=select_from("tags", "`rid`",
+                      "WHERE `deckid` = '$deckid'", $con);
+  while ($row=mysqli_fetch_assoc($result))
+  {
+    delete_tag($row['rid'], $con);
+  }
+  
+  // then, mark the deck as deleted
+  $restrict_str="WHERE `deckid` = '$deckid'";
+  update_table("decks", "`deleted`", "'1'", $restrict_str, $con);
+  return "success";
+}
+
+function delete_tag($rid, $con)
+{
+  $restrict_str="WHERE `rid` = '$rid'";
+  update_table("tags", "`deleted`", "'1'", $restrict_str, $con);
   return "success";
 }
 ?>

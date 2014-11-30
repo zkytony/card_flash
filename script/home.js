@@ -25,11 +25,11 @@ $(document).ready(function() {
         
     });
 
-    $(document).on("click", ".edit-button", function() {
+    $(document).on("click", ".edit-card-button", function() {
         
     });
 
-    $(document).on("click", ".delete-button", function() {
+    $(document).on("click", ".delete-card-button", function() {
         var id = $(this).parent().attr("id"); // parent is the button grp
         var cardID = id.split("-")[2]; // id is button-group-cardidxx
         var deckID = cardDeck[cardID];
@@ -55,6 +55,44 @@ $(document).ready(function() {
         }
     });
 
+    $(document).on("click", ".delete-deck-button", function() {
+        var id = $(this).parent().attr("id"); // parent is the button group
+        var deckID = id.split("-")[3]; // id is deck-button-group-deckxx
+        
+        var sure = confirm("Delete this deck?");
+        if (sure) {
+            $.ajax({
+                url: './get_user_info.php',
+                data: {action: 'deleteDeck',
+                       userid: current_userID,
+                       deckid: deckID},
+                type: 'get',
+                success: function(output) {
+                    if (output == "success") {
+                        alert("Deleted successfully");
+                        showDeckList(current_userID);
+
+                        // clear the current deck if it is the one being deleted
+                        if (deckIDTitles[deckID] == current_deck_global) {
+                            updateDisplayingDeck(current_userID, "");
+                            current_deck_global = "";
+                            $("#current-deck-span").text("");
+                        }
+
+                        delete deckIDTitles[deckID]; // delete the key
+                        for (cardID in cardDeck) {
+                            if (cardDeck[cardID] == deckID) {
+                                delete cardDeck[cardID];
+                            }
+                        }
+
+                    } else {
+                        alert("Delete Failed");
+                    }
+                }
+            });
+        }
+    });
 });
 
 function showDeckList(userid) {
@@ -71,7 +109,9 @@ function showDeckList(userid) {
 }
 
 function displayDeckList(json_str) {
-    var listDiv = document.getElementById("deck-list-div");
+    // first clear everything in the list
+    $("#deck-list-div").children().remove();
+
     deckData = JSON.parse(json_str);
     var htmlString = "<table>";
 
@@ -84,9 +124,11 @@ function displayDeckList(json_str) {
         // by it
         deckIDObj = deckData[deckID];
         for (var deckTitle in deckIDObj) {
-            htmlString += "<tr><th class='deck-title'>";
-            htmlString += "<a href='#'>" + deckTitle + "</a>";
-            htmlString += "</th></tr>";
+            htmlString += "<tr><th class='deck-title' id='deck-" + deckID + "'>";
+            htmlString += "<a href='#'>" + deckTitle + "</a></th>";
+            htmlString += "<td class='deck-button-group' id='deck-button-group-" + deckID + "'>";
+            htmlString += "<button class='deck-tiny-button delete-deck-button'>D</button>"; 
+            htmlString += "</td></tr>";
 
             // accessing the tags array
             tagsArr = deckIDObj[deckTitle];
@@ -170,8 +212,8 @@ function displayCards(json_str, deckID) {
             html += "<div class='card-button-group' id='button-group-" + cardID + "'>";
             html += "<button class='card-tiny-button flip-button' title='Flip'>F</botton>";
             html += "<button class='card-tiny-button zoom-button' title='Zoom'>Z</button>";
-            html += "<button class='card-tiny-button edit-button' title='Edit'>E</button>";
-            html += "<button class='card-tiny-button delete-button' title='Delete'>D</button>";
+            html += "<button class='card-tiny-button edit-card-button' title='Edit'>E</button>";
+            html += "<button class='card-tiny-button delete-card-button' title='Delete'>D</button>";
             html += "</div></div>";
 
             cardDeck[cardID] = deckID; // fill in this JS object
@@ -191,6 +233,7 @@ function getSizeValue (size) {
     return parseInt(size.substring(0, size.length-2));
 }
 
+// This function has potential problem. Needs to be replaced
 function getDeckIDFromTitle(deckTitle) {
     for (var id in deckIDTitles) {
         if (deckIDTitles[id] === deckTitle) {

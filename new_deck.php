@@ -18,7 +18,7 @@ if (isset($_POST['submit-deck']))
   $result=select_from('decks',"`deckid`","",$con);
 
   $num_rows=$result->num_rows;
-  $deckid='deck' . $_SESSION['username'] . $num_rows;
+  $deckid='deck' . $num_rows;
   $deckid=ensure_unique_id($deckid, "decks", "`deckid`", $con);
   $title=mysqli_entities_fix_string($con, $_POST['title']);
   $userid=$_SESSION['userid']; // you must use individual variables to store them
@@ -38,7 +38,7 @@ if (isset($_POST['submit-deck']))
 
   for ($i=0; $i<sizeof($tags); $i++)
   {
-    $rid = "RE" . $num_rows;
+    $rid = "tag" . $num_rows;
     $rid = ensure_unique_id($rid, "tags", "`rid`", $con);
     $num_rows++;
     
