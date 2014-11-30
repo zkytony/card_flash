@@ -33,9 +33,7 @@ if (isset($_POST['submit-deck']))
   $tags=split_to_tags($category_str);
 
   $tablename='tags';
-  $select_query="SELECT * FROM `$tablename`;";
-  if (!$result=mysqli_query($con, $select_query))
-    die ("Error in selecting from $tablename " . mysqli_error($con));
+  $result=select_from('tags', '*', "", $con);
 
   $num_rows=$result->num_rows;
 
@@ -45,17 +43,15 @@ if (isset($_POST['submit-deck']))
     $num_rows++;
     
     // insert this tag-deckid relationship to the table
-    $insert_query="INSERT INTO `$tablename` (`rid`, `tag`, `deckid`)
-                       VALUES ('$rid', '$tags[$i]', '$deckid');";
-    if (!mysqli_query($con, $insert_query))
-      die ("Unable to insert into $tablename " . mysqli_error($con));
+    $columns="`rid`, `tag`, `deckid`";
+    $values="'$rid', '$tags[$i]', '$deckid';";
+    insert_into('tags', $columns, $values, $con);
   }
 
   // last thing - update current_deckid
   $tablename='users';
-  $update_query="UPDATE `$tablename` SET `deckid`='$deckid' WHERE `userid`='$userid';";
-  if (!mysqli_query($con, $update_query))
-    die ("Unable to update $tablename " . mysqli_error($con));
+  update_table('users', "deckid", "'$deckid'", 
+               "WHERE `userid`='$userid'", $con);
 
   // everything done
   $_SESSION['new_deck']=true;
