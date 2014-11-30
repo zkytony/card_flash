@@ -85,7 +85,7 @@ function get_current_deck_title()
   $userid=$_SESSION['userid'];
 
   $column="`deckid`";
-  $restrict_str="WHERE `userid`='" . $userid . "';";
+  $restrict_str="WHERE `userid`='$userid'";
   $result=select_from($tablename, $column, $restrict_str, $con);
 
   $deckid="";
@@ -97,7 +97,7 @@ function get_current_deck_title()
   // get the name of deck
   $tablename='decks';
   $column="`title`";
-  $restrict_str="WHERE `deckid`='" . $deckid . "';";
+  $restrict_str="WHERE `deckid`='$deckid"'";
   $result = select_from($tablename, $column, $restrict_str, $con);
   
   $deck_title="";

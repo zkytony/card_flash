@@ -142,7 +142,7 @@ function mysqli_fix_string($connect, $string)
 function select_from($tablename, $columns, $restrict_str, $con)
 {
   $query="SELECT " . $columns . "FROM `$tablename`";
-  $query.=$restrict_str;
+  $query.=$restrict_str + ";";
   
   if (!$result=mysqli_query($con, $query)) 
     die ("Error in selecting from $tablename " . mysqli_error($con));

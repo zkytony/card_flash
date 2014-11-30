@@ -47,7 +47,7 @@ function get_deck_list($userid, $con)
 {
   $tablename="decks";
   $column="`title`,`deckid`";
-  $restrict_str="WHERE `userid`='" . $userid . "';";
+  $restrict_str="WHERE `userid`='$userid' AND `deleted` = 'false'";
   $result=select_from($tablename, $column, $restrict_str, $con);
 
   // intend to build JSON string in this fashion:
@@ -78,7 +78,7 @@ function get_current_deck($userid, $con)
 {
   $tablename="users";
   $column="`deckid`";
-  $restrict_str="WHERE `userid`='" . $userid . "';";
+  $restrict_str="WHERE `userid`='$userid'";
   $result=select_from($tablename, $column, $restrict_str, $con);
 
   $current_deckid="";
@@ -128,13 +128,15 @@ function update_displaying_deck($userid, $deckid, $con)
   return json_encode($card_data);
 }
 
+// delete a card. Yet instead of actually deleting it from
+// the database, we mark it as 'deleted', in case the user
+// wants to restore
 function delete_card($cardid, $con)
 {
-  // delete the card from table `cards`
-  $tablename="cards";
+  $column='deleted';
+  $value='true';
   $restrict_str="WHERE `cardid` = '$cardid'";
-  $limit = 1;
-  delete_from($tablename, $restrict_str, $limit, $con);
+  update_table('cards', $column, $value, $restrict_str, $con);
   return "success";
 }
 ?>
