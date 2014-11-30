@@ -6,22 +6,23 @@ if ($_SESSION['loggedIn']) // if already logged in
 }
 
 require_once "database.php";
+require_once "functions.php";
 
 if (isset($_POST['submit']))
 {
   $con=connect();
   
-  $tablename='users';
   $username=mysqli_entities_fix_string($con, $_POST['username']);
   $password=mysqli_entities_fix_string($con, $_POST['password']);
-  
-  $column="`username`, `activate`";
-  $result=select_from($tablename, $column, "",  $con);
 
   // if currently the username exists AND it is activate, then
   // sign up fails; Otherwise it succeeds; when there is already
   // the username but is not activate, change the password to the
   // current one used for sign up
+  
+  $column="`username`, `activate`";
+  $result=select_from('users', $column, "",  $con);
+
   $available=true;
   $change_password=false;
   while ($row=mysqli_fetch_assoc($result))
@@ -37,14 +38,24 @@ if (isset($_POST['submit']))
       break;
     }
   }
+
   if (!$available)
   {
     echo "<h2>Username already exists</h2>";
   } else {
-    $userid=substr($username, 0, 3) . $result->num_rows;
-    $columns="`userid`,`username`,`password`,`register_time`";
-    $values="'$userid','$username','$password', NOW()";
-    insert_into($tablename, $columns, $values, $con); // insert into 'users'
+    if (!$change_password) {
+      $userid=substr($username, 0, 3) . $result->num_rows; // result has been obtained previously
+      // ensure uniqueness
+      $userid=ensure_unique_id($userid, "users", "`userid`", $con); 
+
+      $columns="`userid`,`username`,`password`,`register_time`,`activate`";
+      $values="'$userid','$username','$password', NOW(), '1'";
+      insert_into('users', $columns, $values, $con); // insert into 'users'
+    } else {
+      $columns="`password`, `activate`, `register_time`";
+      $values="'$password', '1', NOW()";
+      update_table('users', $columns, $values, "", $con);
+    }
 
     // registered;
     $_SESSION['loggedIn']=true;
