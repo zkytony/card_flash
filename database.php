@@ -26,10 +26,11 @@ function init_users_table($con)
   // attention, you must use ` to quote names
   $query="CREATE TABLE IF NOT EXISTS `$tablename` (
           `userid` VARCHAR(32) UNIQUE NOT NULL,
-          `username` VARCHAR(128) NOT NULL,
+          `username` VARCHAR(128) UNIQUE NOT NULL,
           `password` VARCHAR(128) NOT NULL,
           `register_time` DATE NOT NULL,
           `deckid` VARCHAR(32),
+          `activate` BOOL,
           PRIMARY KEY(`userid`),
           CONSTRAINT `current_deckid` FOREIGN KEY (`deckid`) REFERENCES decks(`deckid`),
           INDEX(`username`(10))) ENGINE MyISAM;";
@@ -49,6 +50,7 @@ function init_decks_table($con)
           `title` VARCHAR(128) NOT NULL,
           `userid` VARCHAR(32) NOT NULL,
           `create_time` DATE NOT NULL,
+          `deleted` BOOL,
           PRIMARY KEY (`deckid`),
           INDEX(`title`(10)),
           FOREIGN KEY (`userid`) REFERENCES users(`userid`) 
@@ -73,6 +75,7 @@ function init_cards_table($con)
           `userid` VARCHAR(32) NOT NULL,
           `deckid` VARCHAR(32) NOT NULL,
           `create_time` DATE NOT NULL,
+          `deleted` BOOL,
           PRIMARY KEY (`cardid`),
           INDEX(`title`(10)),
           INDEX(`sub`(10)),
@@ -93,6 +96,7 @@ function init_tags_table($con)
           `rid` VARCHAR(32) UNIQUE NOT NULL,
           `tag` VARCHAR(32) NOT NULL,
           `deckid` VARCHAR(32) NOT NULL,
+          `deleted` BOOL,
           PRIMARY KEY(`rid`),
           FOREIGN KEY(`deckid`) REFERENCES decks(`deckid`)
           ) ENGINE MyISAM;";
