@@ -19,6 +19,7 @@ Issues on the list:
 1. some times the users table's 'deckid' column is not updated/lost
 2. the algorithm to ensure id uniqueness needs to be discussed
 3, the order of the cards displaying on the card area needs consideration
+4. need to write tests, covering the whole project
 
 [1]
 Login;
