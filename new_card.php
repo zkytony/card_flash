@@ -117,7 +117,7 @@ function card_form()
 {
 ?>
   <div class="card-div">
-    <form name="card_form" id="card_form" "action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
+    <form name="card_form" id="card_form" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
       <?php 
       card_front();
       card_back();
