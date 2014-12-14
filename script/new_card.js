@@ -15,15 +15,16 @@ editor.on('text-change', function(delta, source) {
 });
 
 $(document).ready(function() {
-    $("#card_front_preview").children().remove();
-    var cardTitleFiltered = filterHTMLTags($("#card_title").val());
-    var html = "<h3>" + cardTitleFiltered
-        + "</h3><br />";
-
-    var cardSubFiltered = filterHTMLTags($("#card_sub").val());
-    html += "<h5>" + cardSubFiltered + "</h5><br />";
-    $("#card_front_preview").append(html);
-
+    $(".card-field").change(function() {
+        $("#card_front_preview").children().remove();
+        var cardTitleFiltered = filterHTMLTags($("#card_title").val());
+        var html = "<h3>" + cardTitleFiltered
+            + "</h3><br />";
+        
+        var cardSubFiltered = filterHTMLTags($("#card_sub").val());
+        html += "<h5>" + cardSubFiltered + "</h5><br />";
+        $("#card_front_preview").append(html);
+    });
 
     $("#card_form").submit(function() {
         var html = editor.getHTML();
