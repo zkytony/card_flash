@@ -174,6 +174,7 @@ function insert_into($tablename, $columns, $values, $con)
 //   e.g. "'val1', 'val2', 'val3'"
 // Ordering of $values should be according to the ordering
 // of $columns
+// Problem: if value contains single quote or comma, this breaks!
 function update_table($tablename, $columns,
                       $values, $restrict_str, $con)
 {
@@ -197,7 +198,7 @@ function update_table($tablename, $columns,
   $query.=$restrict_str;
   if (!mysqli_query($con, $query))
   {
-    die ("Error in Update $tablename " . mysqli_error($con));
+    die ("Error in Update $tablename " . mysqli_error($con) . " YOUR QUERY IS " . $query);
   }  
 }
 
