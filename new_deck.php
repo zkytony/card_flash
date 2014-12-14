@@ -5,7 +5,7 @@ if (!$_SESSION['loggedIn'])
   header("location:index.php");
 }
 require_once "view/template.php";
-require_once "view/card_edit_view.php";
+require_once "view/deck_edit_view.php";
 require_once "database.php";
 require_once "functions.php";
 
