@@ -9,6 +9,20 @@ require_once "view/home_view.php";
 require_once "database.php";
 require_once "quill.php";
 
+if ($_POST['submit-card'])
+{
+  $con=connect();
+
+  // user confirms edition to a card
+  $title=mysqli_entities_fix_string($con, $_POST['card_title']);
+  $sub=mysqli_entities_fix_string($con, $_POST['card_sub']);
+  $content=mysqli_entities_fix_string($con, $_POST['card_content']);
+  $cardid=$_POST['card_id'];
+  
+  update_table("cards", "`title`,`sub`,`content`",
+               "'$title','$sub','$content'", "WHERE `cardid` = '$cardid'", $con);
+}
+
 ?>
 <!DOCTYPE html>
 <html>

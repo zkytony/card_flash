@@ -12,7 +12,8 @@ function card_form()
       card_back();
       ?>
       <textarea class="hidden" id="hidden_input" name="card_content" style="display:none"></textarea>
-      <input type="submit" value="Done" id="submit" name="submit-card" onsubmit="onsubmit()" class="submit-card"/>
+      <input type="text" class="hidden" id="hidden_cardid" name="card_id" value="" style="display:none">
+      <input type="submit" value="Done" id="submit" name="submit-card" class="submit-card"/>
     </form>
   </div>
 <?php

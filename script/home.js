@@ -33,6 +33,7 @@ $(document).ready(function() {
         if (typeof(editor) != "undefined") {
             $('#card_title').attr('value', cardInfo[cardID]['cardTitle']);
             $('#card_sub').attr('value', cardInfo[cardID]['cardSub']);
+            $('#hidden_cardid').attr('value', cardID);
             editor.setHTML(cardInfo[cardID]['cardContent']);
         }
     });
@@ -100,6 +101,12 @@ $(document).ready(function() {
                 }
             });
         }
+    });
+
+    $("#card_form").submit(function() {
+        var html = editor.getHTML();
+        $("#hidden_input").val(html);
+        return; // submit
     });
 });
 
