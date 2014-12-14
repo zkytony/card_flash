@@ -1,5 +1,6 @@
 var deckIDTitles = {}; // an object that matches deck IDs with deck titles
 var cardDeck = {}; // an object that matches card IDs with deck IDs
+var cardInfo = {}; // an object that matches card IDs with its info (title, sub, content)
 var current_deck_global = ""; // for comparing
 var current_userID = "";
 
@@ -24,6 +25,16 @@ $(document).ready(function() {
     $(document).on("click", ".edit-card-button", function() {
         $("#edit-card-area").css('display', 'block');
         $("#overlay_shade").css('display', 'block');
+
+        var id = $(this).parent().attr("id"); // parent is the button grp
+        var cardID = id.split("-")[2]; // id is button-group-cardidxx
+        var deckID = cardDeck[cardID];
+
+        if (typeof(editor) != "undefined") {
+            $('#card_title').attr('value', cardInfo[cardID]['cardTitle']);
+            $('#card_sub').attr('value', cardInfo[cardID]['cardSub']);
+            editor.setHTML(cardInfo[cardID]['cardContent']);
+        }
     });
 
     $(document).on("click", ".delete-card-button", function() {
@@ -105,6 +116,7 @@ function checkCurrentDeck(event) {
     }
 };
 
+// fetch the list of decks the current user has from database
 function showDeckList(userid) {
     current_userID = userid;
     $.ajax({
@@ -118,6 +130,7 @@ function showDeckList(userid) {
     });
 }
 
+// display the deck list based on the server's response as json
 function displayDeckList(json_str) {
     // first clear everything in the list
     $("#deck-list-div").children().remove();
@@ -159,6 +172,8 @@ function displayDeckList(json_str) {
     $("#deck-list-div").append(htmlString);
 }
 
+// fetch the current_deck data from database
+// updates the display of cards of the current deck
 function currentDeck(userid) {
     $.ajax({
         url: './get_user_info.php',
@@ -226,6 +241,11 @@ function displayCards(json_str, deckID) {
             html += "</div></div>";
 
             cardDeck[cardID] = deckID; // fill in this JS object
+            cardInfo[cardID] = {
+                cardTitle : title,
+                cardSub : sub,
+                cardContent : content
+            }; // fill in this JS object
 
             // adjust the font size of the title
             $("#card-display-div").append(html);
@@ -252,8 +272,24 @@ function getDeckIDFromTitle(deckTitle) {
     return null;
 }
 
+// set up the quill editor -- for edit card
+var editor;
+$('#edit-card-area').ready(function() {
+    editor = new Quill('#editor', {
+        styles: {
+            'body': {
+                'font-size': "17px",
+                'padding': "7px"
+            }
+        }
+    });
+    editor.addModule('toolbar', { container: '#toolbar' });
+});
+
 // turns the pop up divs into display:none when clicked 'close'
 function closeCardEdit() {
     $("#edit-card-area").css('display', 'none');
     $("#overlay_shade").css('display', 'none');
 }
+
+

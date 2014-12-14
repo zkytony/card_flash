@@ -15,8 +15,7 @@ editor.on('text-change', function(delta, source) {
 });
 
 $(document).ready(function() {
-    $(".card-field").change(function() {
-        $("#card_front_preview").children().remove();
+    $("#card_front_preview").children().remove();
         var cardTitleFiltered = filterHTMLTags($("#card_title").val());
         var html = "<h3>" + cardTitleFiltered
             + "</h3><br />";
