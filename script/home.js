@@ -270,7 +270,7 @@ function displayCards(json_str, deckID) {
             var pixDiv = $(".card-tiny").width();
             var ratio = (pixTitle / pixDiv) / 3; // dont get more than three lines of space
             var pixFont = Math.round(25 - ratio * 5);
-            $("#"+cardID+" h4").css("font-size", pixFont + "px");
+            $("#"+id+" h4").css("font-size", pixFont + "px");
             i++; // increment the index
         } // for loop ends
     }
