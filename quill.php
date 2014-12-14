@@ -1,4 +1,7 @@
 <?php
+// this function only builds the HTML elements for displaying a quill RTE
+// For the functionalities, you need to use separate script and include
+// them in your page
 function build_editor()
 {
 ?>
@@ -21,7 +24,6 @@ function build_editor()
   </div>
 
   <script src="http://cdn.quilljs.com/0.18.1/quill.js"></script>
-  <script src="./script/new_card.js"></script>
 <?php
 }
 ?>
