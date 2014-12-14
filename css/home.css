@@ -196,6 +196,12 @@ ul {
     color:black;
 }
 
+#flip-card-area-wrapper {
+    width:760px;
+    height:400px;
+    left:25%;
+}
+
 /* Copied and modified from card.css  */
 .card-div {
     width:900px;
@@ -219,4 +225,12 @@ ul {
     width:350px;
     height:180px;
     resize:none;
+}
+
+.change-card-link {
+    width:40px;
+    padding:4px;
+    margin-right:10px;
+    background-color:yellow;
+    color:black;
 }

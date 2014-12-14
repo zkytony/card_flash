@@ -53,10 +53,17 @@ function edit_card_div()
     <?php
     card_form(); // got from card_edit_view.php
     ?>
-    <script>
-     showCardInfo(<?php echo $_SESSION['userid']; ?>);
-    </script>
-    <a href="javascript:void(0)" class="close-pop-up-button" onclick="closeCardEdit();">Close</a>
+    <a href="javascript:void(0)" class="close-pop-up-button" onclick="closePopUp();">Close</a>
+  </div>
+<?php
+}
+
+function flip_card_div()
+{
+?>
+  <div class="pop-up-div" id="flip-card-area-wrapper">
+    <div id="flip-card-area"></div>
+    <a href="javascript:void(0)" class="close-pop-up-button" onclick="closePopUp();">Close</a>
   </div>
 <?php
 }

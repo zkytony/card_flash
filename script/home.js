@@ -1,6 +1,7 @@
 var deckIDTitles = {}; // an object that matches deck IDs with deck titles
 var cardDeck = {}; // an object that matches card IDs with deck IDs
 var cardInfo = {}; // an object that matches card IDs with its info (title, sub, content)
+var cardIDCurrent = new Array(); // an array that contains only the cardid for the current deck -- convenient for flipping
 var current_deck_global = ""; // for comparing
 var current_userID = "";
 
@@ -19,12 +20,17 @@ $(document).ready(function() {
     });
 
     $(document).on("click", ".flip-button", function() {
+        popUp("flip-card-area-wrapper");
+
+        var id = $(this).parent().parent().attr("id"); // the id for each displayed card, in format i-cardXX
+        var i = id.split("-")[0];
+        var cardID = id.split("-")[1];
         
+        createCardFlipDiv(i, cardID, "flip-card-area");
     });
 
     $(document).on("click", ".edit-card-button", function() {
-        $("#edit-card-area").css('display', 'block');
-        $("#overlay_shade").css('display', 'block');
+        popUp("edit-card-area");
 
         var id = $(this).parent().attr("id"); // parent is the button grp
         var cardID = id.split("-")[2]; // id is button-group-cardidxx
@@ -223,12 +229,14 @@ function updateDisplayingDeck(userid, deckid) {
 function displayCards(json_str, deckID) {
     // first, clean whatever is there already
     $("#card-display-div").children().remove();    
-
+    cardIDCurrent = new Array();
+    
     var cardData = JSON.parse(json_str);
     if (jQuery.isEmptyObject(cardData)) {
         var html = "<h3>There is no Card! Select a deck if currently not, and create a card!</h3>";
         $("#card-display-div").append(html);
     } else {
+        var i = 0;
         for (var cardID in cardData) {
             var oneCard = cardData[cardID];
             var title = filterHTMLTags(oneCard["title"]);
@@ -238,7 +246,8 @@ function displayCards(json_str, deckID) {
             var wordsInTitle = title.split("[\s,.]+");
             var wordsInSub = sub.split("[\s,.]+");
 
-            var html = "<div id='" + cardID + "' class='card-tiny'>";
+            var id = i + "-" + cardID;
+            var html = "<div id='" + id + "' class='card-tiny'>";
             html += "<h4>" + title + "</h4>";
             html += "<p><i>" + sub + "</i></p>";
             html += "<div class='card-button-group' id='button-group-" + cardID + "'>";
@@ -253,15 +262,17 @@ function displayCards(json_str, deckID) {
                 cardSub : sub,
                 cardContent : content
             }; // fill in this JS object
+            cardIDCurrent.push(cardID);
 
             // adjust the font size of the title
             $("#card-display-div").append(html);
-            var pixTitle = getSizeValue($("#"+cardID+" h4").css('font-size')) * title.length;
+            var pixTitle = getSizeValue($("#"+id+" h4").css('font-size')) * title.length;
             var pixDiv = $(".card-tiny").width();
             var ratio = (pixTitle / pixDiv) / 3; // dont get more than three lines of space
             var pixFont = Math.round(25 - ratio * 5);
             $("#"+cardID+" h4").css("font-size", pixFont + "px");
-        }
+            i++; // increment the index
+        } // for loop ends
     }
 }
 
@@ -294,9 +305,55 @@ $('#edit-card-area').ready(function() {
 });
 
 // turns the pop up divs into display:none when clicked 'close'
-function closeCardEdit() {
-    $("#edit-card-area").css('display', 'none');
+function closePopUp() {
+    $(".pop-up-div").css('display', 'none');
     $("#overlay_shade").css('display', 'none');
 }
 
+// assume the element has class 'pop-up-div'
+function popUp(divId) {
+    $("#" + divId).css('display', 'block');
+    $("#overlay_shade").css('display', 'block');
+}
 
+// appends the elements necessary for the div of flipping cards
+// based on the card index and cardID
+function createCardFlipDiv(i, cardID, parentID) {
+    $("#" + parentID).children().remove();
+
+    var id = i + "-" + cardID;
+    i = parseInt(i);
+    var html = cardFrontBackHTML(i, cardID);
+    if (i-1 >= 0) {
+        html += '<a href="javascript:void(0)"';
+        var prevID = 'prev-' + (i-1) + '-' + cardID;
+        html += 'class="change-card-link" id="' + prevID + '" ';
+        html += 'onclick="createCardFlipDiv(' + (i-1) + ', \'' + cardIDCurrent[i-1] + '\', \'' + parentID + '\')"';
+        html += '>Prev</a>';
+    }
+    if (i+1 < cardIDCurrent.length) {
+
+        html += '<a href="javascript:void(0)"';
+        var nextID = 'next-' + (i+1) + '-'+ cardID;
+        html += 'class="change-card-link" id="' + nextID + '" ';
+        html += 'onclick="createCardFlipDiv(' + (i+1) + ', \'' + cardIDCurrent[i+1] + '\', \'' + parentID + '\')"';
+        html += '>Next</a>';
+    }
+
+    html += "</div>";
+    $("#" + parentID).append(html);
+}
+
+// returns the html string for one card's front and back for the flip div
+function cardFrontBackHTML(i, cardID) {
+    var id = i + "-" + cardID;
+    var html = "<div class='card-zoom' id='zoom-" + id + "'>";
+    html += "<div class='card-front-zoom' id='zoom-front-" + id + "'>";
+    html += "<h3>" + cardInfo[cardID]['cardTitle'] + "</h3>";
+    html += "<p>" + cardInfo[cardID]['cardSub'] + "</p>";
+    html += "</div>";
+    html += "<div class='card-back-zoom' id='zoom-back-" + id + "'>";
+    html += cardInfo[cardID]['cardContent'];
+    html += "</div>";
+    return html;
+}

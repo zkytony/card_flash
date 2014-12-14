@@ -54,6 +54,7 @@ if ($_POST['submit-card'])
       $_SESSION['new_card']=false;
     }
     edit_card_div();
+    flip_card_div();
     ?>
     <div class="shade" id="overlay_shade"></div>
   </body>
