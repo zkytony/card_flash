@@ -21,10 +21,6 @@ $(document).ready(function() {
         
     });
 
-    $(document).on("click", ".zoom-button", function() {
-        
-    });
-
     $(document).on("click", ".edit-card-button", function() {
         
     });
@@ -224,7 +220,6 @@ function displayCards(json_str, deckID) {
             html += "<p><i>" + sub + "</i></p>";
             html += "<div class='card-button-group' id='button-group-" + cardID + "'>";
             html += "<button class='card-tiny-button flip-button' title='Flip'>F</botton>";
-            html += "<button class='card-tiny-button zoom-button' title='Zoom'>Z</button>";
             html += "<button class='card-tiny-button edit-card-button' title='Edit'>E</button>";
             html += "<button class='card-tiny-button delete-card-button' title='Delete'>D</button>";
             html += "</div></div>";
