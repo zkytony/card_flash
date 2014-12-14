@@ -5,6 +5,7 @@ if (!$_SESSION['loggedIn'])
   header("location:index.php");
 }
 require_once "view/template.php";
+require_once "view/card_edit_view.php";
 require_once "quill.php";
 require_once "database.php";
 require_once "functions.php";
@@ -112,56 +113,3 @@ function get_current_deck_title()
   return $deck_title;
   // end of method get_deck_title
 }
-
-function card_form()
-{
-?>
-  <div class="card-div">
-    <form name="card_form" id="card_form" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
-      <?php 
-      card_front();
-      card_back();
-      ?>
-      <textarea class="hidden" id="hidden_input" name="card_content" style="display:none"></textarea>
-      <input type="submit" value="Done" id="submit" name="submit-card" onsubmit="onsubmit()" class="submit-card"/>
-    </form>
-  </div>
-<?php
-}
-
-function card_front()
-{
-?>
-  <div class="card-frame" id="card_front_edit">
-    Title: <input class="card-field" id="card_title" type="text" name="card_title"  />
-    Subdescription: <input class="card-field card-sub" id="card_sub" type="text" name="card_sub" />
-  </div>
-<?php
-}
-
-function card_back()
-{
-?>
-  <div class="card-frame" id="card_back_edit">
-    <?php 
-    build_editor(); // from quill.php
-    ?>
-  </div>
-<?php
-}
-
-function preview_card()
-{
-?>
-  <div class="preview-card">
-    <h2>Preview</h2>
-    <div class="card-frame" id="card_front_preview">
-      <h4>Front</h4>
-    </div>
-    <div class="card-frame" id="card_back_preview">
-      <h4>Back</h4>
-    </div>
-  </div>
-<?php
-}
-?>
