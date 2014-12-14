@@ -7,6 +7,7 @@ if (!$_SESSION['loggedIn'])
 require_once "view/template.php";
 require_once "view/home_view.php";
 require_once "database.php";
+require_once "quill.php";
 
 ?>
 <!DOCTYPE html>
@@ -15,6 +16,7 @@ require_once "database.php";
     <title>Home-<?php echo $_SESSION['username'] ?></title>
     <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" href="./css/home.css">
+    <link rel="stylesheet" type="text/css" href="./css/m_quill.css">
     <?php 
     include_jquery();
     include_important_scripts();
@@ -37,6 +39,8 @@ require_once "database.php";
       echo "<h3 class='notify'>Added a new card</h3>";
       $_SESSION['new_card']=false;
     }
+    edit_card_div();
     ?>
+    <div class="shade" id="overlay_shade"></div>
   </body>
 </html>

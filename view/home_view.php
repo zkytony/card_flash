@@ -1,5 +1,5 @@
 <?php
-// php functions
+require_once "view/card_edit_view.php";
 
 // display current user's deck list
 function deck_list()
@@ -42,6 +42,21 @@ function card_in_deck()
 ?>
   <div class="card-area" id="card-display-div">
     <h3>There is no card. Create/Select a deck</h3>
+  </div>
+<?php
+}
+
+function edit_card_div()
+{
+?>
+  <div class="pop-up-div" id="edit-card-area">
+    <?php
+    card_form(); // got from card_edit_view.php
+    ?>
+    <script>
+     showCardInfo(<?php echo $_SESSION['userid']; ?>);
+    </script>
+    <a href="javascript:void(0)" class="close-pop-up-button" onclick="closeCardEdit();">Close</a>
   </div>
 <?php
 }

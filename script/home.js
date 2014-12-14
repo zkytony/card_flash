@@ -22,7 +22,8 @@ $(document).ready(function() {
     });
 
     $(document).on("click", ".edit-card-button", function() {
-        
+        $("#edit-card-area").css('display', 'block');
+        $("#overlay_shade").css('display', 'block');
     });
 
     $(document).on("click", ".delete-card-button", function() {
@@ -249,4 +250,10 @@ function getDeckIDFromTitle(deckTitle) {
         }
     }
     return null;
+}
+
+// turns the pop up divs into display:none when clicked 'close'
+function closeCardEdit() {
+    $("#edit-card-area").css('display', 'none');
+    $("#overlay_shade").css('display', 'none');
 }

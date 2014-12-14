@@ -1,4 +1,7 @@
 <?php
+// functions for the view when editing a card
+// need separate style file to customize style
+
 function card_form()
 {
 ?>
