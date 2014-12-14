@@ -179,7 +179,7 @@ function update_table($tablename, $columns,
 {
   $set_str=" SET ";
   $columns_arr=preg_split("/[\s,]+/", $columns);
-  $values_arr=preg_split("/[\s,]+/", $values);
+  $values_arr=preg_split("/[,]+/", $values);
   $len=sizeof($columns_arr);
   for ($i=0; $i<$len; $i++)
   {
