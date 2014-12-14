@@ -4,7 +4,7 @@ if (!$_SESSION['loggedIn'])
 {
   header("location:index.php");
 }
-require_once "template.php";
+require_once "view/template.php";
 require_once "database.php";
 
 ?>
