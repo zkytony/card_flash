@@ -34,6 +34,7 @@ if ($_POST['submit-card'])
     <?php 
     include_jquery();
     include_important_scripts();
+    include_js_plugin(); // jquery transit
     ?>
     <script src="./script/home.js"></script>
   </head>

@@ -323,37 +323,144 @@ function createCardFlipDiv(i, cardID, parentID) {
 
     var id = i + "-" + cardID;
     i = parseInt(i);
-    var html = cardFrontBackHTML(i, cardID);
-    if (i-1 >= 0) {
-        html += '<a href="javascript:void(0)"';
-        var prevID = 'prev-' + (i-1) + '-' + cardID;
-        html += 'class="change-card-link" id="' + prevID + '" ';
-        html += 'onclick="createCardFlipDiv(' + (i-1) + ', \'' + cardIDCurrent[i-1] + '\', \'' + parentID + '\')"';
-        html += '>Prev</a>';
-    }
-    if (i+1 < cardIDCurrent.length) {
+    var first = i-1 < 0;
+    var last = i+1 >= cardIDCurrent.length;
+    var html = "";
 
-        html += '<a href="javascript:void(0)"';
-        var nextID = 'next-' + (i+1) + '-'+ cardID;
-        html += 'class="change-card-link" id="' + nextID + '" ';
-        html += 'onclick="createCardFlipDiv(' + (i+1) + ', \'' + cardIDCurrent[i+1] + '\', \'' + parentID + '\')"';
-        html += '>Next</a>';
+    // add the card divs
+    if (!first) {
+        html += cardFrontBackHTML(i-1, cardIDCurrent[i-1], false);
     }
+    html += cardFrontBackHTML(i, cardID, true);
+    if (!last) {
+        html += cardFrontBackHTML(i+1, cardIDCurrent[i+1], false);
+    }
+    // add the Prev Next buttons
+    html += handlePrevNext(i, cardID, parentID);
 
-    html += "</div>";
     $("#" + parentID).append(html);
 }
 
 // returns the html string for one card's front and back for the flip div
-function cardFrontBackHTML(i, cardID) {
+function cardFrontBackHTML(i, cardID, display) {
     var id = i + "-" + cardID;
-    var html = "<div class='card-zoom' id='zoom-" + id + "'>";
+    var html = "<div class='card-zoom' id='zoom-" + id + "'";
+    if (!display) {
+        html += "style='display:none'; z-index=1";
+    } else {
+        html += "style='z-index=2'";
+    }
+    html += ">";
     html += "<div class='card-front-zoom' id='zoom-front-" + id + "'>";
     html += "<h3>" + cardInfo[cardID]['cardTitle'] + "</h3>";
     html += "<p>" + cardInfo[cardID]['cardSub'] + "</p>";
     html += "</div>";
     html += "<div class='card-back-zoom' id='zoom-back-" + id + "'>";
     html += cardInfo[cardID]['cardContent'];
-    html += "</div>";
+    html += "</div></div>";
     return html;
+}
+
+// returns the html string that displays 'Prev' and 'Next' properly
+function handlePrevNext(i, cardID, parentID) {
+    var first = i-1 < 0;
+    var last = i+1 >= cardIDCurrent.length;
+    var html = "";
+
+    // Add the 'Prev' and 'Next' button
+    if (!first) { // add the Prev button
+        html += '<a href="javascript:void(0)"';
+        var prevID = 'prev-' + (i-1) + '-' + cardID;
+        html += 'class="change-card-link" id="' + prevID + '" ';
+        html += 'onclick="browseFromTo(' + i + ', ' + (i-1) + ', \'' + parentID + '\', true)"';
+        html += '>Prev</a>';
+    }
+    if (!last) { // add the Next button
+        html += '<a href="javascript:void(0)"';
+        var nextID = 'next-' + (i+1) + '-'+ cardID;
+        html += 'class="change-card-link" id="' + nextID + '" ';
+        html += 'onclick="browseFromTo(' + i + ', ' + (i+1) + ', \'' + parentID + '\', false)"';
+        html += '>Next</a>';
+    }
+    return html;
+}
+
+// go to the previous or next card in the right way -- for animation purposes; This function assumes that 'from' and 'to' are two valid indices
+function browseFromTo(fromIndex, toIndex, parentID, previous) {
+    var curId = "zoom-" + fromIndex + "-" + cardIDCurrent[fromIndex];
+    var toId = "zoom-" + toIndex + "-" + cardIDCurrent[toIndex];
+    $("#" + toId).css('display', 'block'); // make that card visible
+    if (previous) {
+        $("#" + toId).transition({
+            x: 40, 
+            y: 40,
+            duration: 100,
+            complete: function() {
+                $("#" + curId).css('z-index', '1');
+                $("#" + toId).css('z-index', '2');
+                $("#" + toId).transition({
+                    x: 0, 
+                    y: 0,
+                    duration: 70,
+                    complete: function() {
+                        cardTransitionComplete(fromIndex, toIndex, parentID, true);
+                    }
+                });
+            }
+        });
+    } else {
+        $("#" + toId).transition({
+            x: -40, 
+            duration: 100,
+            complete: function() {
+                $("#" + curId).css('z-index', '1');
+                $("#" + toId).css('z-index', '2');
+                $("#" + toId).transition({
+                    x: 0,
+                    duration: 70,
+                    complete: function() {
+                        cardTransitionComplete(fromIndex, toIndex, parentID, false);
+                    }
+                });
+            }
+        });
+    }
+}
+
+// called when the animation of changing the card completes
+// appropriately handle the DOM after the change
+function cardTransitionComplete(fromIndex, toIndex, parentID, previous) {
+    var curId = "zoom-" + fromIndex + "-" + cardIDCurrent[fromIndex];
+    var toId = "zoom-" + toIndex + "-" + cardIDCurrent[toIndex];
+    // because we have three card divs at any time, there is also the other div's Id
+    var theOtherId = "zoom-";
+    // need to know if card from which we transit is the first, last or neither
+    var first = fromIndex-1 < 0;
+    var last = fromIndex+1 >= cardIDCurrent.length;
+
+    if (previous && !last) {
+        theOtherId += (fromIndex + 1) + "-" + cardIDCurrent[fromIndex + 1];
+    } else if (!previous && !first) {
+        theOtherId += (fromIndex - 1) + "-" + cardIDCurrent[fromIndex - 1];
+    }
+
+    // remove the other div:
+    $("#" + theOtherId).remove();
+    $(".change-card-link").remove(); // remove the Prev and Next buttons
+    
+    var html = "";
+    // build another card div in replacement of the one we deleted
+    if (previous && ((fromIndex-2) >= 0)) {
+        html += cardFrontBackHTML(fromIndex-2, cardIDCurrent[fromIndex-2], parentID);
+    } else if (!previous && ((fromIndex+2) < cardIDCurrent.length)) {
+        html += cardFrontBackHTML(fromIndex+2, cardIDCurrent[fromIndex+2], parentID);
+    }
+
+    // change the Prev and Next button accordingly
+    if (previous) {
+        html += handlePrevNext(fromIndex-1, cardIDCurrent[fromIndex-2], parentID);
+    } else {
+        html += handlePrevNext(fromIndex+1, cardIDCurrent[fromIndex+2], parentID);
+    }
+    $("#" + parentID).append(html);
 }

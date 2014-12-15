@@ -191,15 +191,11 @@ ul {
 }
 
 .close-pop-up-button {
-    float:left;
+    position:absolute;
+    right:0%;
+    top:0%;
     background:orange;
     color:black;
-}
-
-#flip-card-area-wrapper {
-    width:760px;
-    height:400px;
-    left:25%;
 }
 
 /* Copied and modified from card.css  */
@@ -227,10 +223,51 @@ ul {
     resize:none;
 }
 
+/* related to card flipping */
 .change-card-link {
+    float:left;
     width:40px;
     padding:4px;
     margin-right:10px;
     background-color:yellow;
     color:black;
+}
+
+#flip-card-area-wrapper {
+    width:760px;
+    height:400px;
+    left:25%;
+}
+
+#flip-card-area {
+    width:90%;
+    height:90%;
+    position:absolute;
+    left:5%;
+    top:5%;
+}
+
+.card-zoom {
+    position:absolute;
+    top:10%;
+    left:10%;
+    border:1px solid black;
+    background-color:white;
+    width:80%;
+    height:70%;
+}
+
+.card-front-zoom {
+    width:100%;
+    height:100%;
+    text-align:center;
+}
+
+.card-front-zoom h3 {
+    font-size:64px; /* need automatic adjustment */
+    margin-top:10%;
+}
+
+.card-back-zoom {
+    display:none;
 }

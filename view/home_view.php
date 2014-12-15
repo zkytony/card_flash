@@ -67,4 +67,12 @@ function flip_card_div()
   </div>
 <?php
 }
+
+
+function include_js_plugin()
+{
+?>
+  <script src="script/jquery.transit.min.js"></script>
+<?php
+}
 ?>
