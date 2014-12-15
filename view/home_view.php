@@ -73,6 +73,7 @@ function include_js_plugin()
 {
 ?>
   <script src="script/jquery.transit.min.js"></script>
+  <script src="script/jquery.quickflip.min.js"></script>
 <?php
 }
 ?>

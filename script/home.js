@@ -107,7 +107,7 @@ $(document).ready(function() {
                 }
             });
         }
-    });
+    }); // end of document click listener
 
     $("#card_form").submit(function() {
         var html = editor.getHTML();
@@ -354,10 +354,10 @@ function cardFrontBackHTML(i, cardID, display) {
     html += "<div class='card-front-zoom' id='zoom-front-" + id + "'>";
     html += "<h3>" + cardInfo[cardID]['cardTitle'] + "</h3>";
     html += "<p>" + cardInfo[cardID]['cardSub'] + "</p>";
-    html += "</div>";
+    html += "<a href='#' class='flip-link' onclick='flipCard(true, \"" + id + "\")'>Flip</a></div>";
     html += "<div class='card-back-zoom' id='zoom-back-" + id + "'>";
     html += cardInfo[cardID]['cardContent'];
-    html += "</div></div>";
+    html += "<a href='#' class='flip-link' onclick='flipCard(false, \"" + id + "\")'>Flip</a></div></div></div>";
     return html;
 }
 
@@ -463,4 +463,18 @@ function cardTransitionComplete(fromIndex, toIndex, parentID, previous) {
         html += handlePrevNext(fromIndex+1, cardIDCurrent[fromIndex+2], parentID);
     }
     $("#" + parentID).append(html);
+}
+
+function flipCard(toBack, id) {
+    if (toBack) {
+        id = "zoom-front-" + id;
+        $("#" + id).css('display', 'none');
+        var back = $("#" + id).parent().children().eq(1);
+        back.css('display', 'block'); 
+    } else {
+        id = "zoom-back-" + id;
+        $("#" + id).css('display', 'none');
+        var front = $("#" + id).parent().children().eq(0);
+        front.css('display', 'block');
+    }
 }
