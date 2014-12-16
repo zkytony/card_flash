@@ -17,3 +17,7 @@ function filterHTMLTags(htmlStr) {
     }
     return htmlStr;
 }
+
+function getRightFontSize() {
+    
+}

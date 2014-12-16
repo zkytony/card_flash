@@ -237,6 +237,7 @@ ul {
     width:760px;
     height:400px;
     left:25%;
+    background-color:#CECECE;
 }
 
 #flip-card-area {
@@ -251,7 +252,6 @@ ul {
     position:absolute;
     top:10%;
     left:10%;
-    background-color:white;
     width:80%;
     height:70%;
 }
@@ -259,8 +259,8 @@ ul {
 .card-front-zoom {
     width:100%;
     height:100%;
-    border:1px solid black;
     text-align:center;
+    background-color:#efefef;
 }
 
 .card-front-zoom h3 {
@@ -269,10 +269,9 @@ ul {
 }
 
 .card-back-zoom {
-    display:none;
-    border:1px solid black;
     width:100%;
     height:100%;
+    background-color:white;
 }
 
 .card-back-zoom .line {
@@ -285,4 +284,61 @@ ul {
     left:0%;
     top::0%;
     background-color:cyan;
+}
+
+/* Flip  */
+.flipper {
+    position:absolute;
+    -webkit-perspective: 1000px;
+    -moz-perspective: 1000px;
+}
+
+.flipper .flipper-front {
+    position:absolute;
+    z-index:2;
+    /* Initial state */
+    -webkit-transform: rotateX(0deg) rotateY(0deg);
+    -webkit-transform-style: preserve-3d;
+    -webkit-backface-visibility: hidden;
+    -moz-transform: rotateX(0deg) rotateY(0deg);
+    -moz-transform-style: preserve-3d;
+    -moz-backface-visibility: hidden;
+    /* -- transition is the magic sauce for animation -- */
+    -o-transition: all 0.3s ease-in-out;
+    -ms-transition: all 0.3s ease-in-out;
+    -moz-transition: all 0.3s ease-in-out;
+    -webkit-transition: all 0.3s ease-in-out;
+    transition: all 0.4s ease-in-out;
+}
+
+.flipper.flip .flipper-front {
+     z-index: 2;
+     /* Flipped state */
+    -webkit-transform: rotateY(180deg);
+    -moz-transform: rotateY(180deg);
+}
+
+.flipper .flipper-back {
+    position:absolute;
+    z-index:1;
+    /* Initial state */
+    -webkit-transform: rotateY(-180deg);
+    -webkit-transform-style: preserve-3d;
+    -webkit-backface-visibility: hidden;    
+    -moz-transform: rotateY(-180deg);
+    -moz-transform-style: preserve-3d;
+    -moz-backface-visibility: hidden;
+    /* -- transition is the magic sauce for animation -- */
+    -o-transition: all 0.3s ease-in-out;
+    -ms-transition: all 0.3s ease-in-out;
+    -moz-transition: all 0.3s ease-in-out;
+    -webkit-transition: all 0.3s ease-in-out;
+    transition: all 0.4s ease-in-out;
+}
+
+.flipper.flip .flipper-back {
+    z-index:3;
+    /* Flipped state */
+    -webkit-transform: rotateX(0deg) rotateY(0deg);
+    -moz-transform: rotateX(0deg) rotateY(0deg);
 }

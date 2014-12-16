@@ -109,6 +109,14 @@ $(document).ready(function() {
         }
     }); // end of document click listener
 
+    $(document).on("click", ".flipper", function() {
+        if (!$(this).hasClass('flip')) {
+            $(this).addClass('flip');
+        } else {
+            $(this).removeClass('flip');
+        }
+    });
+
     $("#card_form").submit(function() {
         var html = editor.getHTML();
         $("#hidden_input").val(html);
@@ -344,20 +352,16 @@ function createCardFlipDiv(i, cardID, parentID) {
 // returns the html string for one card's front and back for the flip div
 function cardFrontBackHTML(i, cardID, display) {
     var id = i + "-" + cardID;
-    var html = "<div class='card-zoom' id='zoom-" + id + "'";
+    var html = "<div class='card-zoom flipper' id='zoom-" + id + "'";
     if (!display) {
-        html += "style='display:none'; z-index=1";
-    } else {
-        html += "style='z-index=2'";
+        html += "style='display:none';";
     }
     html += ">";
-    html += "<div class='card-front-zoom' id='zoom-front-" + id + "'>";
+    html += "<div class='card-front-zoom flipper-front' id='zoom-front-" + id + "'>";
     html += "<h3>" + cardInfo[cardID]['cardTitle'] + "</h3>";
-    html += "<p>" + cardInfo[cardID]['cardSub'] + "</p>";
-    html += "<a href='#' class='flip-link' onclick='flipCard(true, \"" + id + "\")'>Flip</a></div>";
-    html += "<div class='card-back-zoom' id='zoom-back-" + id + "'>";
-    html += cardInfo[cardID]['cardContent'];
-    html += "<a href='#' class='flip-link' onclick='flipCard(false, \"" + id + "\")'>Flip</a></div></div></div>";
+    html += "<p>" + cardInfo[cardID]['cardSub'] + "</p></div>";
+    html += "<div class='card-back-zoom flipper-back' id='zoom-back-" + id + "'>";
+    html += cardInfo[cardID]['cardContent'] + "</div></div>";
     return html;
 }
 
@@ -396,8 +400,7 @@ function browseFromTo(fromIndex, toIndex, parentID, previous) {
             y: 40,
             duration: 100,
             complete: function() {
-                $("#" + curId).css('z-index', '1');
-                $("#" + toId).css('z-index', '2');
+                $("#" + curId).css('display', 'none');
                 $("#" + toId).transition({
                     x: 0, 
                     y: 0,
@@ -413,8 +416,7 @@ function browseFromTo(fromIndex, toIndex, parentID, previous) {
             x: -40, 
             duration: 100,
             complete: function() {
-                $("#" + curId).css('z-index', '1');
-                $("#" + toId).css('z-index', '2');
+                $("#" + curId).css('display', 'none');
                 $("#" + toId).transition({
                     x: 0,
                     duration: 70,
@@ -451,9 +453,9 @@ function cardTransitionComplete(fromIndex, toIndex, parentID, previous) {
     var html = "";
     // build another card div in replacement of the one we deleted
     if (previous && ((fromIndex-2) >= 0)) {
-        html += cardFrontBackHTML(fromIndex-2, cardIDCurrent[fromIndex-2], parentID);
+        html += cardFrontBackHTML(fromIndex-2, cardIDCurrent[fromIndex-2], false);
     } else if (!previous && ((fromIndex+2) < cardIDCurrent.length)) {
-        html += cardFrontBackHTML(fromIndex+2, cardIDCurrent[fromIndex+2], parentID);
+        html += cardFrontBackHTML(fromIndex+2, cardIDCurrent[fromIndex+2], false);
     }
 
     // change the Prev and Next button accordingly
@@ -463,18 +465,4 @@ function cardTransitionComplete(fromIndex, toIndex, parentID, previous) {
         html += handlePrevNext(fromIndex+1, cardIDCurrent[fromIndex+2], parentID);
     }
     $("#" + parentID).append(html);
-}
-
-function flipCard(toBack, id) {
-    if (toBack) {
-        id = "zoom-front-" + id;
-        $("#" + id).css('display', 'none');
-        var back = $("#" + id).parent().children().eq(1);
-        back.css('display', 'block'); 
-    } else {
-        id = "zoom-back-" + id;
-        $("#" + id).css('display', 'none');
-        var front = $("#" + id).parent().children().eq(0);
-        front.css('display', 'block');
-    }
 }
