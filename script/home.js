@@ -271,19 +271,18 @@ function displayCards(json_str, deckID) {
                 cardContent : content
             }; // fill in this JS object
             cardIDCurrent.push(cardID);
+            $("#card-display-div").append(html);
 
             // adjust the font size of the title
-            $("#card-display-div").append(html);
-            var pixTitle = getSizeValue($("#"+id+" h4").css('font-size')) * title.length;
-            var pixDiv = $(".card-tiny").width();
-            var ratio = (pixTitle / pixDiv) / 3; // dont get more than three lines of space
-            var pixFont = Math.round(25 - ratio * 5);
-            $("#"+id+" h4").css("font-size", pixFont + "px");
+            var titleFontSize = getRightFontSize(title, $(".card-tiny").width(), 25, 3);
+            $("#"+id+" h4").css("font-size", titleFontSize + "px");
+
             i++; // increment the index
         } // for loop ends
     }
 }
 
+// assuming size is in px
 function getSizeValue (size) {
     return parseInt(size.substring(0, size.length-2));
 }
@@ -358,7 +357,9 @@ function cardFrontBackHTML(i, cardID, display) {
     }
     html += ">";
     html += "<div class='card-front-zoom flipper-front' id='zoom-front-" + id + "'>";
-    html += "<h3>" + cardInfo[cardID]['cardTitle'] + "</h3>";
+    html += "<h3";
+    fontPx = getRightFontSize(cardInfo[cardID]['cardTitle'], 550, 65, 3); // 550 is the div width -- this value may cause problem
+    html += " style='font-size:" + fontPx + "px'>" + cardInfo[cardID]['cardTitle'] + "</h3>";
     html += "<p>" + cardInfo[cardID]['cardSub'] + "</p></div>";
     html += "<div class='card-back-zoom flipper-back' id='zoom-back-" + id + "'>";
     html += cardInfo[cardID]['cardContent'] + "</div></div>";
