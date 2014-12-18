@@ -51,7 +51,7 @@ if (isset($_POST['submit-deck']))
 
   // last thing - update current_deckid
   $tablename='users';
-  update_table('users', "`deckid`", "'$deckid'", 
+  update_table('users', array("`deckid`"), array("'$deckid'"), 
                "WHERE `userid`='$userid'", $con);
 
   // everything done

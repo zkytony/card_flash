@@ -19,8 +19,9 @@ if ($_POST['submit-card'])
   $content=mysqli_entities_fix_string($con, $_POST['card_content']);
   $cardid=$_POST['card_id'];
   
-  update_table("cards", "`title`,`sub`,`content`",
-               "'$title','$sub','$content'", "WHERE `cardid` = '$cardid'", $con);
+  update_table("cards", array("`title`","`sub`","`content`"),
+               array("'$title'","'$sub'","'$content'"), 
+               "WHERE `cardid` = '$cardid'", $con);
 }
 
 ?>

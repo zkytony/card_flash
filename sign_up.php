@@ -52,8 +52,8 @@ if (isset($_POST['submit']))
       $values="'$userid','$username','$password', NOW(), '1'";
       insert_into('users', $columns, $values, $con); // insert into 'users'
     } else {
-      $columns="`password`, `activate`, `register_time`";
-      $values="'$password', '1', NOW()";
+      $columns=array("`password`", "`activate`", "`register_time`");
+      $values=array("'$password'", "'1'", "NOW()");
       update_table('users', $columns, $values, "", $con);
     }
 

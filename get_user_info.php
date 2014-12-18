@@ -99,8 +99,8 @@ function get_current_deck($userid, $con)
 function update_displaying_deck($userid, $deckid, $con)
 {
   $tablename="users";
-  $column="`deckid`";
-  $value="'$deckid'";
+  $column=array("`deckid`");
+  $value=array("'$deckid'");
   $restrict_str="WHERE `userid`='" . $userid . "'";
   update_table($tablename, $column, $value, $restrict_str, $con);
 
@@ -137,8 +137,8 @@ function update_displaying_deck($userid, $deckid, $con)
 // wants to restore
 function delete_card($cardid, $con)
 {
-  $column="`deleted`";
-  $value="'1'";
+  $column=array("`deleted`");
+  $value=array("'1'");
   $restrict_str="WHERE `cardid` = '$cardid'";
   update_table("cards", $column, $value, $restrict_str, $con);
   return "success";
@@ -166,14 +166,14 @@ function delete_deck($deckid, $con)
   
   // then, mark the deck as deleted
   $restrict_str="WHERE `deckid` = '$deckid'";
-  update_table("decks", "`deleted`", "'1'", $restrict_str, $con);
+  update_table("decks", array("`deleted`"), array("'1'"), $restrict_str, $con);
   return "success";
 }
 
 function delete_tag($rid, $con)
 {
   $restrict_str="WHERE `rid` = '$rid'";
-  update_table("tags", "`deleted`", "'1'", $restrict_str, $con);
+  update_table("tags", array("`deleted`"), array("'1'"), $restrict_str, $con);
   return "success";
 }
 ?>

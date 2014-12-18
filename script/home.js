@@ -238,7 +238,6 @@ function displayCards(json_str, deckID) {
     // first, clean whatever is there already
     $("#card-display-div").children().remove();    
     cardIDCurrent = new Array();
-    
     var cardData = JSON.parse(json_str);
     if (jQuery.isEmptyObject(cardData)) {
         var html = "<h3>There is no Card! Select a deck if currently not, and create a card!</h3>";

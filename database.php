@@ -168,10 +168,12 @@ function insert_into($tablename, $columns, $values, $con)
 // Perform a update query to the specified table
 // Allows updating multiple columns.
 // Required input format:
-// - $columns is a string, each column is separated by a comma ','
-//   e.g. "`col1`, `col2`, `col3`"
-// - $values is a string, each value is separated by a comma ','
-//   e.g. "'val1', 'val2', 'val3'"
+// - $columns is an array containing the columns that you want
+// to update, for example: 
+//   e.g. array("`col1`", "`col2`", "`col3`"...)
+// - $values is an array, containing the value you want to set
+// corresponding to each column in the same order
+//   e.g. array("'val1'", "'val2'", "'val3'"...)
 // Ordering of $values should be according to the ordering
 // of $columns
 // Problem: if value contains single quote or comma, this breaks!
@@ -179,14 +181,11 @@ function update_table($tablename, $columns,
                       $values, $restrict_str, $con)
 {
   $set_str=" SET ";
-  $columns_arr=preg_split("/[\s,]+/", $columns);
-  $values_arr=preg_split("/[,]+/", $values);
-  $len=sizeof($columns_arr);
-  for ($i=0; $i<$len; $i++)
+  for ($i=0; $i<sizeof($columns); $i++)
   {
-      $set_str.="$columns_arr[$i] = $values_arr[$i]";
+      $set_str.="$columns[$i] = $values[$i]";
 
-    if ($i<$len-1)
+    if ($i<sizeof($columns)-1)
     {
       $set_str.=", ";
     } else {
