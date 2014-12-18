@@ -356,7 +356,7 @@ function cardFrontBackHTML(i, cardID, display) {
     }
     html += ">";
     html += "<div class='card-front-zoom flipper-front' id='zoom-front-" + id + "'>";
-    html += "<h3>" + cardInfo[cardID]['cardTitle'] + "</h3>";
+    html += "<span class='zoom-card-title'>" + cardInfo[cardID]['cardTitle'] + "</span>";
     html += "<p>" + cardInfo[cardID]['cardSub'] + "</p></div>";
     html += "<div class='card-back-zoom flipper-back' id='zoom-back-" + id + "'>";
     html += cardInfo[cardID]['cardContent'] + "</div></div>";
