@@ -265,11 +265,13 @@ ul {
     background-color:#efefef;   
     overflow-x:auto; /* Show scroll bar only if necessary */
     overflow-y:auto;
+    cursor:pointer;
 }
 
 .card-front-zoom h3 {
     font-size:64px; /* need automatic adjustment */
     margin-top:10%;
+    cursor:text;
 }
 
 .card-back-zoom {
@@ -278,11 +280,13 @@ ul {
     background-color:white;
     overflow-x:auto; /* Show scroll bar only if necessary */
     overflow-y:auto;
+    cursor:pointer;
 }
 
 .card-back-zoom .line {
     font-size:22px;
     margin-left:10px;
+    cursor:text;
 }
 
 .flip-link {
