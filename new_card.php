@@ -59,10 +59,11 @@ if (isset($_POST['submit-card']))
   <head>
     <title>New Card-<?php echo $_SESSION['username'] ?></title>
     <meta charset="utf-8">
-    <link rel="stylesheet" type="text/css" href="./css/home.css">
+    <link rel="stylesheet" type="text/css" href="./css/template.css">
     <link rel="stylesheet" type="text/css" href="./css/card.css">
     <link rel="stylesheet" type="text/css" href="./css/m_quill.css">
     <?php 
+    include_fonts();
     include_jquery();
     include_important_scripts();
     ?>

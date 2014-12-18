@@ -1,47 +1,12 @@
-* {
-    padding:0px;
-    margin:0px;
-}
-
 ul {
     list-style-type:none;
 }
 
 button {
+    width:17px;
+    height:21px;
     cursor:pointer;
-}
-
-body {
-    /* Currently, let's just use one type of font*/
-    font-family: 'Vollkorn', serif;
-}
-
-.top-bar {
-    border-bottom:2px solid red;
-    padding-top:5px;
-    width:100%;
-    float:left
-}
-
-.info-span a {
-    margin-left:5px;
-}
-
-.info-span h3 {
-    width:150px;
-    float:left;
-}
-
-#logout-button {
-    color:blue;
-    float:left;
-    background-color:none;
-    border:none;
-    font-size:17px;
-}
-
-#logout-button:hover {
-    color:green;
+    background-color:white;
 }
 
 .deck-list {

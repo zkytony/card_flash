@@ -32,6 +32,7 @@ if ($_POST['submit-card'])
     <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" href="./css/home.css">
     <link rel="stylesheet" type="text/css" href="./css/m_quill.css">
+    <link rel="stylesheet" type="text/css" href="./css/template.css">
     <?php 
     include_fonts(); // from template.php
     include_jquery();
