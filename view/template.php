@@ -28,4 +28,11 @@ function include_important_scripts()
   <script src="script/functions.js"></script>
 <?php
 }
+
+function include_fonts()
+{
+?>
+  <link href='http://fonts.googleapis.com/css?family=Vollkorn:400,400italic,700,700italic' rel='stylesheet' type='text/css'>
+<?php
+}
 ?>

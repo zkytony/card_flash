@@ -11,6 +11,11 @@ button {
     cursor:pointer;
 }
 
+body {
+    /* Currently, let's just use one type of font*/
+    font-family: 'Vollkorn', serif;
+}
+
 .top-bar {
     border-bottom:2px solid red;
     padding-top:5px;
@@ -272,9 +277,9 @@ button {
     cursor:pointer;
 }
 
-.card-front-zoom h3 {
+.card-front-zoom .zoom-card-title {
     font-size:64px; /* need automatic adjustment */
-    margin-top:10%;
+    font-weight:700;
     cursor:text;
 }
 

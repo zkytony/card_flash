@@ -33,6 +33,7 @@ if ($_POST['submit-card'])
     <link rel="stylesheet" type="text/css" href="./css/home.css">
     <link rel="stylesheet" type="text/css" href="./css/m_quill.css">
     <?php 
+    include_fonts(); // from template.php
     include_jquery();
     include_important_scripts(); // from template.php
     include_js_plugin(); // jquery transit
