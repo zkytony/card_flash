@@ -283,6 +283,10 @@ body {
     cursor:text;
 }
 
+.card-front-zoom .zoom-card-title:hover {
+    color:#6E3700;
+}
+
 .card-back-zoom {
     width:100%;
     height:100%;
