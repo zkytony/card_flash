@@ -109,11 +109,13 @@ $(document).ready(function() {
         }
     }); // end of document click listener
 
-    $(document).on("click", ".flipper", function() {
-        if (!$(this).hasClass('flip')) {
-            $(this).addClass('flip');
-        } else {
-            $(this).removeClass('flip');
+    $(document).on("click", ".flipper", function(e) {
+        if (e.target.nodeName != "SPAN") {
+            if (e.target.nodeName != "DIV") {
+                flip($(this));
+            } else if (!$(e.target).hasClass("line")) {
+                flip($(this));
+            }
         }
     });
 

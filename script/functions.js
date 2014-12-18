@@ -55,3 +55,14 @@ function getRightFontSize(str, divPx, basePx, lineLimit) {
     var fontPx = Math.round(basePx - ratio * 5);
     return fontPx;
 }
+
+// This is a helper function for home.php, for flipping the element
+// by adding a class 'flip' to the element
+// Expects the paramter to be JQuery Object
+function flip(jqueryObj) {
+    if (!jqueryObj.hasClass('flip')) {
+        jqueryObj.addClass('flip');
+    } else {
+        jqueryObj.removeClass('flip');
+    }
+}
