@@ -1,6 +1,6 @@
 Goal of this project is to create a flashcard application that help
-people learning new knowledge, and communicate what they made to drive
-the user community.
+people discover and share their world, and communicate what they made 
+to drive the user community.
 
 PHP coding guide: http://pear.php.net/manual/en/standards.php
 
