@@ -31,6 +31,7 @@ if ($_POST['submit-card'])
     <title>Home-<?php echo $_SESSION['username'] ?></title>
     <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" href="./css/home.css">
+    <link rel="stylesheet" type="text/css" href="./css/card.css">
     <link rel="stylesheet" type="text/css" href="./css/m_quill.css">
     <link rel="stylesheet" type="text/css" href="./css/template.css">
     <?php 

@@ -1,10 +1,13 @@
+.wrapper-new-card-main {
+    position:relative;
+    left:15%;
+}
+
 .card-div {
     width:900px;
     border:1px solid black;
-    position:relative;
     float:left;
     margin:30px;
-    left:15%;
     height:300px;
 }
 
@@ -17,6 +20,10 @@
     height:200px;
 }
 
+.card-field {
+    width:250px;
+}
+
 .card-textarea {
     width:350px;
     height:180px;
@@ -26,9 +33,7 @@
 .preview-card {
     width:900px;
     border:1px solid blue;
-    position:relative;
     float:left;
     margin:30px;
-    left:15%;
     height:300px;
 }

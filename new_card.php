@@ -73,9 +73,13 @@ if (isset($_POST['submit-card']))
     require_once "database.php";
     top_bar();
     echo get_current_deck_title();
-    card_form();
-    preview_card();
     ?>
+    <div class="wrapper-new-card-main">
+    <?php
+    card_form(); // from card_edit_view.php
+    preview_card(); // from card_edit_view.php
+    ?>
+    </div>
     <script src="./script/new_card.js"></script>
   </body>
 </html>
