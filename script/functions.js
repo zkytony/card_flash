@@ -66,3 +66,16 @@ function flip(jqueryObj) {
         jqueryObj.removeClass('flip');
     }
 }
+
+function quillEditor(editorId, toolbarId) {
+    var editor = new Quill('#' + editorId, {
+        formats: ['bold', 'italic', 'size', 'image', 'link', 'align', 'color'],
+        styles: {
+            'body': {
+                'padding': "7px"
+            }
+        }
+    });
+    editor.addModule('toolbar', { container: '#' + toolbarId });
+    return editor;
+}

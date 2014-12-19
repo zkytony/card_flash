@@ -301,15 +301,7 @@ function getDeckIDFromTitle(deckTitle) {
 // set up the quill editor -- for edit card
 var editor;
 $('#edit-card-area').ready(function() {
-    editor = new Quill('#editor', {
-        styles: {
-            'body': {
-                'font-size': "17px",
-                'padding': "7px"
-            }
-        }
-    });
-    editor.addModule('toolbar', { container: '#toolbar' });
+    editor = quillEditor("editor", "toolbar");
 });
 
 // turns the pop up divs into display:none when clicked 'close'
