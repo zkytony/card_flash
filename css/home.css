@@ -2,13 +2,6 @@ ul {
     list-style-type:none;
 }
 
-button {
-    width:17px;
-    height:21px;
-    cursor:pointer;
-    background-color:white;
-}
-
 .deck-list {
     float:left;
     position:relative;
@@ -106,6 +99,9 @@ button {
 .card-tiny-button {
     border:1px solid red;
     float:left;
+    width:17px;
+    height:21px;
+    background-color:white;
 }
 
 .card-tiny-button:hover {
@@ -126,6 +122,9 @@ button {
 .deck-tiny-button {
     border:1px solid green;
     float:left;
+    width:17px;
+    height:21px;
+    background-color:white;
 }
 
 .deck-tiny-button:hover {

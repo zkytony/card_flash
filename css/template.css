@@ -17,6 +17,10 @@ a:hover {
     color:purple;
 }
 
+button {
+    cursor:pointer;
+}
+
 .top-bar {
     border-bottom:2px solid red;
     padding-top:5px;
