@@ -69,9 +69,9 @@ function flip(jqueryObj) {
 
 function quillEditor(editorId, toolbarId) {
     var editor = new Quill('#' + editorId, {
-        formats: ['bold', 'italic', 'size', 'image', 'link', 'align', 'color'],
         styles: {
             'body': {
+                'font-size':'17px',
                 'padding': "7px"
             }
         }
