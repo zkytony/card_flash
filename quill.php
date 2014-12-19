@@ -22,9 +22,6 @@ function build_editor()
       <button type="button" class="ql-italic"><i>I</i></button>
       <button type="button" class="ql-underline"><u>U</u></button>
     </span>
-    <span class="ql-format-group">
-      <button type="button" class="ql-link">Link</button>
-    </span>
   </div>
   <!-- Create the editor container -->
   <div id="editor">
