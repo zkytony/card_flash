@@ -11,19 +11,33 @@ class User
   // An array that stores information about this user
   private $info; 
   private $exist;
+  private $con; // don't want to connect too many times
   
   // fetch the user information from database using the userid
   function __construct($userid) {
-    $con = connect();
+    $this->con = connect();
     $result = select_from("users", "*", "WHERE `userid` = '$userid'", $con);
-    $exist = $result->num_rows() == 1;
-    if ($exist) {
+    $this->exist = $result->num_rows() == 1;
+    if ($this->exist) {
       $info = array();
       while ($rows = mysqli_fetch_assoc($result)) {
         $info = $rows; // In PHP, arrays are assigned in copy
         break; // only can be 1 match
       }
     }
+  }
+
+  // logout current user by marking 'online' as '0'
+  public function logout() {
+    update_table("users", array("`online`"), array("'0'"), 
+                 "WHERE `userid` = '$this->userid'", $this->con);
+  }
+
+  // log in this user
+  // Differ from sign_in, which is a static function
+  public function login() {
+    update_table("users", array("`online`"), array("'1'"), 
+                 "WHERE `userid` = '$this->userid'", $this->con);    
   }
 
   // Register a user with username and password. 
@@ -34,18 +48,18 @@ class User
   // Remember to prevent SQL / HTMl injection in $username and $password
   // Returns true if registration is successful
   public static function register($username, $password, $con) {
-    $column="`username`, `activate`";
-    $result=select_from('users', $column, "",  $con);
+    $column = "`username`, `activate`";
+    $result = select_from('users', $column, "",  $con);
 
-    $available=true;
-    $change_password=false;
-    while ($row=mysqli_fetch_assoc($result)) {
+    $available = true;
+    $change_password = false;
+    while ($row = mysqli_fetch_assoc($result)) {
       if ($row['username'] == $username && $row['activate'] == true) {
-        $available=false;
+        $available = false;
         break;
       } elseif ($row['username'] == $username && $row['activate'] == false) {
-        $available=true;
-        $change_password=true;
+        $available = true;
+        $change_password = true;
         break;
       }
     }
@@ -54,19 +68,47 @@ class User
       return false;
     } else {
       if (!$change_password) {
-        $userid=substr($username, 0, 3) . $result->num_rows; // result has been obtained previously
+        $userid = substr($username, 0, 3) . $result->num_rows; // result has been obtained previously
         // ensure uniqueness
-        $userid=ensure_unique_id($userid, "users", "userid", $con); 
+        $userid = ensure_unique_id($userid, "users", "userid", $con); 
 
-        $columns="`userid`,`username`,`password`,`register_time`,`activate`";
-        $values="'$userid','$username','$password', NOW(), '1'";
+        $columns = "`userid`,`username`,`password`,`register_time`,`activate`, `online`";
+        $values = "'$userid','$username','$password', NOW(), '1', '1'";
         insert_into('users', $columns, $values, $con); // insert into 'users'
       } else {
-        $columns=array("`password`", "`activate`", "`register_time`");
-        $values=array("'$password'", "'1'", "NOW()");
+        $columns = array("`password`", "`activate`", "`online`", "`register_time`");
+        $values = array("'$password'", "'1'", "'1'", "NOW()");
         update_table('users', $columns, $values, "", $con);
       }
       return true;
+    }
+  }
+
+  // Sign in a user. Returns a User object of that user if successful
+  // Returns null object otherwise
+  public static function sign_in($username, $password, $con) {
+    $restrict_str = "WHERE username = '$username' AND password = '$password'";
+    $result = select_from("users", "`userid`, `activate`", $restrict_str, $con);
+
+    $success = false;
+    $userid = "";
+    while($rows = mysqli_fetch_assoc($result)) {
+      if ($rows['activate']) {
+        $success = true;
+        $userid = $rows['userid'];
+      } else {
+        $success = false;
+      }
+      break; // only can be 1 match
+    }
+
+    if ($success) {
+      // make user online
+      update_table("users", array("`online`"), array("'1'"), 
+                   "WHERE `userid` = '$userid'", $con);
+      return new User($userid);
+    } else {
+      return NULL;
     }
   }
 
@@ -87,15 +129,15 @@ class User
 
   // Remember to prevent SQL / HTMl injection in $username and $password
   public static function check_exist_active($username, $password, $con) {
-    $restrict_str="WHERE username='$username' AND password='$password'";
-    $result=select_from("users", "`userid`, `activate`", $restrict_str, $con);
+    $restrict_str = "WHERE username = '$username' AND password = '$password'";
+    $result = select_from("users", "`userid`, `activate`", $restrict_str, $con);
 
-    $success=false;
-    while($rows=mysqli_fetch_assoc($result)) {
+    $success = false;
+    while($rows = mysqli_fetch_assoc($result)) {
       if ($rows['activate']) {
-        $success=true;
+        $success = true;
       } else {
-        $success=false;
+        $success = false;
       }
       break; // only can be 1 match
     }
