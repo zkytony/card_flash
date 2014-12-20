@@ -31,6 +31,7 @@ function init_users_table($con)
           `register_time` DATE NOT NULL,
           `deckid` VARCHAR(32),
           `activate` BOOL,
+          `online` BOOL,
           PRIMARY KEY(`userid`),
           CONSTRAINT `current_deckid` FOREIGN KEY (`deckid`) REFERENCES decks(`deckid`),
           INDEX(`username`(10))) ENGINE MyISAM;";
