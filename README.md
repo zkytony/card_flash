@@ -5,15 +5,13 @@ Do change the database settings
 
 *Under development*
 
-### List of things you should learn/setup
-
-Required:
+### List of things you should have set up
 * Set up a local server (WAMP/MAMP/LAMP),and configure PHP, MySQL
   (do change the information in `database.php` to your local
   database's information)
- *Remeber to restart Apache by:* `sudo service apache2 restart`
+* Remeber to restart Apache by:* `sudo service apache2 restart` on Linux
 * Git
-* AJAX
+* PHPUnit
 
 Recommended:
 * Linux OS, (Highly)
@@ -23,4 +21,6 @@ API we used currently:
 * Quill
 * JQuery
 
-Set the `display_error` in `php.ini` to `On`
+Test Framework: PHPUnit [link](https://phpunit.de/)
+
+-- By Kaiyu
