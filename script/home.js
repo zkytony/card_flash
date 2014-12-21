@@ -204,8 +204,8 @@ function currentDeck(userid) {
                userid: userid},
         type: 'post',
         success: function(output) {
-            $("#current-deck-span").html(deckIDTitles[output]);
-            current_deck_global = deckIDTitles[output];
+            $("#current-deck-span").html(output);
+            current_deck_global = output;
 
             // execute these lines when current deck is fetched
             var deckID = getDeckIDFromTitle(current_deck_global);
