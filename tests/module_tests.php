@@ -143,4 +143,86 @@ class UserTest extends PHPUnit_Framework_TestCase
   }
 }
 
+class DeckAndCardTest extends PHPUnit_Framework_TestCase
+{
+  private $con;
+  private $user;
+
+  public function setUp() {
+    $db = array (
+      "hostname"=>"localhost",
+      "database"=>"temp_flashcard",
+      "username"=>"kaiyu",
+      "password"=>"123abc",
+    );
+    $this->con = mysqli_connect($db['hostname'], $db['username'], 
+                                $db['password'], $db['database']);
+      
+    init_tables($this->con);
+
+    $username = 'user1';
+    $password = 'dummy';
+    $success = User::register($username, $password, $this->con);
+    $this->assertEquals(true, $success);
+    $this->user = User::sign_in($username, $password, $this->con);
+  }
+  
+  public function testAddDeck() {
+    $title = "Deck1";
+    $tags = array("aaa", "bbb", "ccc");
+    
+    $deckid = $this->user->add_deck($title, $tags, $this->con);
+    $result = select_from("decks", "*", "WHERE `deckid` = '$deckid'", $this->con);
+    while ($row = mysqli_fetch_assoc($result)) {
+      $this->assertEquals($title, $row['title']);
+      $this->assertEquals($this->user->get_id(), $row['userid']);
+    }
+
+    $result = select_from("tags", "*", "WHERE `deckid` = '$deckid' ORDER BY `tag`", $this->con);
+    $i = 0; // index
+    while ($row = mysqli_fetch_assoc($result)) {
+      $this->assertEquals($tags[$i], $row['tag']);
+      $i++;
+    }    
+
+    // delete this deck
+    $userid = $this->user->get_id();
+    delete_from("decks", "WHERE `deckid` = '$deckid'", '1', $this->con);
+    // delete the tags
+    delete_from("tags", "WHERE `deckid` = '$deckid'", '1', $this->con);
+  }
+
+  public function testAddCard() {
+    // add the deck first
+    $title = "Deck1";
+    $tags = array("aaa", "bbb", "ccc");
+    $deckid = $this->user->add_deck($title, $tags, $this->con);
+
+    $title = "Card99";
+    $sub = "One card";
+    $content = "<h1>Hi</h1>";
+    $cardid = $this->user->add_card($title, $sub, $content, $deckid, $this->con);
+
+    $result = select_from("cards", "*", "WHERE `cardid` = '$cardid'", $this->con);
+    while ($row = mysqli_fetch_assoc($result)) {
+      $this->assertEquals($title, $row['title']);
+      $this->assertEquals($sub, $row['sub']);
+      $this->assertEquals($content, $row['content']);
+    }
+    
+    // delete this deck
+    delete_from("decks", "WHERE `deckid` = '$deckid'", '1', $this->con);
+    // delete the tags
+    delete_from("tags", "WHERE `deckid` = '$deckid'", '1', $this->con);
+    // delete this card
+    delete_from("cards", "WHERE `cardid` = '$cardid'", '1', $this->con);
+  }
+
+  public function tearDown() {
+    // delete this user
+    $userid = $this->user->get_id();
+    delete_from("users", "WHERE `userid` = '$userid'", '1', $this->con);
+  }
+}
+
 ?>
