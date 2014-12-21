@@ -4,6 +4,7 @@
    User, Card, Deck, Tag
  */
 require_once "database.php";
+require_once "functions.php";
 
 class User
 {
@@ -11,33 +12,42 @@ class User
   // An array that stores information about this user
   private $info; 
   private $exist;
-  private $con; // don't want to connect too many times
   
   // fetch the user information from database using the userid
-  function __construct($userid) {
-    $this->con = connect();
+  function __construct($userid, $con) {
     $result = select_from("users", "*", "WHERE `userid` = '$userid'", $con);
-    $this->exist = $result->num_rows() == 1;
+    $this->exist = $result->num_rows == 1;
     if ($this->exist) {
-      $info = array();
+      $this->userid = $userid;
+      $this->info = array();
       while ($rows = mysqli_fetch_assoc($result)) {
-        $info = $rows; // In PHP, arrays are assigned in copy
+        $this->info = $rows; // In PHP, arrays are assigned in copy
         break; // only can be 1 match
       }
     }
   }
 
   // logout current user by marking 'online' as '0'
-  public function logout() {
+  public function logout($con) {
     update_table("users", array("`online`"), array("'0'"), 
-                 "WHERE `userid` = '$this->userid'", $this->con);
+                 "WHERE `userid` = '$this->userid'", $con);
+    $this->info['online'] = '0';
   }
 
   // log in this user
   // Differ from sign_in, which is a static function
-  public function login() {
+  public function login($con) {
     update_table("users", array("`online`"), array("'1'"), 
-                 "WHERE `userid` = '$this->userid'", $this->con);    
+                 "WHERE `userid` = '$this->userid'", $con);    
+    $this->info['online'] = '1';
+  }
+
+  public function get_info() {
+    return $this->info;
+  }
+ 
+  public function exist() {
+    return $this->exist;
   }
 
   // Register a user with username and password. 
@@ -67,17 +77,18 @@ class User
     if (!$available) {
       return false;
     } else {
+      // register the user -- don't set online = 1 yet
       if (!$change_password) {
-        $userid = substr($username, 0, 3) . $result->num_rows; // result has been obtained previously
+        $userid = 'user_' . $result->num_rows; // result has been obtained previously
         // ensure uniqueness
         $userid = ensure_unique_id($userid, "users", "userid", $con); 
 
         $columns = "`userid`,`username`,`password`,`register_time`,`activate`, `online`";
-        $values = "'$userid','$username','$password', NOW(), '1', '1'";
+        $values = "'$userid','$username','$password', NOW(), '1', '0'";
         insert_into('users', $columns, $values, $con); // insert into 'users'
       } else {
         $columns = array("`password`", "`activate`", "`online`", "`register_time`");
-        $values = array("'$password'", "'1'", "'1'", "NOW()");
+        $values = array("'$password'", "'1'", "'0'", "NOW()");
         update_table('users', $columns, $values, "", $con);
       }
       return true;
@@ -88,14 +99,15 @@ class User
   // Returns null object otherwise
   public static function sign_in($username, $password, $con) {
     $restrict_str = "WHERE username = '$username' AND password = '$password'";
-    $result = select_from("users", "`userid`, `activate`", $restrict_str, $con);
+    $columns = "`userid`, `activate`";
+    $result = select_from("users", $columns, $restrict_str, $con);
 
     $success = false;
     $userid = "";
-    while($rows = mysqli_fetch_assoc($result)) {
-      if ($rows['activate']) {
+    while($row = mysqli_fetch_assoc($result)) {
+      if ($row['activate']) {
         $success = true;
-        $userid = $rows['userid'];
+        $userid = $row['userid'];
       } else {
         $success = false;
       }
@@ -106,7 +118,7 @@ class User
       // make user online
       update_table("users", array("`online`"), array("'1'"), 
                    "WHERE `userid` = '$userid'", $con);
-      return new User($userid);
+      return new User($userid, $con);
     } else {
       return NULL;
     }
@@ -114,17 +126,18 @@ class User
 
   // Input should be an instance of User class
   // Deactivates this user by marking activate as false
-  public static function deactivate(User $user, $con) {
-    $columns = array("`activate`");
-    $values = array("`0`");
-    $restrict_str = "WHERE `userid` = '$user->userid'";
+  public static function deactivate($username, $password, $con) {
+    $columns = array("`activate`", "`online`");
+    $values = array("'0'", "'0'");
+    $restrict_str = "WHERE username = '$username' AND password = '$password'";
     update_table("users", $columns, $values, $restrict_str, $con);
   }
 
   // Input should be an instance of User class
   // Deletes this user from database
-  public static function delete(User $user, $con) {
-    delete_from("users", "WHERE `userid` = '$user->userid'", 1, $con);
+  public static function delete($username, $password, $con) {
+    $restrict_str = "WHERE username = '$username' AND password = '$password'";
+    delete_from("users", $restrict_str, 1, $con);
   }
 
   // Remember to prevent SQL / HTMl injection in $username and $password

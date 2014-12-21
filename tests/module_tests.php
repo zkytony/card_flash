@@ -114,9 +114,29 @@ class UserTest extends PHPUnit_Framework_TestCase
 
     // assert if user exists, and is activate and online
     $this->assertEquals(true, $user->exist());
-    $user_info = $user->getInfo();
+    $user_info = $user->get_info();
     $this->assertEquals('1', $user_info['activate']);
     $this->assertEquals('1', $user_info['online']);
+
+    // delete this user
+    delete_from("users", "WHERE `username` = '$username' AND `password` = '$password'", '1', $this->con);    
+  }
+
+  public function testLogOut() {
+    $username = 'user1';
+    $password = 'dummy';
+    $success = User::register($username, $password, $this->con);
+    $this->assertEquals(true, $success);
+
+    $user = User::sign_in($username, $password, $this->con);
+    $user->logout($this->con);
+    $this->assertEquals('0', $user->get_info()['online']);
+  
+    $result = select_from("users", "*", 
+                          "WHERE `username` = '$username' AND `password` = '$password'", $this->con);
+    while($row = mysqli_fetch_assoc($result)) {
+      $this->assertEquals('0', $row['online']);
+    }
 
     // delete this user
     delete_from("users", "WHERE `username` = '$username' AND `password` = '$password'", '1', $this->con);    
