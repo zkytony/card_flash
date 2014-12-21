@@ -1,8 +1,6 @@
 card_flash
 ==========
 
-Do change the database settings
-
 *Under development*
 
 ### List of things you should have set up
