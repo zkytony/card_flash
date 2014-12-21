@@ -94,11 +94,11 @@ function init_tags_table($con)
 {
   $tablename='tags';
   $query="CREATE TABLE IF NOT EXISTS `$tablename` (
-          `rid` VARCHAR(32) UNIQUE NOT NULL,
+          `tagid` VARCHAR(32) UNIQUE NOT NULL,
           `tag` VARCHAR(32) NOT NULL,
           `deckid` VARCHAR(32) NOT NULL,
           `deleted` BOOL,
-          PRIMARY KEY(`rid`),
+          PRIMARY KEY(`tagid`),
           FOREIGN KEY(`deckid`) REFERENCES decks(`deckid`)
           ) ENGINE MyISAM;";
   
