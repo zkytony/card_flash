@@ -178,6 +178,16 @@ class DeckAndCardTest extends PHPUnit_Framework_TestCase
       $this->assertEquals($this->user->get_id(), $row['userid']);
     }
 
+    // see if `deckid` in users is updated
+    $userid = $this->user->get_id();
+    $result = select_from("users", "*", 
+                          "WHERE `userid` = '$userid'", $this->con);
+    while($row = mysqli_fetch_assoc($result)) {
+      $this->assertEquals($deckid, $row['deckid']);
+    }
+
+    $this->assertEquals($deckid, $this->user->get_info()['deckid']);
+
     $result = select_from("tags", "*", "WHERE `deckid` = '$deckid' ORDER BY `tag`", $this->con);
     $i = 0; // index
     while ($row = mysqli_fetch_assoc($result)) {
@@ -186,10 +196,9 @@ class DeckAndCardTest extends PHPUnit_Framework_TestCase
     }    
 
     // delete this deck
-    $userid = $this->user->get_id();
     delete_from("decks", "WHERE `deckid` = '$deckid'", '1', $this->con);
     // delete the tags
-    delete_from("tags", "WHERE `deckid` = '$deckid'", '1', $this->con);
+    delete_from("tags", "WHERE `deckid` = '$deckid'", '', $this->con);
   }
 
   public function testAddCard() {
@@ -213,9 +222,27 @@ class DeckAndCardTest extends PHPUnit_Framework_TestCase
     // delete this deck
     delete_from("decks", "WHERE `deckid` = '$deckid'", '1', $this->con);
     // delete the tags
-    delete_from("tags", "WHERE `deckid` = '$deckid'", '1', $this->con);
+    delete_from("tags", "WHERE `deckid` = '$deckid'", '', $this->con);
     // delete this card
     delete_from("cards", "WHERE `cardid` = '$cardid'", '1', $this->con);
+  }
+
+  public function testUserGetDecks() {
+    // add the deck first
+    $title = "Deck1";
+    $tags = array("aaa", "bbb", "ccc");
+    $deckid = $this->user->add_deck($title, $tags, $this->con);
+
+    $decks = $this->user->get_decks(true, $this->con);
+    foreach ($decks as $deck) {
+      $this->assertEquals($deckid, $deck->get_id());
+    }
+
+    // delete this deck
+    delete_from("decks", "WHERE `deckid` = '$deckid'", '1', $this->con);
+    // delete the tags
+    delete_from("tags", "WHERE `deckid` = '$deckid'", '', $this->con);
+
   }
 
   public function tearDown() {
