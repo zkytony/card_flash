@@ -20,7 +20,7 @@ if (isset($_POST['submit-card']))
   $result=select_from("cards", $column, "", $con);
   $num_rows=$result->num_rows;
 
-  $cardid='card' . $num_rows;
+  $cardid='card_' . $num_rows;
   $cardid=ensure_unique_id($cardid, "cards", "cardid", $con);
 
   $title=mysqli_entities_fix_string($con, $_POST['card_title']);
