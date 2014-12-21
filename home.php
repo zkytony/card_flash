@@ -1,13 +1,16 @@
 <?php
+require_once "view/template.php";
+require_once "view/home_view.php";
+require_once "view/card_edit_view.php";
+require_once "modules.php";
+require_once "database.php";
+require_once "quill.php";
+
 session_start();
 if (!$_SESSION['loggedIn'])
 {
   header("location:index.php");
 }
-require_once "view/template.php";
-require_once "view/home_view.php";
-require_once "database.php";
-require_once "quill.php";
 
 if ($_POST['submit-card'])
 {
@@ -28,7 +31,7 @@ if ($_POST['submit-card'])
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Home-<?php echo $_SESSION['username'] ?></title>
+    <title>Home-<?php $user = $_SESSION['user']; echo $user->get_info()['username']; ?></title>
     <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" href="./css/home.css">
     <link rel="stylesheet" type="text/css" href="./css/card.css">
