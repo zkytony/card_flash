@@ -5,7 +5,7 @@ function top_bar()
 ?>
   <div class="top-bar">
     <span class="info-span">
-      <h3>Hi! <?php echo $_SESSION['username'] ?></h3>
+      <h3>Hi! <?php $user = $_SESSION['user']; echo $user->get_info()['username']; ?></h3>
       <a href="home.php">Home</a>
     </span>
     <form action="logout.php" method="post">

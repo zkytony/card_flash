@@ -29,9 +29,6 @@ if (isset($_POST['submit']))
   {
     $_SESSION['loggedIn']=true;
     $_SESSION['user'] = $user_now;
-    $_SESSION['username']=$username; // consider removal since you got User
-    $_SESSION['password']=$password;
-    $_SESSION['userid']=$rows['userid']; // this is necessary
     header("location:home.php");
   } else {
     $_SESSION['loggedIn']=false;

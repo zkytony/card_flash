@@ -21,9 +21,6 @@ if (isset($_POST['submit']))
     // registered;
     $_SESSION['loggedIn']=true;
     $_SESSION['user'] = User::sign_in($username, $password, $con);
-    $_SESSION['username']=$username;
-    $_SESSION['password']=$password;
-    $_SESSION['userid']=$userid;
     header("location:home.php");
   } else {
     echo "<h3>Username already exist</h3>";

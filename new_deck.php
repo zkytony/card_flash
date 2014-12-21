@@ -24,7 +24,7 @@ if (isset($_POST['submit-deck']))
 
   $user=$_SESSION['user'];
   $user->add_deck($title, $tags, $con);
-
+  
   // everything done
   $_SESSION['new_deck']=true;
   header("location:home.php");

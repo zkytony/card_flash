@@ -1,5 +1,4 @@
 <?php
-require_once "view/card_edit_view.php";
 
 // display current user's deck list
 function deck_list()
@@ -9,7 +8,7 @@ function deck_list()
     <h5>Here are your decks</h5>
     <div id="deck-list-div">
       <script>
-       showDeckList("<?php echo $_SESSION['userid']?>");
+       showDeckList("<?php $user = $_SESSION['user']; echo $user->get_id();?>");
       </script>
     </div>
   </div>
@@ -27,7 +26,7 @@ function option_panel()
       <a href="new_card.php" id="new-card-link" onclick="checkCurrentDeck(event)">New Card</a>
         <h6>Current deck: </h6>
         <span id="current-deck-span">
-          <script>currentDeck("<?php echo $_SESSION['userid']?>");</script>
+          <script>currentDeck("<?php $user = $_SESSION['user']; echo $user->get_id();?>");</script>
         </span>
     </div>
   </div>
