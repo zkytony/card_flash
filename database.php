@@ -142,11 +142,11 @@ function mysqli_fix_string($connect, $string)
 // $con is the mysqli_connect object
 function select_from($tablename, $columns, $restrict_str, $con)
 {
-  $query="SELECT " . $columns . "FROM `$tablename`";
+  $query="SELECT " . $columns . " FROM `$tablename`";
   $query.=$restrict_str . ";";
-  
   if (!$result=mysqli_query($con, $query)) 
-    die ("Error in selecting from $tablename " . mysqli_error($con));
+    die ("Error in selecting from $tablename; The query is $query " 
+        . mysqli_error($con));
 
   return $result;
 }
@@ -195,7 +195,7 @@ function update_table($tablename, $columns,
   }
   $query="UPDATE `$tablename`";
   $query.=$set_str;
-  $query.=$restrict_str;
+  $query.=$restrict_str . ";";
   if (!mysqli_query($con, $query))
   {
     die ("Error in Update $tablename " . mysqli_error($con) . " YOUR QUERY IS " . $query);

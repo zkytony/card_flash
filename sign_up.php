@@ -20,6 +20,7 @@ if (isset($_POST['submit']))
   if ($success) {
     // registered;
     $_SESSION['loggedIn']=true;
+    $_SESSION['user'] = User::sign_in($username, $password, $con);
     $_SESSION['username']=$username;
     $_SESSION['password']=$password;
     $_SESSION['userid']=$userid;
