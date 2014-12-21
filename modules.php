@@ -72,18 +72,32 @@ class User
     return $this->userid;
   }
 
+  public function update_current_deck($deckid, $con) {
+    $restrict_str="WHERE `userid`='$this->userid'";
+    update_table("users", array("`deckid`"), array("'$deckid'"), $restrict_str, $con);
+    $this->info['deckid'] = $deckid;
+  }
+
   // Adds a deck
   // $tags is an array containing the tags of this deck
   // Also inserts necessary entries to 'tags' table
   // Returns the deckid of the added deck
   public function add_deck($title, $tags, $con) {
-    return Deck::add($title, $tags, $this->userid, $con);
+    $deckid = Deck::add($title, $tags, $this->userid, $con);
+    $this->update_current_deck($deckid, $con);
+    return $deckid;
   }
 
   // Adds a card to a specified user's deck
   // Returns the cardid of the added card
   public function add_card($title, $sub, $content, $deckid, $con) {
     return Card::add($title, $sub, $content, $deckid, $this->userid, $con);
+  }
+
+  // Returns an array containing the Deck objects representing
+  // the decks that this user has
+  public function get_decks($active, $con) {
+    return Deck::get_decks_of($this->userid, $active, $con);
   }
 
   // Register a user with username and password. 
@@ -190,7 +204,7 @@ class User
       }
       break; // only can be 1 match
     }
-    return success;
+    return $success;
   }
 } // end of User class
 
@@ -218,6 +232,10 @@ class Card
     }
   }
 
+  public function get_info() {
+    return $this->info;
+  }
+
   // Adds a card to a deck
   // $title, $sub, $content are information of the card
   // Returns the cardid of the added card
@@ -234,7 +252,37 @@ class Card
            ."'$userid','$deckid',NOW(), '0'";
     insert_into("cards", $columns, $values, $con);
     return $cardid;
-  }    
+  }
+
+  // Edits a card
+  public static function edit($cardid, $title, $sub, $content, $con) {
+    update_table("cards", array("`title`","`sub`","`content`"),
+                 array("'$title'","'$sub'","'$content'"), 
+                 "WHERE `cardid` = '$cardid'", $con);
+  }
+
+  // Returns an array of Card objects associated with the given deckid
+  public static function get_cards($deckid, $active, $con) {
+    $restrict_str = "WHERE `deckid`='$deckid' ";
+    if ($active) {
+      $restrict_str .= "AND `deleted` = '0'";
+    }
+    $result = select_from("cards", "`cardid`", $restrict_str, $con);
+    
+    $cards = array();
+    while ($row = mysqli_fetch_assoc($result)) {
+      $cards[] = new Card($row['cardid'], $con);
+    }
+    return $cards;
+  }
+ 
+  public static function delete($cardid, $con) {
+    $restrict_str="WHERE `cardid` = '$cardid'";
+    update_table("cards", array("`deleted`"), array("'1'"), 
+                 $restrict_str, $con);
+    return true;
+  }
+
 }
 
 /*
@@ -264,8 +312,22 @@ class Deck
     }  
   }
 
+  public function get_id() {
+    return $this->deckid;
+  }
+  
   public function get_info() {
     return $this->info;
+  }
+
+  // returns an array of tags' of this deck
+  public function get_tags($active, $con) {
+    return Tag::get_tags($this->deckid, $active, $con);
+  }
+
+  // returns an array of Card objects associated with this deck
+  public function get_cards($active, $con) {
+    return Card::get_cards($this->deckid, $active, $con);
   }
 
   // static function for adding a deck
@@ -277,18 +339,61 @@ class Deck
     $deckid = 'deck_' . $num_rows;
     $deckid = ensure_unique_id($deckid, "decks", "deckid", $con);
 
-    $columns="`deckid`,`title`,`userid`,`create_time`,`deleted`";
-    $values="'$deckid','$title','$userid',NOW(), '0'";
+    $columns = "`deckid`,`title`,`userid`,`create_time`,`deleted`";
+    $values = "'$deckid','$title','$userid',NOW(), '0'";
     insert_into('decks', $columns, $values, $con);
-
-    // update user's current deckid
-    update_table("users", array("`deckid`"), array("'$deckid'"), 
-                 "WHERE `userid`='$userid'", $con);
 
     // add the tags to 'tags' table:
     Tag::add($tags, $deckid, $con);
     return $deckid;
   }
+
+  // Returns an array of Deck objects that the user with userid has
+  // If $acitve is true, then this returns only decks that are not
+  // marked as delelted
+  public static function get_decks_of($userid, $active, $con) {
+    $restrict_str = "WHERE `userid`='$userid' ";
+    if ($active) {
+      $restrict_str .= "AND `deleted` = '0'";
+    }
+    $restrict_str .= "ORDER BY `create_time`";
+    $result = select_from("decks", "`deckid`", $restrict_str, $con);
+    
+    $decks = array();
+    while ($row = mysqli_fetch_assoc($result)) {
+      $decks[] = new Deck($row['deckid'], $con);
+    }
+    return $decks;
+  }
+
+  
+  // Delete the deck. Mark it as deleted by setting the corresponding
+  // value in the `deleted` column; The associated Cards and Tags
+  // will be deleted as well
+  public static function delete($deckid, $con) {
+    // first mark all cards in this deck as deleted
+    $result=select_from("cards", "`cardid`", 
+                        "WHERE `deckid` = '$deckid'", $con);
+    while ($row=mysqli_fetch_assoc($result))
+    {
+      Card::delete($row['cardid'], $con);
+    }
+
+    // then, mark all tags of this deck as delted
+    $result=select_from("tags", "`tagid`",
+                        "WHERE `deckid` = '$deckid'", $con);
+    while ($row=mysqli_fetch_assoc($result))
+    {
+      Tag::delete($row['tagid'], $con);
+    }
+    
+    // then, mark the deck as deleted
+    $restrict_str="WHERE `deckid` = '$deckid'";
+    update_table("decks", array("`deleted`"), array("'1'"), 
+                 $restrict_str, $con);
+    return true;
+  }
+
 }
 
 /* 
@@ -330,6 +435,27 @@ class Tag
       $values="'$tagid', '$tags[$i]', '$deckid', '0'";
       insert_into('tags', $columns, $values, $con);
     }
+  }
+
+  public static function get_tags($deckid, $active, $con) {
+    $restrict_str = "WHERE `deckid`='$deckid' ";
+    if ($active) {
+      $restrict_str .= "AND `deleted` = '0'";
+    }
+    $result = select_from("tags", "`tag`", $restrict_str, $con);
+    
+    $tags = array();
+    while ($row = mysqli_fetch_assoc($result)) {
+      $tags[] = $row['tag'];
+    }
+    return $tags;
+  }
+
+  public static function delete($tagid, $con) {
+    $restrict_str="WHERE `tagid` = '$tagid'";
+    update_table("tags", array("`deleted`"), array("'1'"), 
+                 $restrict_str, $con);
+    return true;
   }
 }
 ?>
