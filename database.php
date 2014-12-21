@@ -207,7 +207,12 @@ function update_table($tablename, $columns,
 function delete_from($tablename, $restrict_str, $limit, $con)
 {
   $query="DELETE FROM `$tablename`";
-  $query.=$restrict_str . " LIMIT " . $limit . ";";
+  $query.=$restrict_str; 
+  if (strlen($limit) > 0)
+  {
+    $query .= " LIMIT " . $limit;
+  }
+  $query .= ";";
   if (!mysqli_query($con, $query))
   {
     die ("Error in deleting from $tablename " . mysqli_error($con));
