@@ -47,6 +47,19 @@ class User
     $this->info['online'] = '1';
   }
 
+  // refresh the object by re-obtain data from table
+  public function refresh($con) {
+    $result = select_from("users", "*", "WHERE `userid` = '$userid'", $con);
+    $this->exist = $result->num_rows == 1;
+    if ($this->exist) {     
+      $this->info = array();
+      while ($rows = mysqli_fetch_assoc($result)) {
+        $this->info = $rows; // In PHP, arrays are assigned in copy
+        break; // only can be 1 match
+      }
+    }
+  }
+  
   public function get_info() {
     return $this->info;
   }
@@ -251,6 +264,10 @@ class Deck
     }  
   }
 
+  public function get_info() {
+    return $this->info;
+  }
+
   // static function for adding a deck
   // $tags is an array of tags of the deck
   // Returns the deckid of the added deck
@@ -263,6 +280,10 @@ class Deck
     $columns="`deckid`,`title`,`userid`,`create_time`,`deleted`";
     $values="'$deckid','$title','$userid',NOW(), '0'";
     insert_into('decks', $columns, $values, $con);
+
+    // update user's current deckid
+    update_table("users", array("`deckid`"), array("'$deckid'"), 
+                 "WHERE `userid`='$userid'", $con);
 
     // add the tags to 'tags' table:
     Tag::add($tags, $deckid, $con);
