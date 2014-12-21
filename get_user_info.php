@@ -9,18 +9,18 @@
 
    p.s. the name of this file may not be appropriate for its use
  */
+require_once "database.php";
 
 session_start();
 if (!$_SESSION['loggedIn'])
 {
   header("Location:index.php");
 }
-require_once "database.php";
 
-if (isset($_GET['action']) && !empty($_GET['action']))
+if (isset($_POST['action']) && !empty($_POST['action']))
 {
-  $action=$_GET['action'];
-  $userid=$_GET['userid'];
+  $action=$_POST['action'];
+  $userid=$_POST['userid'];
   $con=connect();
   switch($action)
     {

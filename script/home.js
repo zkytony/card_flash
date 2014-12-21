@@ -56,7 +56,7 @@ $(document).ready(function() {
                 data: {action: 'deleteCard',
                        userid: current_userID,
                        cardid: cardID},
-                type: 'get',
+                type: 'post',
                 success: function(output) {
                     if (output == "success") {
                         alert("Deleted successfully");
@@ -81,7 +81,7 @@ $(document).ready(function() {
                 data: {action: 'deleteDeck',
                        userid: current_userID,
                        deckid: deckID},
-                type: 'get',
+                type: 'post',
                 success: function(output) {
                     if (output == "success") {
                         alert("Deleted successfully");
@@ -146,7 +146,7 @@ function showDeckList(userid) {
         url: './get_user_info.php',
         data: {action: 'deckList',
                userid: userid},
-        type: 'get',
+        type: 'post',
         success: function(output) {
             displayDeckList(output);
         }, // output should be a JSON format string
@@ -202,7 +202,7 @@ function currentDeck(userid) {
         url: './get_user_info.php',
         data: {action: 'currentDeck',
                userid: userid},
-        type: 'get',
+        type: 'post',
         success: function(output) {
             $("#current-deck-span").html(deckIDTitles[output]);
             current_deck_global = deckIDTitles[output];
@@ -222,7 +222,7 @@ function updateDisplayingDeck(userid, deckid) {
         data: {action: 'updateDisplay',
                userid: userid,
                deckid: deckid},
-        type: 'get',
+        type: 'post',
         success: function(output) {
             displayCards(output, deckid);
         }
