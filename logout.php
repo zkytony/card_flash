@@ -1,6 +1,17 @@
 <?php
+require_once "modules.php";
+require_once "database.php";
+
 session_start();
-unset($_SESSION['loggedIn']); // set it to false;
+// set loggedIn to false;
+unset($_SESSION['loggedIn']);
+
+$user = $_SESSION['user'];
+$con = connect();
+$user->logout($con); // log out the user
+
+$_SESSION = array();
+session_destroy();
 header("location:index.php");
 ?>
 <!DOCTYPE html>

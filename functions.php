@@ -30,22 +30,18 @@ function filter_html_tags($html_str)
   return $html_str;
 }
 
-// Returns an id that is guaranteed to be unique in the specified
-// table, given the name of the column that stores the id
-// Note:
-// 1. each id is expected in this format: PREFIXnnn, where
-// nnn is a number
-// 2. $id_column is expected to be in this format: "col"
+// Returns a unique id (PREFIX_nnn) in the specified table, given
+// an id that 'might' make this id unique already;
 function ensure_unique_id($id, $tablename, $id_column, $con)
 {
-  $id_arr=break_id($id);  
+  $id_arr=break_id($id);
   $result=select_from($tablename, "`$id_column`", 
                       "WHERE `$id_column` = '$id'", $con);
 
   while($result->num_rows != 0)
   {
     $id_arr['number']=$id_arr['number'] + 1;
-    $id=$id_arr['prefix'] . $id_arr['number'];
+    $id=$id_arr['prefix'] . '_' . $id_arr['number'];
 
     // :: This method should be improved -- queries shouldn't
     // be executed that many of times
@@ -57,20 +53,15 @@ function ensure_unique_id($id, $tablename, $id_column, $con)
 
 // utility function for ensure_unique_id
 // Returns an array with the prefix and number of an id, 
-// expected in this format: PREFIXnnn, where nnn is a number
+// expected in this format: PREFIX_nnn, where nnn is a number
 function break_id($id)
 {
-  $result=array();
-  for ($i=0; $i<strlen($id); $i++)
-  {   
-    if ("0" < $id[$i] && $id[$i]< "9")
-    {
-      $result['number'] .= $id[$i];
-    } else {
-      $result['prefix'] .= $id[$i];
-    }
-  }
-  $result['number']=intval($result['number']);
+  $id_split=preg_split("/_/", $id);
+  $number = intval($id_split[1]);
+  $result=array(
+    'prefix' => $id_split[0],
+    'number' => $number
+  );
   return $result;
 }
 ?>
