@@ -74,7 +74,7 @@ class User
 
   public function update_current_deck($deckid, $con) {
     $restrict_str="WHERE `userid`='$this->userid'";
-    update_table("users", array("`deckid`"), array("'$deckid'"), $restrict_str, $con);
+    update_table("users", array("`current_deckid`"), array("'$deckid'"), $restrict_str, $con);
     $this->info['deckid'] = $deckid;
   }
 
@@ -176,6 +176,7 @@ class User
 
   // Input should be an instance of User class
   // Deactivates this user by marking activate as false
+  // His decks will also be marked as deleted (### NEED SELECT JOIN)
   public static function deactivate($username, $password, $con) {
     $columns = array("`activate`", "`online`");
     $values = array("'0'", "'0'");
@@ -184,7 +185,8 @@ class User
   }
 
   // Input should be an instance of User class
-  // Deletes this user from database
+  // Deletes this user from database; Because of foreign key,
+  // the assoiciated deck and cards should also be deleted
   public static function delete($username, $password, $con) {
     $restrict_str = "WHERE username = '$username' AND password = '$password'";
     delete_from("users", $restrict_str, 1, $con);
@@ -348,6 +350,19 @@ class Deck
     return $deckid;
   }
 
+  // Edits a card with given information
+  // tags is expected to be an array of string
+  public static function edit($title, $tags, $deckid, $con) {
+    update_table("decks", array("`title`"),
+                 array("'$title'"), 
+                 "WHERE `deckid` = '$deckid'", $con);
+
+    // delete all current tags
+    delete_from("tags", "WHERE `deckid` = '$deckid'", '', $con);
+    // add the new tags wanted
+    Tag::add($tags, $deckid, $con);
+  }
+
   // Returns an array of Deck objects that the user with userid has
   // If $acitve is true, then this returns only decks that are not
   // marked as delelted
@@ -392,6 +407,12 @@ class Deck
     update_table("decks", array("`deleted`"), array("'1'"), 
                  $restrict_str, $con);
     return true;
+  }
+
+  // Because of foreign keys, the cards and tags will be
+  // also deleted
+  public static function delete_completely($deckid, $con) {
+    delete_from("decks", "WHERE `deckid` = '$deckid'", '', $con);
   }
 
 }
@@ -452,10 +473,22 @@ class Tag
   }
 
   public static function delete($tagid, $con) {
-    $restrict_str="WHERE `tagid` = '$tagid'";
+    $restrict_str = "WHERE `tagid` = '$tagid'";
     update_table("tags", array("`deleted`"), array("'1'"), 
                  $restrict_str, $con);
     return true;
   }
+
+  // Given a tag in string, returns an array of deckids
+  // that has the tag
+  public static function get_decks_with_tag($tag, $con) {
+    $restrict_str = "WHERE `tag` = '$tag' ORDER BY `deckid`";
+    $result = select_from("tags", "*", $restrict_str, $con);
+    $deckids = array();
+    while($row = mysqli_fetch_assoc($result)) {
+      $deckids[] = $row['deckid'];
+    }
+    return $deckids;
+  }
 }
-?>
+?>o

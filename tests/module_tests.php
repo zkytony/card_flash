@@ -183,7 +183,7 @@ class DeckAndCardTest extends PHPUnit_Framework_TestCase
     $result = select_from("users", "*", 
                           "WHERE `userid` = '$userid'", $this->con);
     while($row = mysqli_fetch_assoc($result)) {
-      $this->assertEquals($deckid, $row['deckid']);
+      $this->assertEquals($deckid, $row['current_deckid']);
     }
 
     $this->assertEquals($deckid, $this->user->get_info()['deckid']);
@@ -243,6 +243,36 @@ class DeckAndCardTest extends PHPUnit_Framework_TestCase
     // delete the tags
     delete_from("tags", "WHERE `deckid` = '$deckid'", '', $this->con);
 
+  }
+
+  public function testGetDecksWithTag() {
+    // add the deck 1
+    $title = "Deck1";
+    $tags = array("aaa", "bbb", "ccc");
+    $deckid_1 = $this->user->add_deck($title, $tags, $this->con);
+
+    // add the deck 2
+    $title = "Deck2";
+    $tags = array("aaa", "bbb", "ddd");
+    $deckid_2 = $this->user->add_deck($title, $tags, $this->con);
+
+    // add the deck 3
+    $title = "Deck1";
+    $tags = array("aaa", "ccc", "eee");
+    $deckid_3 = $this->user->add_deck($title, $tags, $this->con);
+
+    $deckids_aaa = Tag::get_decks_with_tag("aaa", $this->con);
+    $deckids_aaa_exp = array($deckid_1, $deckid_2, $deckid_3);
+    $this->assertEquals($deckids_aaa_exp, $deckids_aaa);
+
+    $deckids_ccc = Tag::get_decks_with_tag("ccc", $this->con);
+    $deckids_ccc_exp = array($deckid_1, $deckid_3);
+    $this->assertEquals($deckids_ccc_exp, $deckids_ccc);
+    
+    // delete decks
+    delete_from("decks", "", "", $this->con);
+    // delete tags
+    delete_from("tags", "", "", $this->con);
   }
 
   public function tearDown() {
