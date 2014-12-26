@@ -16,6 +16,7 @@ function init_tables($con)
   init_decks_table($con);
   init_cards_table($con);
   init_tags_table($con);
+  init_shares_table($con)
 }
 
 function init_users_table($con)
@@ -107,6 +108,27 @@ function init_tags_table($con)
         ."`deckid` VARCHAR(32) NOT NULL,"
         ."`deleted` BOOL NOT NULL,"
         ."PRIMARY KEY(`tagid`),"
+        ."FOREIGN KEY(`deckid`) REFERENCES decks(`deckid`)"
+        ."   ON DELETE CASCADE"
+        .") ENGINE InnoDB;";
+  
+  if (!mysqli_query($con, $query))
+  {
+    die ("Unable to create table $tablename " . mysqli_error($con));
+  }
+}
+
+function init_shares_table($con)
+{
+  $tablename='shares';
+  $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
+        ."`shareid` VARCHAR(32) UNIQUE NOT NULL,"
+        ."`deckid` VARCHAR(32) NOT NULL,"
+        ."`userid` VARCHAR(32) NOT NULL,"
+        ."`type` INT(1) NOT NULL,"
+        ."PRIMARY KEY(`shareid`),"
+        ."FOREIGN KEY(`userid`) REFERENCES decks(`userid`)"
+        ."   ON DELETE CASCADE,"
         ."FOREIGN KEY(`deckid`) REFERENCES decks(`deckid`)"
         ."   ON DELETE CASCADE"
         .") ENGINE InnoDB;";
