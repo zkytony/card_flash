@@ -16,7 +16,7 @@ function init_tables($con)
   init_decks_table($con);
   init_cards_table($con);
   init_tags_table($con);
-  init_shares_table($con)
+  init_shares_table($con);
 }
 
 function init_users_table($con)
@@ -118,6 +118,9 @@ function init_tags_table($con)
   }
 }
 
+// `type` will have these value bindings
+// 1: shared as visitor
+// 2: shared as editor
 function init_shares_table($con)
 {
   $tablename='shares';
@@ -154,13 +157,13 @@ function connect()
 //    htmlspecialchars_decode($decoded_string)
 function mysqli_entities_fix_string($connect, $string)
 {
-    return htmlentities(mysqli_fix_string($connect, $string));
+  return htmlentities(mysqli_fix_string($connect, $string));
 }
 
 function mysqli_fix_string($connect, $string)
 {
-    if (get_magic_quotes_gpc()) $string = stripslashes($string);
-    return mysqli_real_escape_string($connect, $string);
+  if (get_magic_quotes_gpc()) $string = stripslashes($string);
+  return mysqli_real_escape_string($connect, $string);
 }
 
 // Perform a SELECT query and returns the results as a mysqli 
@@ -215,7 +218,7 @@ function update_table($tablename, $columns,
   $set_str=" SET ";
   for ($i=0; $i<sizeof($columns); $i++)
   {
-      $set_str.="$columns[$i] = $values[$i]";
+    $set_str.="$columns[$i] = $values[$i]";
 
     if ($i<sizeof($columns)-1)
     {
