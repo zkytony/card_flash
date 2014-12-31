@@ -7,6 +7,7 @@ function deck_form()
       Title:<input class="deck-field" type="text" name="title" id="title"/>
       Tags:<input class="deck-field" type="text" name="category" id="category"/>
       <input type="submit" name="submit-deck" id="submit-deck" value="Submit" />
+      <p>Note: Tags are separated by comma ,</p>
     </form>
   </div>
 <?php

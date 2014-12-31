@@ -183,7 +183,7 @@ class DeckAndCardTest extends PHPUnit_Framework_TestCase
     $result = select_from("users", "*", 
                           "WHERE `userid` = '$userid'", $this->con);
     while($row = mysqli_fetch_assoc($result)) {
-      $this->assertEquals($deckid, $row['deckid']);
+      $this->assertEquals($deckid, $row['current_deckid']);
     }
 
     $this->assertEquals($deckid, $this->user->get_info()['deckid']);
@@ -245,11 +245,127 @@ class DeckAndCardTest extends PHPUnit_Framework_TestCase
 
   }
 
+  public function testGetDecksWithTag() {
+    // add the deck 1
+    $title = "Deck1";
+    $tags = array("aaa", "bbb", "ccc");
+    $deckid_1 = $this->user->add_deck($title, $tags, $this->con);
+
+    // add the deck 2
+    $title = "Deck2";
+    $tags = array("aaa", "bbb", "ddd");
+    $deckid_2 = $this->user->add_deck($title, $tags, $this->con);
+
+    // add the deck 3
+    $title = "Deck1";
+    $tags = array("aaa", "ccc", "eee");
+    $deckid_3 = $this->user->add_deck($title, $tags, $this->con);
+
+    $deckids_aaa = Tag::get_decks_with_tag("aaa", $this->con);
+    $deckids_aaa_exp = array($deckid_1, $deckid_2, $deckid_3);
+    $this->assertEquals($deckids_aaa_exp, $deckids_aaa);
+
+    $deckids_ccc = Tag::get_decks_with_tag("ccc", $this->con);
+    $deckids_ccc_exp = array($deckid_1, $deckid_3);
+    $this->assertEquals($deckids_ccc_exp, $deckids_ccc);
+    
+    // delete decks
+    delete_from("decks", "", "", $this->con);
+    // delete tags
+    delete_from("tags", "", "", $this->con);
+  }
+
   public function tearDown() {
     // delete this user
     $userid = $this->user->get_id();
     delete_from("users", "WHERE `userid` = '$userid'", '1', $this->con);
   }
+}
+
+/* Test class for deck sharing functionality */
+class ShareTest extends PHPUnit_Framework_Testcase
+{
+  private $con;
+  private $user;
+  private $deckids;
+
+  public function setUp() {
+    $db = array (
+      "hostname"=>"localhost",
+      "database"=>"temp_flashcard",
+      "username"=>"kaiyu",
+      "password"=>"123abc",
+    );
+    $this->con = mysqli_connect($db['hostname'], $db['username'], 
+                                $db['password'], $db['database']);
+      
+    init_tables($this->con);
+
+    $username = 'user1';
+    $password = 'dummy';
+    $success = User::register($username, $password, $this->con);
+    $this->assertEquals(true, $success);
+    $this->user = User::sign_in($username, $password, $this->con);
+
+    $this->deckids = array();
+    // add the deck 1
+    $title = "Deck1";
+    $tags = array("aaa", "bbb", "ccc");
+    $this->deckids[] = $this->user->add_deck($title, $tags, $this->con);
+
+    // add the deck 2
+    $title = "Deck2";
+    $tags = array("aaa", "bbb", "ddd");
+    $this->deckids[] = $this->user->add_deck($title, $tags, $this->con);
+
+    // add the deck 3
+    $title = "Deck1";
+    $tags = array("aaa", "ccc", "eee");
+    $this->deckids[] = $this->user->add_deck($title, $tags, $this->con);
+  }
+
+  public function testShareToNew() {
+    $shareid_1 = Share::share_to($this->deckids[0], $this->user->get_id(), 1, $this->con);
+    $shareid_2 = Share::share_to($this->deckids[1], $this->user->get_id(), 2, $this->con);
+    $shareid_3 = Share::share_to($this->deckids[2], $this->user->get_id(), 1, $this->con);
+
+    $deckids_get = Share::shared_decks($this->user->get_id(), 1, $this->con);
+    $deckids_exp = array($this->deckids[0], $this->deckids[2]);
+
+    $this->assertEquals($deckids_exp, $deckids_get);
+
+    $userids_get = Share::shared_users($this->deckids[1], 2, $this->con);
+    $userids_exp = array($this->user->get_id());
+    $this->assertEquals($userids_exp, $userids_get);
+    
+    // test if update works
+    $shareid_2_new = Share::share_to($this->deckids[1], $this->user->get_id(), 1, $this->con);
+    $this->assertEquals($shareid_2, $shareid_2_new);
+    $deckids_get = Share::shared_decks($this->user->get_id(), 1, $this->con);
+    $deckids_exp = array($this->deckids[0], $this->deckids[1], $this->deckids[2]);
+    $this->assertEquals($deckids_exp, $deckids_get);
+  }
+
+  public function testUnshare() {
+    $shareid_1 = Share::share_to($this->deckids[0], $this->user->get_id(), 1, $this->con);
+    $shareid_2 = Share::share_to($this->deckids[1], $this->user->get_id(), 2, $this->con);
+    $shareid_3 = Share::share_to($this->deckids[2], $this->user->get_id(), 1, $this->con);
+
+    Share::unshare($this->deckids[0], $this->user->get_id(), $this->con);
+    $status = Share::check_status($this->deckids[0], $this->user->get_id(), $this->con);
+    $this->assertEquals(0, $status);
+  }
+
+  public function tearDown() {
+    // delete this user
+    $userid = $this->user->get_id();
+    delete_from("users", "WHERE `userid` = '$userid'", '1', $this->con);
+    // delete decks
+    delete_from("decks", "", "", $this->con);
+    // delete tags
+    delete_from("tags", "", "", $this->con);
+  }
+
 }
 
 ?>

@@ -52,7 +52,7 @@ if (isset($_POST['submit-deck']))
 
 function split_to_tags($str)
 {
-  $tags=preg_split("/[\s,]+/",$str);
+  $tags=preg_split("/[,]+/",$str);
   return $tags;
 }
 ?>

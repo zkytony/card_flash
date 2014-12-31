@@ -16,6 +16,7 @@ function init_tables($con)
   init_decks_table($con);
   init_cards_table($con);
   init_tags_table($con);
+  init_shares_table($con);
 }
 
 function init_users_table($con)
@@ -24,17 +25,16 @@ function init_users_table($con)
   $tablename='users';
 
   // attention, you must use ` to quote names
-  $query="CREATE TABLE IF NOT EXISTS `$tablename` (
-          `userid` VARCHAR(32) UNIQUE NOT NULL,
-          `username` VARCHAR(128) UNIQUE NOT NULL,
-          `password` VARCHAR(128) NOT NULL,
-          `register_time` DATE NOT NULL,
-          `deckid` VARCHAR(32),
-          `activate` BOOL,
-          `online` BOOL,
-          PRIMARY KEY(`userid`),
-          CONSTRAINT `current_deckid` FOREIGN KEY (`deckid`) REFERENCES decks(`deckid`),
-          INDEX(`username`(10))) ENGINE MyISAM;";
+  $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
+        ."`userid` VARCHAR(32) UNIQUE NOT NULL,"
+        ."`username` VARCHAR(128) UNIQUE NOT NULL,"
+        ."`password` VARCHAR(128) NOT NULL,"
+        ."`register_time` DATE NOT NULL,"
+        ."`current_deckid` VARCHAR(32),"
+        ."`activate` BOOL NOT NULL,"
+        ."`online` BOOL NOT NULL,"
+        ."PRIMARY KEY(`userid`),"
+        ."INDEX(`username`(10))) ENGINE InnoDB;";
   if (!mysqli_query($con, $query))
   {
     die ("Unable to create table $tablename " . mysqli_error($con));      
@@ -46,16 +46,20 @@ function init_decks_table($con)
   $tablename='decks';
   // create the table for decks if not exists
   // relates to users table
-  $query="CREATE TABLE IF NOT EXISTS `$tablename` (
-          `deckid` VARCHAR(32) UNIQUE NOT NULL,
-          `title` VARCHAR(128) NOT NULL,
-          `userid` VARCHAR(32) NOT NULL,
-          `create_time` DATE NOT NULL,
-          `deleted` BOOL,
-          PRIMARY KEY (`deckid`),
-          INDEX(`title`(10)),
-          FOREIGN KEY (`userid`) REFERENCES users(`userid`) 
-         ) ENGINE MyISAM;";
+  $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
+        ."`deckid` VARCHAR(32) UNIQUE NOT NULL,"
+        ."`title` VARCHAR(128) NOT NULL,"
+        ."`userid` VARCHAR(32) NOT NULL,"
+        ."`create_time` DATETIME NOT NULL,"
+        ."`last_edit` DATETIME NOT NULL,"
+        ."`deleted` BOOL NOT NULL,"
+        ."`open` BOOL NOT NULL,"
+        ."`shared` BOOL NOT NULL,"
+        ."INDEX(`title`(10)),"
+        ."PRIMARY KEY (`deckid`),"
+        ."FOREIGN KEY (`userid`) REFERENCES users(`userid`) "
+        ."    ON DELETE CASCADE"
+        .") ENGINE InnoDB;";
 
   if (!mysqli_query($con, $query))
   {
@@ -68,21 +72,22 @@ function init_cards_table($con)
   $tablename='cards';
   // create the table for decks if not exists
   // relates to users table
-  $query="CREATE TABLE IF NOT EXISTS `$tablename` (
-          `cardid` VARCHAR(32) UNIQUE NOT NULL,
-          `title` VARCHAR(128) NOT NULL,
-          `sub` TINYTEXT NOT NULL,
-          `content` MEDIUMTEXT NOT NULL,
-          `userid` VARCHAR(32) NOT NULL,
-          `deckid` VARCHAR(32) NOT NULL,
-          `create_time` DATE NOT NULL,
-          `deleted` BOOL,
-          PRIMARY KEY (`cardid`),
-          INDEX(`title`(10)),
-          INDEX(`sub`(10)),
-          FOREIGN KEY (`userid`) REFERENCES users(`userid`),
-          FOREIGN KEY (`deckid`) REFERENCES decks(`deckid`)
-         ) ENGINE MyISAM;";
+  $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
+        ."`cardid` VARCHAR(32) UNIQUE NOT NULL,"
+        ."`title` VARCHAR(128) NOT NULL,"
+        ."`sub` TINYTEXT NOT NULL,"
+        ."`content` MEDIUMTEXT NOT NULL,"
+        ."`userid` VARCHAR(32) NOT NULL,"
+        ."`deckid` VARCHAR(32) NOT NULL,"
+        ."`create_time` DATE NOT NULL,"
+        ."`deleted` BOOL NOT NULL,"
+        ."`type` BOOL,"
+        ."INDEX(`title`(10)),"
+        ."INDEX(`sub`(10)),"
+        ."PRIMARY KEY (`cardid`),"
+        ."FOREIGN KEY (`deckid`) REFERENCES decks(`deckid`)"
+        ."    ON DELETE CASCADE"
+        .") ENGINE InnoDB;";
 
   if (!mysqli_query($con, $query))
   {
@@ -93,14 +98,39 @@ function init_cards_table($con)
 function init_tags_table($con)
 {
   $tablename='tags';
-  $query="CREATE TABLE IF NOT EXISTS `$tablename` (
-          `tagid` VARCHAR(32) UNIQUE NOT NULL,
-          `tag` VARCHAR(32) NOT NULL,
-          `deckid` VARCHAR(32) NOT NULL,
-          `deleted` BOOL,
-          PRIMARY KEY(`tagid`),
-          FOREIGN KEY(`deckid`) REFERENCES decks(`deckid`)
-          ) ENGINE MyISAM;";
+  $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
+        ."`tagid` VARCHAR(32) UNIQUE NOT NULL,"
+        ."`tag` VARCHAR(32) NOT NULL,"
+        ."`deckid` VARCHAR(32) NOT NULL,"
+        ."`deleted` BOOL NOT NULL,"
+        ."PRIMARY KEY(`tagid`),"
+        ."FOREIGN KEY(`deckid`) REFERENCES decks(`deckid`)"
+        ."   ON DELETE CASCADE"
+        .") ENGINE InnoDB;";
+  
+  if (!mysqli_query($con, $query))
+  {
+    die ("Unable to create table $tablename " . mysqli_error($con));
+  }
+}
+
+// `type` will have these value bindings
+// 1: shared as visitor
+// 2: shared as editor
+function init_shares_table($con)
+{
+  $tablename='shares';
+  $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
+        ."`shareid` VARCHAR(32) UNIQUE NOT NULL,"
+        ."`deckid` VARCHAR(32) NOT NULL,"
+        ."`userid` VARCHAR(32) NOT NULL,"
+        ."`type` INT(1) NOT NULL,"
+        ."PRIMARY KEY(`shareid`),"
+        ."FOREIGN KEY(`userid`) REFERENCES decks(`userid`)"
+        ."   ON DELETE CASCADE,"
+        ."FOREIGN KEY(`deckid`) REFERENCES decks(`deckid`)"
+        ."   ON DELETE CASCADE"
+        .") ENGINE InnoDB;";
   
   if (!mysqli_query($con, $query))
   {
@@ -123,13 +153,13 @@ function connect()
 //    htmlspecialchars_decode($decoded_string)
 function mysqli_entities_fix_string($connect, $string)
 {
-    return htmlentities(mysqli_fix_string($connect, $string));
+  return htmlentities(mysqli_fix_string($connect, $string));
 }
 
 function mysqli_fix_string($connect, $string)
 {
-    if (get_magic_quotes_gpc()) $string = stripslashes($string);
-    return mysqli_real_escape_string($connect, $string);
+  if (get_magic_quotes_gpc()) $string = stripslashes($string);
+  return mysqli_real_escape_string($connect, $string);
 }
 
 // Perform a SELECT query and returns the results as a mysqli 
@@ -184,7 +214,7 @@ function update_table($tablename, $columns,
   $set_str=" SET ";
   for ($i=0; $i<sizeof($columns); $i++)
   {
-      $set_str.="$columns[$i] = $values[$i]";
+    $set_str.="$columns[$i] = $values[$i]";
 
     if ($i<sizeof($columns)-1)
     {

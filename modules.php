@@ -74,7 +74,7 @@ class User
 
   public function update_current_deck($deckid, $con) {
     $restrict_str="WHERE `userid`='$this->userid'";
-    update_table("users", array("`deckid`"), array("'$deckid'"), $restrict_str, $con);
+    update_table("users", array("`current_deckid`"), array("'$deckid'"), $restrict_str, $con);
     $this->info['deckid'] = $deckid;
   }
 
@@ -176,6 +176,7 @@ class User
 
   // Input should be an instance of User class
   // Deactivates this user by marking activate as false
+  // His decks will also be marked as deleted (### NEED SELECT JOIN)
   public static function deactivate($username, $password, $con) {
     $columns = array("`activate`", "`online`");
     $values = array("'0'", "'0'");
@@ -184,7 +185,8 @@ class User
   }
 
   // Input should be an instance of User class
-  // Deletes this user from database
+  // Deletes this user from database; Because of foreign key,
+  // the assoiciated deck and cards should also be deleted
   public static function delete($username, $password, $con) {
     $restrict_str = "WHERE username = '$username' AND password = '$password'";
     delete_from("users", $restrict_str, 1, $con);
@@ -348,6 +350,19 @@ class Deck
     return $deckid;
   }
 
+  // Edits a card with given information
+  // tags is expected to be an array of string
+  public static function edit($title, $tags, $deckid, $con) {
+    update_table("decks", array("`title`"),
+                 array("'$title'"), 
+                 "WHERE `deckid` = '$deckid'", $con);
+
+    // delete all current tags
+    delete_from("tags", "WHERE `deckid` = '$deckid'", '', $con);
+    // add the new tags wanted
+    Tag::add($tags, $deckid, $con);
+  }
+
   // Returns an array of Deck objects that the user with userid has
   // If $acitve is true, then this returns only decks that are not
   // marked as delelted
@@ -392,6 +407,12 @@ class Deck
     update_table("decks", array("`deleted`"), array("'1'"), 
                  $restrict_str, $con);
     return true;
+  }
+
+  // Because of foreign keys, the cards and tags will be
+  // also deleted
+  public static function delete_completely($deckid, $con) {
+    delete_from("decks", "WHERE `deckid` = '$deckid'", '', $con);
   }
 
 }
@@ -452,10 +473,152 @@ class Tag
   }
 
   public static function delete($tagid, $con) {
-    $restrict_str="WHERE `tagid` = '$tagid'";
+    $restrict_str = "WHERE `tagid` = '$tagid'";
     update_table("tags", array("`deleted`"), array("'1'"), 
                  $restrict_str, $con);
     return true;
+  }
+
+  // Given a tag in string, returns an array of deckids
+  // that has the tag
+  public static function get_decks_with_tag($tag, $con) {
+    $restrict_str = "WHERE `tag` = '$tag' ORDER BY `deckid`";
+    $result = select_from("tags", "*", $restrict_str, $con);
+    $deckids = array();
+    while($row = mysqli_fetch_assoc($result)) {
+      $deckids[] = $row['deckid'];
+    }
+    return $deckids;
+  }
+}
+
+class Share
+{
+  private $shareid;
+  private $info;
+  private $exist;
+  
+  function __construct($shareid, $con) {
+    $result = select_from("shares", "*", "WHERE `shareid` = '$shareid'", $con);
+    $this->exist = $result->num_rows == 1;
+    if ($this->exist) {
+      $this->shareid = $shareid;
+      $this->info = array();
+      while ($rows = mysqli_fetch_assoc($result)) {
+        $this->info = $rows; // In PHP, arrays are assigned in copy
+        break; // only can be 1 match
+      }
+    }  
+  }
+
+  // Returns the shareid given the deckid and userid;
+  // Returns NULL if no such combination
+  public static function get_shareid($deckid, $userid, $con) {
+    $result = select_from("shares", "*", 
+                          "WHERE `userid` = '$userid' AND `deckid` = '$deckid'",
+                          $con);
+    while($row = mysqli_fetch_assoc($result)) {
+      return $row['shareid']; // should be only one match
+    }
+    // no row
+    return NULL;
+  }
+  
+  // Returns an integer representing the sharing status between 
+  // the given deck and user
+  // 0: not shared to
+  // 1: shared as visitor
+  // 2: shared as editor
+  // Note that if the user is the owner of the deck, 0 will be
+  // returned
+  public static function check_status($deckid, $userid, $con) {
+    $result = select_from("shares", "*", 
+                          "WHERE `userid` = '$userid' AND `deckid` = '$deckid'",
+                          $con);
+    while($row = mysqli_fetch_assoc($result)) {
+      return $row['type']; // should be only one match
+    }
+    // no row:
+    return 0;
+  }
+
+  // $type's values
+  // 1: shared as visitor
+  // 2: shared as editor
+  // Only process if $type is valid
+  // Returns shareid if successful; returns NULL if already shared
+  // in the same type; Updates the type of sharing if it is currently
+  // different
+  public static function share_to($deckid, $userid, $type, $con) {    
+    try {
+      if ($type == 1 or $type == 2) {
+        $status = Share::check_status($deckid, $userid, $con);
+        if ($status == 0) {
+          $result = select_from("users", "*", "", $con);
+          $shareid = "share_" . $result->num_rows;
+          $shareid = ensure_unique_id($shareid, "shares", "shareid", $con);
+
+          insert_into("shares", "`shareid`, `deckid`, `userid`, `type`",
+                      "'$shareid', '$deckid', '$userid', '$type'", $con);
+          return $shareid;
+        } else if ($status != $type) {
+          update_table("shares", array("`type`"), array("'$type'"),
+                       "WHERE `userid` = '$userid' AND `deckid` = '$deckid'",
+                       $con);
+          return Share::get_shareid($deckid, $userid, $con);
+        } else {
+          return NULL;
+        }
+      } else {
+        throw 99;
+      }
+    } catch (int $exp) {
+      echo "Error $exp: Sorry. Wrong type $type.";
+    }
+  }
+
+  // Deletes the deckid and userid combination
+  // Set $deckid to empty string if want to clear all deck sharing
+  // to the user with userid
+  // Set $userid to empty string if want to clear all sharing of
+  // the deck;
+  // Does not allow both empty
+  public static function unshare($deckid, $userid, $con) {
+    try {
+      if ($deckid == "" and $userid == "") throw 88;
+      
+      $restrict_str = "";
+      if ($deckid == "") {
+        $restrict_str = "WHERE `userid` = '$userid'";
+      } else if ($userid == "") {
+        $restrict_str = "WHERE `deckid` = '$deckid'";
+      } else {
+        $restrict_str = "WHERE `userid` = '$userid' AND `deckid` = '$deckid'";
+      }
+        delete_from("shares", $restrict_str, "", $con);
+    } catch (int $exp) {
+      echo "Error $exp: Cannot have both empty";
+    }
+  }
+
+  // Returns an array of userids that a deck shares to with type
+  public static function shared_users($deckid, $type, $con) {
+    $result = select_from("shares", "*", "WHERE `deckid` = '$deckid'", $con);
+    $userids = array();
+    while ($row = mysqli_fetch_assoc($result)) {
+      $userids[] = $row['userid'];
+    }
+    return $userids;
+  }
+
+  // Returns an array of deckids that a user is shared with type
+  public static function shared_decks($userid, $type, $con) {
+    $result = select_from("shares", "*", "WHERE `userid` = '$userid' AND `type` = '$type'", $con);
+    $deckids = array();
+    while ($row = mysqli_fetch_assoc($result)) {
+      $deckids[] = $row['deckid'];
+    }
+    return $deckids;    
   }
 }
 ?>
