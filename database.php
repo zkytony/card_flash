@@ -33,8 +33,6 @@ function init_users_table($con)
         ."`current_deckid` VARCHAR(32),"
         ."`activate` BOOL NOT NULL,"
         ."`online` BOOL NOT NULL,"
-        ."`shared_deck_edit` TEXT,"
-        ."`shared_deck_visit` TEXT,"
         ."PRIMARY KEY(`userid`),"
         ."INDEX(`username`(10))) ENGINE InnoDB;";
   if (!mysqli_query($con, $query))
@@ -57,8 +55,6 @@ function init_decks_table($con)
         ."`deleted` BOOL NOT NULL,"
         ."`open` BOOL NOT NULL,"
         ."`shared` BOOL NOT NULL,"
-        ."`share_editor` TEXT,"
-        ."`share_visitor` TEXT,"
         ."INDEX(`title`(10)),"
         ."PRIMARY KEY (`deckid`),"
         ."FOREIGN KEY (`userid`) REFERENCES users(`userid`) "
