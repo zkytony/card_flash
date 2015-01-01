@@ -29,8 +29,8 @@ if (isset($_POST['action']) && !empty($_POST['action']))
     case 'deckList': 
       // Intend to build JSON string in this fashion:
       // { deckid:
-      //   { title:
-      //     { [tag1, tag2 ...] }
+      //   { title: "title",
+      //     tags: [tag1, tag2 ...]
       //   }
       // }
       $decks_obj = $user->get_decks(true, $con);
@@ -38,7 +38,29 @@ if (isset($_POST['action']) && !empty($_POST['action']))
       foreach ($decks_obj as $deck) {
         $deckid = $deck->get_id();
         $title = $deck->get_info()['title'];
-        $decks_arr[$deckid][$title] = $deck->get_tags(true, $con);
+        $decks_arr[$deckid]['title'] = $title;
+        $decks_arr[$deckid]['tags'] = $deck->get_tags(true, $con);
+      }
+      echo json_encode($decks_arr); // encode as JSON string
+      break;
+    case 'sharedDeckList':
+      // Intend to build JSON string in this fashion:
+      // { deckid:
+      //   { title: "title",
+      //     tags: [tag1, tag2 ...] 
+      //     owner: owner_username
+      //   }
+      // }
+      // 0 as type, in order to get all
+      $deckid_array = Share::shared_decks($user->get_id(), 0, $con);
+      $decks_arr = array();
+      foreach ($deckid_array as $deckid) {
+        $deck = new Deck($deckid, $con);
+        $title = $deck->get_info()['title'];
+        $decks_arr[$deckid]['title'] = $title;
+        $decks_arr[$deckid]['tags'] = $deck->get_tags(true, $con);
+        $owner = new User($deck->get_info()['userid'], $con);
+        $decks_arr[$deckid]['owner'] = $owner->get_info()['username'];
       }
       echo json_encode($decks_arr); // encode as JSON string
       break;
@@ -94,6 +116,26 @@ if (isset($_POST['action']) && !empty($_POST['action']))
       } else {
         echo "failed";
       }
+      break;
+
+    case 'shareDeck':
+      // Share the deck to users that exist;
+      // Returns a json string of usernames that do not exist
+      // Format:
+      // {[username1, username2, ...]}
+      $deckid=$_POST['deckid'];
+      $usernames = $_POST['usernames'];
+      // assume only visitor -- type 2
+      $not_exist = array();
+      foreach ($usernames as $username) {
+        $userid = User::id_from_name($username, $con);
+        if (strlen($userid) == 0) {
+          $not_exist[] = $username;
+        } else {          
+          Share::share_to($deckid, $userid, 2, $con);
+        }
+      }
+      echo json_encode($not_exist);
       break;
     }
 } else {

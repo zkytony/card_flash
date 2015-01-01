@@ -109,6 +109,36 @@ $(document).ready(function() {
         }
     }); // end of document click listener
 
+    $(document).on("click", ".share-deck-button", function() {
+        var id = $(this).parent().attr("id"); // parent is the button group
+        var deckID = id.split("-")[3]; // id is deck-button-group-deckxx
+        
+        var usernames = prompt("Enter a list of usernames, separated by comma. Notice that these users can only view your deck. They cannot edit it");
+        if (usernames !== null) {
+            usernames = usernames.split(",");
+            $.ajax({
+                url: './get_user_info.php',
+                data: {action: 'shareDeck',
+                       userid: current_userID,
+                       deckid: deckID,
+                       usernames: usernames},
+                type: 'post',
+                success: function(output) {
+                    if (jQuery.isEmptyObject(output)) {
+                        alert("All share successful");
+                    } else {
+                        var notExistUsername = "";
+                        var usernameData = JSON.parse(output);
+                        for (var index in usernameData) {
+                            notExistUsername += usernameData[index] + " ";
+                        }
+                        alert(notExistUsername + "-- not exist users");
+                    }
+                }
+            });   
+        }
+    });
+
     $(document).on("click", ".flipper", function(e) {
         if (e.target.nodeName != "SPAN") {
             if (e.target.nodeName != "DIV") {
@@ -148,15 +178,32 @@ function showDeckList(userid) {
                userid: userid},
         type: 'post',
         success: function(output) {
-            displayDeckList(output);
+            displayDeckList(output, false);
+        }, // output should be a JSON format string
+    });
+}
+
+function showSharedDeckList(userid) {
+    current_userID = userid;
+    $.ajax({
+        url: './get_user_info.php',
+        data: {action: 'sharedDeckList',
+               userid: userid},
+        type: 'post',
+        success: function(output) {
+            displayDeckList(output, true);
         }, // output should be a JSON format string
     });
 }
 
 // display the deck list based on the server's response as json
-function displayDeckList(json_str) {
+function displayDeckList(json_str, shared) {
     // first clear everything in the list
-    $("#deck-list-div").children().remove();
+    if (!shared) {
+        $("#deck-list-div").children().remove();
+    } else {
+        $("#shared-deck-list-div").children().remove();
+    }
 
     deckData = JSON.parse(json_str);
     var htmlString = "<table>";
@@ -169,30 +216,40 @@ function displayDeckList(json_str) {
         // deckID is the key to get the object referenced
         // by it
         deckIDObj = deckData[deckID];
-        for (var deckTitle in deckIDObj) {
-            htmlString += "<tr><th class='deck-title' id='deck-" + deckID + "'>";
-            htmlString += "<a href='#'>" + deckTitle + "</a></th>";
+
+        htmlString += "<tr><th class='deck-title' id='deck-" + deckID + "'>";
+        htmlString += "<a href='#'>" + deckIDObj['title'] + "</a></th>";
+        if (!shared) {
             htmlString += "<td class='deck-button-group' id='deck-button-group-" + deckID + "'>";
+            htmlString += "<button class='deck-tiny-button share-deck-button'>S</button>"; 
             htmlString += "<button class='deck-tiny-button delete-deck-button'>D</button>"; 
-            htmlString += "</td></tr>";
-
-            // accessing the tags array
-            tagsArr = deckIDObj[deckTitle];
-
-            htmlString += "<tr class='tags'>";
-            for (var i = 0; i < tagsArr.length; i++) {
-                htmlString += "<td class='one-tag'>";
-                htmlString += tagsArr[i];
-                htmlString += "</td>";
-            }
-            htmlString += "</tr>";
-            
-            // add to the global array
-            deckIDTitles[deckID] = deckTitle;
+            htmlString += "</td>";
+        } else {
+            htmlString += "<td><h6>from " + deckIDObj['owner'] + "</h6></td>";
         }
+        htmlString += "</tr>";
+
+        // accessing the tags array
+        tagsArr = deckIDObj['tags'];
+
+        htmlString += "<tr class='tags'>";
+        for (var i = 0; i < tagsArr.length; i++) {
+            htmlString += "<td class='one-tag'>";
+            htmlString += tagsArr[i];
+            htmlString += "</td>";
+        }
+        htmlString += "</tr>";
+        
+        // add to the global array
+        deckIDTitles[deckID] = deckIDObj['title'];
     }
+
     htmlString += "</table>";
-    $("#deck-list-div").append(htmlString);
+    if (!shared) {
+        $("#deck-list-div").append(htmlString);
+    } else {
+        $("#shared-deck-list-div").append(htmlString);
+    }
 }
 
 // fetch the current_deck data from database

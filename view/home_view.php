@@ -12,6 +12,14 @@ function deck_list()
       </script>
     </div>
   </div>
+  <div class="deck-list">
+    <h5>Here are decks shared with you</h5>
+    <div id="shared-deck-list-div">
+      <script>
+       showSharedDeckList("<?php $user = $_SESSION['user']; echo $user->get_id();?>");
+      </script>
+    </div>
+  </div>
 <?php
 }
 
@@ -72,7 +80,6 @@ function include_js_plugin()
 {
 ?>
   <script src="script/jquery.transit.min.js"></script>
-  <script src="script/jquery.quickflip.min.js"></script>
 <?php
 }
 ?>
