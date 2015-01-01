@@ -34,7 +34,9 @@ function init_users_table($con)
         ."`activate` BOOL NOT NULL,"
         ."`online` BOOL NOT NULL,"
         ."PRIMARY KEY(`userid`),"
-        ."INDEX(`username`(10))) ENGINE InnoDB;";
+        ."INDEX(`username`(10))" 
+        .") ENGINE InnoDB"
+        ."  CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
   if (!mysqli_query($con, $query))
   {
     die ("Unable to create table $tablename " . mysqli_error($con));      
@@ -59,7 +61,9 @@ function init_decks_table($con)
         ."PRIMARY KEY (`deckid`),"
         ."FOREIGN KEY (`userid`) REFERENCES users(`userid`) "
         ."    ON DELETE CASCADE"
-        .") ENGINE InnoDB;";
+        .") ENGINE InnoDB"
+        ."  CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
+
 
   if (!mysqli_query($con, $query))
   {
@@ -87,7 +91,9 @@ function init_cards_table($con)
         ."PRIMARY KEY (`cardid`),"
         ."FOREIGN KEY (`deckid`) REFERENCES decks(`deckid`)"
         ."    ON DELETE CASCADE"
-        .") ENGINE InnoDB;";
+        .") ENGINE InnoDB"
+        ."  CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
+
 
   if (!mysqli_query($con, $query))
   {
@@ -106,7 +112,8 @@ function init_tags_table($con)
         ."PRIMARY KEY(`tagid`),"
         ."FOREIGN KEY(`deckid`) REFERENCES decks(`deckid`)"
         ."   ON DELETE CASCADE"
-        .") ENGINE InnoDB;";
+        .") ENGINE InnoDB"
+        ."  CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
   
   if (!mysqli_query($con, $query))
   {
@@ -130,7 +137,8 @@ function init_shares_table($con)
         ."   ON DELETE CASCADE,"
         ."FOREIGN KEY(`deckid`) REFERENCES decks(`deckid`)"
         ."   ON DELETE CASCADE"
-        .") ENGINE InnoDB;";
+        .") ENGINE InnoDB"
+        ."  CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
   
   if (!mysqli_query($con, $query))
   {
