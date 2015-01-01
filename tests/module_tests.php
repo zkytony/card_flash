@@ -141,6 +141,20 @@ class UserTest extends PHPUnit_Framework_TestCase
     // delete this user
     delete_from("users", "WHERE `username` = '$username' AND `password` = '$password'", '1', $this->con);    
   }
+
+  public function testIdFromName() {
+    $username = 'user1';
+    $password = 'dummy';
+    $success = User::register($username, $password, $this->con);
+    $this->assertEquals(true, $success);
+    $user = User::sign_in($username, $password, $this->con);
+    $userid_exp = $user->get_id();
+    
+    $userid_get = User::id_from_name($username, $this->con);
+    $this->assertEquals($userid_exp, $userid_get);
+    // delete this user
+    delete_from("users", "WHERE `username` = '$username' AND `password` = '$password'", '1', $this->con);    
+  }
 }
 
 class DeckAndCardTest extends PHPUnit_Framework_TestCase

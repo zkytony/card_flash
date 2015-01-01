@@ -208,6 +208,25 @@ class User
     }
     return $success;
   }
+
+  // Returns a userid with the username given
+  // Throws an exception if obtained more than one userid
+  public static function id_from_name($username, $con) {
+    $result = select_from("users", "`userid`", "WHERE `username` = '$username'", $con);
+    try {
+      if ($result->num_rows > 1) {
+        throw 45;
+      } else if ($result->num_rows == 0) {
+        return "";
+      } else {
+        while ($row = mysqli_fetch_assoc($result)) {
+          return $row['userid'];
+        }
+      }
+    } catch (int $ex) {
+        echo "Error $ex: Duplicate username in database";
+    }
+  }
 } // end of User class
 
 /* 
@@ -613,12 +632,16 @@ class Share
 
   // Returns an array of deckids that a user is shared with type
   public static function shared_decks($userid, $type, $con) {
-    $result = select_from("shares", "*", "WHERE `userid` = '$userid' AND `type` = '$type'", $con);
+    $restrict_str = "WHERE `userid` = '$userid'";
+    if ($type == 1 or $type == 2) {
+      $restrict_str .= " AND `type` = '$type'";
+    }
+    $result = select_from("shares", "*", $restrict_str, $con);
     $deckids = array();
     while ($row = mysqli_fetch_assoc($result)) {
       $deckids[] = $row['deckid'];
     }
-    return $deckids;    
+    return $deckids;
   }
 }
 ?>
