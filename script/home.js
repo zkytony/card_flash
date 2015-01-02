@@ -116,6 +116,9 @@ $(document).ready(function() {
         var usernames = prompt("Enter a list of usernames, separated by comma. Notice that these users can only view your deck. They cannot edit it");
         if (usernames !== null) {
             usernames = usernames.split(",");
+            for (var i = 0; i < usernames.length; i++) {
+                usernames[i] = usernames[i].trim();
+            }
             $.ajax({
                 url: './get_user_info.php',
                 data: {action: 'shareDeck',
@@ -124,6 +127,7 @@ $(document).ready(function() {
                        usernames: usernames},
                 type: 'post',
                 success: function(output) {
+                    alert(output);
                     if (jQuery.isEmptyObject(output)) {
                         alert("All share successful");
                     } else {
