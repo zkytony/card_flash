@@ -56,7 +56,6 @@ function init_decks_table($con)
         ."`last_edit` DATETIME NOT NULL,"
         ."`deleted` BOOL NOT NULL,"
         ."`open` BOOL NOT NULL,"
-        ."`shared` BOOL NOT NULL,"
         ."INDEX(`title`(10)),"
         ."PRIMARY KEY (`deckid`),"
         ."FOREIGN KEY (`userid`) REFERENCES users(`userid`) "
@@ -133,7 +132,7 @@ function init_shares_table($con)
         ."`userid` VARCHAR(32) NOT NULL,"
         ."`type` INT(1) NOT NULL,"
         ."PRIMARY KEY(`shareid`),"
-        ."FOREIGN KEY(`userid`) REFERENCES decks(`userid`)"
+        ."FOREIGN KEY(`userid`) REFERENCES users(`userid`)"
         ."   ON DELETE CASCADE,"
         ."FOREIGN KEY(`deckid`) REFERENCES decks(`deckid`)"
         ."   ON DELETE CASCADE"
@@ -200,7 +199,7 @@ function insert_into($tablename, $columns, $values, $con)
   $query.="VALUES (" . $values . ");";
   if (!mysqli_query($con, $query))
   {
-    die ("Error in inserting into $tablename " . mysqli_error($con));
+    die ("Error in inserting into $tablename " . mysqli_error($con) . " The query was: " . $query);
   }
 }
 
