@@ -289,6 +289,52 @@ class DeckAndCardTest extends PHPUnit_Framework_TestCase
     delete_from("tags", "", "", $this->con);
   }
 
+  public function testDeleteDeck() {
+    // add the deck 1
+    $title = "Deck1";
+    $tags = array("aaa", "bbb", "ccc");
+    $deckid = $this->user->add_deck($title, $tags, $this->con);
+    
+    // add two cards to deck1
+    $title = "Card99";
+    $sub = "One card";
+    $content = "<h1>Hi</h1>";
+    $cardid = $this->user->add_card($title, $sub, $content, $deckid, $this->con);
+
+    $title = "Card100";
+    $sub = "One card";
+    $content = "<h1>Heya</h1>";
+    $cardid = $this->user->add_card($title, $sub, $content, $deckid, $this->con);
+
+    $success = Deck::delete($deckid, $this->con);
+    $result=select_from("decks", "*", 
+                        "WHERE `deckid` = '$deckid'", $this->con);
+    while ($row = mysqli_fetch_assoc($result)) {
+      $this->assertEquals(true, $row['deleted']);
+    }
+
+    // see if cards are marked
+    $result=select_from("cards", "*", 
+                        "WHERE `deckid` = '$deckid'", $this->con);
+    while ($row = mysqli_fetch_assoc($result)) {
+      $this->assertEquals(true, $row['deleted']);
+    }
+
+    // see if tags are marked
+    $result=select_from("tags", "*", 
+                        "WHERE `deckid` = '$deckid'", $this->con);
+    while ($row = mysqli_fetch_assoc($result)) {
+      $this->assertEquals(true, $row['deleted']);
+    }
+
+    // delete decks
+    delete_from("decks", "", "", $this->con);
+    // delete cards
+    delete_from("cards", "", "", $this->con);
+    // delete tags
+    delete_from("tags", "", "", $this->con);
+  }
+
   public function tearDown() {
     // delete this user
     $userid = $this->user->get_id();
