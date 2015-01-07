@@ -399,7 +399,6 @@ class Deck
     }
     return $decks;
   }
-
   
   // Delete the deck. Mark it as deleted by setting the corresponding
   // value in the `deleted` column; The associated Cards and Tags
@@ -413,7 +412,7 @@ class Deck
       Card::delete($row['cardid'], $con);
     }
 
-    // then, mark all tags of this deck as delted
+    // then, mark all tags of this deck as deleted
     $result=select_from("tags", "`tagid`",
                         "WHERE `deckid` = '$deckid'", $con);
     while ($row=mysqli_fetch_assoc($result))
@@ -434,6 +433,16 @@ class Deck
     delete_from("decks", "WHERE `deckid` = '$deckid'", '', $con);
   }
 
+  // Returns true if $userid is the owner of $deckid
+  public static function is_owner_of($deckid, $userid, $con) {
+    $result = select_from("decks", "*", "WHERE `deckid` = '$deckid'", $con);
+    while ($row = mysqli_fetch_assoc($result)) {
+      if ($row['userid'] == $userid) {
+        return true;
+      }
+    }
+    return false;
+  }
 }
 
 /* 
@@ -565,26 +574,32 @@ class Share
   // 1: shared as visitor
   // 2: shared as editor
   // Only process if $type is valid
-  // Returns shareid if successful; returns NULL if already shared
+  // Returns shareid if successful; 
+  // Returns NULL if unsuccessful; reason can be: already shared,
+  // or trying to share to the owner
   // in the same type; Updates the type of sharing if it is currently
   // different
   public static function share_to($deckid, $userid, $type, $con) {    
     try {
       if ($type == 1 or $type == 2) {
         $status = Share::check_status($deckid, $userid, $con);
-        if ($status == 0) {
-          $result = select_from("users", "*", "", $con);
-          $shareid = "share_" . $result->num_rows;
-          $shareid = ensure_unique_id($shareid, "shares", "shareid", $con);
+        if (!Deck::is_owner_of($deckid, $userid, $con)) {
+          if ($status == 0) {
+            $result = select_from("users", "*", "", $con);
+            $shareid = "share_" . $result->num_rows;
+            $shareid = ensure_unique_id($shareid, "shares", "shareid", $con);
 
-          insert_into("shares", "`shareid`, `deckid`, `userid`, `type`",
-                      "'$shareid', '$deckid', '$userid', '$type'", $con);
-          return $shareid;
-        } else if ($status != $type) {
-          update_table("shares", array("`type`"), array("'$type'"),
-                       "WHERE `userid` = '$userid' AND `deckid` = '$deckid'",
-                       $con);
-          return Share::get_shareid($deckid, $userid, $con);
+            insert_into("shares", "`shareid`, `deckid`, `userid`, `type`",
+                        "'$shareid', '$deckid', '$userid', '$type'", $con);
+            return $shareid;
+          } else if ($status != $type) {
+            update_table("shares", array("`type`"), array("'$type'"),
+                         "WHERE `userid` = '$userid' AND `deckid` = '$deckid'",
+                         $con);
+            return Share::get_shareid($deckid, $userid, $con);
+          } else {
+            return NULL;
+          }
         } else {
           return NULL;
         }
@@ -592,7 +607,11 @@ class Share
         throw 99;
       }
     } catch (int $exp) {
-      echo "Error $exp: Sorry. Wrong type $type.";
+      switch ($exp) {
+        case 99:
+          echo "Error $exp: Sorry. Wrong type $type.";
+          break;
+      }
     }
   }
 

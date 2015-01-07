@@ -300,7 +300,8 @@ class DeckAndCardTest extends PHPUnit_Framework_TestCase
 class ShareTest extends PHPUnit_Framework_Testcase
 {
   private $con;
-  private $user;
+  private $user1;
+  private $user2;
   private $deckids;
 
   public function setUp() {
@@ -315,65 +316,73 @@ class ShareTest extends PHPUnit_Framework_Testcase
       
     init_tables($this->con);
 
-    $username = 'user1';
-    $password = 'dummy';
-    $success = User::register($username, $password, $this->con);
-    $this->assertEquals(true, $success);
-    $this->user = User::sign_in($username, $password, $this->con);
+    $success_1 = User::register("user1", "12345", $this->con);
+    $this->assertEquals(true, $success_1);
+    $this->user1 = User::sign_in("user1", "12345", $this->con);
 
+    $success_2 = User::register("user2", "43852", $this->con);
+    $this->assertEquals(true, $success_2);
+    $this->user2 = User::sign_in("user2", "43852", $this->con);
+
+    // add the decks -- they are all user2's deck
     $this->deckids = array();
     // add the deck 1
     $title = "Deck1";
     $tags = array("aaa", "bbb", "ccc");
-    $this->deckids[] = $this->user->add_deck($title, $tags, $this->con);
+    $this->deckids[] = $this->user2->add_deck($title, $tags, $this->con);
 
     // add the deck 2
     $title = "Deck2";
     $tags = array("aaa", "bbb", "ddd");
-    $this->deckids[] = $this->user->add_deck($title, $tags, $this->con);
+    $this->deckids[] = $this->user2->add_deck($title, $tags, $this->con);
 
     // add the deck 3
     $title = "Deck1";
     $tags = array("aaa", "ccc", "eee");
-    $this->deckids[] = $this->user->add_deck($title, $tags, $this->con);
+    $this->deckids[] = $this->user2->add_deck($title, $tags, $this->con);
   }
 
   public function testShareToNew() {
-    $shareid_1 = Share::share_to($this->deckids[0], $this->user->get_id(), 1, $this->con);
-    $shareid_2 = Share::share_to($this->deckids[1], $this->user->get_id(), 2, $this->con);
-    $shareid_3 = Share::share_to($this->deckids[2], $this->user->get_id(), 1, $this->con);
+    $shareid_1 = Share::share_to($this->deckids[0], $this->user1->get_id(), 1, $this->con);
+    $shareid_2 = Share::share_to($this->deckids[1], $this->user1->get_id(), 2, $this->con);
+    $shareid_3 = Share::share_to($this->deckids[2], $this->user1->get_id(), 1, $this->con);
 
-    $deckids_get = Share::shared_decks($this->user->get_id(), 1, $this->con);
+    $deckids_get = Share::shared_decks($this->user1->get_id(), 1, $this->con);
     $deckids_exp = array($this->deckids[0], $this->deckids[2]);
 
     $this->assertEquals($deckids_exp, $deckids_get);
 
     $userids_get = Share::shared_users($this->deckids[1], 2, $this->con);
-    $userids_exp = array($this->user->get_id());
+    $userids_exp = array($this->user1->get_id());
     $this->assertEquals($userids_exp, $userids_get);
     
     // test if update works
-    $shareid_2_new = Share::share_to($this->deckids[1], $this->user->get_id(), 1, $this->con);
+    $shareid_2_new = Share::share_to($this->deckids[1], $this->user1->get_id(), 1, $this->con);
     $this->assertEquals($shareid_2, $shareid_2_new);
-    $deckids_get = Share::shared_decks($this->user->get_id(), 1, $this->con);
+    $deckids_get = Share::shared_decks($this->user1->get_id(), 1, $this->con);
     $deckids_exp = array($this->deckids[0], $this->deckids[1], $this->deckids[2]);
     $this->assertEquals($deckids_exp, $deckids_get);
   }
 
   public function testUnshare() {
-    $shareid_1 = Share::share_to($this->deckids[0], $this->user->get_id(), 1, $this->con);
-    $shareid_2 = Share::share_to($this->deckids[1], $this->user->get_id(), 2, $this->con);
-    $shareid_3 = Share::share_to($this->deckids[2], $this->user->get_id(), 1, $this->con);
+    $shareid_1 = Share::share_to($this->deckids[0], $this->user1->get_id(), 1, $this->con);
+    $shareid_2 = Share::share_to($this->deckids[1], $this->user1->get_id(), 2, $this->con);
+    $shareid_3 = Share::share_to($this->deckids[2], $this->user1->get_id(), 1, $this->con);
 
-    Share::unshare($this->deckids[0], $this->user->get_id(), $this->con);
-    $status = Share::check_status($this->deckids[0], $this->user->get_id(), $this->con);
+    Share::unshare($this->deckids[0], $this->user1->get_id(), $this->con);
+    $status = Share::check_status($this->deckids[0], $this->user1->get_id(), $this->con);
     $this->assertEquals(0, $status);
+  }
+
+  public function testShareToOwner() {
+    $shareid = Share::share_to($this->deckids[0], $this->user2->get_id(), 1, $this->con);
+    $this->assertEquals(NULL, $shareid);
   }
 
   public function tearDown() {
     // delete this user
-    $userid = $this->user->get_id();
-    delete_from("users", "WHERE `userid` = '$userid'", '1', $this->con);
+    $userid = $this->user1->get_id();
+    delete_from("users", "", "", $this->con);
     // delete decks
     delete_from("decks", "", "", $this->con);
     // delete tags
@@ -381,5 +390,4 @@ class ShareTest extends PHPUnit_Framework_Testcase
   }
 
 }
-
 ?>
