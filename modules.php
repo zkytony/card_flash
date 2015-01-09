@@ -90,8 +90,8 @@ class User
 
   // Adds a card to a specified user's deck
   // Returns the cardid of the added card
-  public function add_card($title, $sub, $content, $deckid, $con) {
-    return Card::add($title, $sub, $content, $deckid, $this->userid, $con);
+  public function add_card($title, $sub, $content, $deckid, $type, $con) {
+    return Card::add($title, $sub, $content, $deckid, $this->userid, $type, $con);
   }
 
   // Returns an array containing the Deck objects representing
@@ -259,20 +259,36 @@ class Card
 
   // Adds a card to a deck
   // $title, $sub, $content are information of the card
+  // $type is the type of the card:
+  //     0 - Normal
+  //     1 - User Card
+  //     2 - Status Card
   // Returns the cardid of the added card
-  public static function add($title, $sub, $content, $deckid, $userid, $con) {
-    $result=select_from("cards", "`cardid`", "", $con);
-    $num_rows=$result->num_rows;
+  // Note: We do not want the user to create a deck that can
+  // create all these type of cards. User Card and Status Card
+  // should be created directly, and added to a specific deck
+  // fixed for each user
+  public static function add($title, $sub, $content, $deckid, $userid, $type, $con) {
+    try {
+      if ($type != 0 && $type != 1 && $type != 2) {
+        throw 98;
+      }
+      
+      $result=select_from("cards", "`cardid`", "", $con);
+      $num_rows=$result->num_rows;
 
-    $cardid='card_' . $num_rows;
-    $cardid=ensure_unique_id($cardid, "cards", "cardid", $con);
+      $cardid='card_' . $num_rows;
+      $cardid=ensure_unique_id($cardid, "cards", "cardid", $con);
 
-    $columns="`cardid`,`title`,`sub`,`content`,";
-    $columns.="`userid`,`deckid`,`create_time`,`deleted`";
-    $values="'$cardid','$title','$sub','$content',"
-           ."'$userid','$deckid',NOW(), '0'";
-    insert_into("cards", $columns, $values, $con);
-    return $cardid;
+      $columns="`cardid`,`title`,`sub`,`content`,";
+      $columns.="`userid`,`deckid`,`create_time`,`deleted`, `type`";
+      $values="'$cardid','$title','$sub','$content',"
+             ."'$userid','$deckid',NOW(), '0', '$type'";
+      insert_into("cards", $columns, $values, $con);
+      return $cardid;
+    } catch (int $exp) {
+      echo "Error $exp: You are not giving the right type";
+    }
   }
 
   // Edits a card

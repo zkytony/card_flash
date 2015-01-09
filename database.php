@@ -75,6 +75,10 @@ function init_cards_table($con)
   $tablename='cards';
   // create the table for decks if not exists
   // relates to users table
+  // `type` is the type of the card:
+  //     0 - Normal
+  //     1 - User Card
+  //     2 - Status Card
   $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
         ."`cardid` VARCHAR(32) UNIQUE NOT NULL,"
         ."`title` VARCHAR(128) NOT NULL,"
@@ -84,7 +88,7 @@ function init_cards_table($con)
         ."`deckid` VARCHAR(32) NOT NULL,"
         ."`create_time` DATE NOT NULL,"
         ."`deleted` BOOL NOT NULL,"
-        ."`type` BOOL,"
+        ."`type` INT(1) NOT NULL,"
         ."INDEX(`title`(10)),"
         ."INDEX(`sub`(10)),"
         ."PRIMARY KEY (`cardid`),"
