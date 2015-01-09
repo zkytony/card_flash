@@ -24,7 +24,7 @@ if (isset($_POST['submit-card']))
   // get current deck id of the user
   $user = $_SESSION['user'];
   $deckid = $user->get_info()['deckid'];
-  $user->add_card($title, $sub, $content, $deckid, $con);
+  $user->add_card($title, $sub, $content, $deckid, 0, $con);
 
   // succeeded
   $_SESSION['new_card']=true;
