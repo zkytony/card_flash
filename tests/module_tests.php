@@ -224,7 +224,7 @@ class DeckAndCardTest extends PHPUnit_Framework_TestCase
     $title = "Card99";
     $sub = "One card";
     $content = "<h1>Hi</h1>";
-    $cardid = $this->user->add_card($title, $sub, $content, $deckid, $this->con);
+    $cardid = $this->user->add_card($title, $sub, $content, $deckid, 0, $this->con);
 
     $result = select_from("cards", "*", "WHERE `cardid` = '$cardid'", $this->con);
     while ($row = mysqli_fetch_assoc($result)) {
@@ -299,12 +299,12 @@ class DeckAndCardTest extends PHPUnit_Framework_TestCase
     $title = "Card99";
     $sub = "One card";
     $content = "<h1>Hi</h1>";
-    $cardid = $this->user->add_card($title, $sub, $content, $deckid, $this->con);
+    $cardid = $this->user->add_card($title, $sub, $content, $deckid, 1, $this->con);
 
     $title = "Card100";
     $sub = "One card";
     $content = "<h1>Heya</h1>";
-    $cardid = $this->user->add_card($title, $sub, $content, $deckid, $this->con);
+    $cardid = $this->user->add_card($title, $sub, $content, $deckid, 0, $this->con);
 
     $success = Deck::delete($deckid, $this->con);
     $result=select_from("decks", "*", 
