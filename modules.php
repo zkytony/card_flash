@@ -100,24 +100,31 @@ class User
     return Deck::get_decks_of($this->userid, $active, $con);
   }
 
-  // Register a user with username and password. 
+  // Register a user, with information provided as an array like this:
+  // $info = array(
+  //      'email' => email@email.com
+  //      'first' => First Name
+  //      'last' => Last Name
+  //      'password' => Pswd
+  //      'birth' => '%m-%d-%Y')
+  // );
   // If more info is needed to register an user, we should modify this function.
   // NOTE: If the user exists but is inactivate, then we will register
   // the user by changing the password
   // ------------------------------
-  // Remember to prevent SQL / HTMl injection in $username and $password
+  // Remember to prevent SQL / HTMl injection in $email and $password
   // Returns true if registration is successful
-  public static function register($username, $password, $con) {
-    $column = "`username`, `activate`";
+  public static function register($info, $con) {
+    $column = "`email`, `activate`";
     $result = select_from('users', $column, "",  $con);
 
     $available = true;
     $change_password = false;
     while ($row = mysqli_fetch_assoc($result)) {
-      if ($row['username'] == $username && $row['activate'] == true) {
+      if ($row['email'] == $info['email'] && $row['activate'] == true) {
         $available = false;
         break;
-      } elseif ($row['username'] == $username && $row['activate'] == false) {
+      } elseif ($row['email'] == $info['email'] && $row['activate'] == false) {
         $available = true;
         $change_password = true;
         break;
@@ -133,12 +140,12 @@ class User
         // ensure uniqueness
         $userid = ensure_unique_id($userid, "users", "userid", $con); 
 
-        $columns = "`userid`,`username`,`password`,`register_time`,`activate`, `online`";
-        $values = "'$userid','$username','$password', NOW(), '1', '0'";
+        $columns = "`userid`,`email`,`first`,`last`,`password`,`birth`,`register_time`,`activate`, `online`";
+        $values = "'$userid','{$info['email']}','{$info['first']}','{$info['last']}','{$info['password']}',STR_TO_DATE(\"{$info['birth']}\", \"%m-%d-%Y\"), NOW(), '1', '0'";
         insert_into('users', $columns, $values, $con); // insert into 'users'
       } else {
-        $columns = array("`password`", "`activate`", "`online`", "`register_time`");
-        $values = array("'$password'", "'1'", "'0'", "NOW()");
+        $columns = array("`first`","`last`","`password`", "`birth`", "`activate`", "`online`", "`register_time`");
+        $values = array("'{$info['first']}'", "'{$info['last']}'", "'{$info['password']}'", "STR_TO_DATE(\"{$info['birth']}\", \"%m-%d-%Y\")", "'1'", "'0'", "NOW()");
         update_table('users', $columns, $values, "", $con);
       }
       return true;
@@ -147,8 +154,8 @@ class User
 
   // Sign in a user. Returns a User object of that user if successful
   // Returns null object otherwise
-  public static function sign_in($username, $password, $con) {
-    $restrict_str = "WHERE username = '$username' AND password = '$password'";
+  public static function sign_in($email, $password, $con) {
+    $restrict_str = "WHERE email = '$email' AND password = '$password'";
     $columns = "`userid`, `activate`";
     $result = select_from("users", $columns, $restrict_str, $con);
 
@@ -177,24 +184,24 @@ class User
   // Input should be an instance of User class
   // Deactivates this user by marking activate as false
   // His decks will also be marked as deleted (### NEED SELECT JOIN)
-  public static function deactivate($username, $password, $con) {
+  public static function deactivate($email, $password, $con) {
     $columns = array("`activate`", "`online`");
     $values = array("'0'", "'0'");
-    $restrict_str = "WHERE username = '$username' AND password = '$password'";
+    $restrict_str = "WHERE email = '$email' AND password = '$password'";
     update_table("users", $columns, $values, $restrict_str, $con);
   }
 
   // Input should be an instance of User class
   // Deletes this user from database; Because of foreign key,
   // the assoiciated deck and cards should also be deleted
-  public static function delete($username, $password, $con) {
-    $restrict_str = "WHERE username = '$username' AND password = '$password'";
+  public static function delete($email, $password, $con) {
+    $restrict_str = "WHERE email = '$email' AND password = '$password'";
     delete_from("users", $restrict_str, 1, $con);
   }
 
-  // Remember to prevent SQL / HTMl injection in $username and $password
-  public static function check_exist_active($username, $password, $con) {
-    $restrict_str = "WHERE username = '$username' AND password = '$password'";
+  // Remember to prevent SQL / HTMl injection in $email and $password
+  public static function check_exist_active($email, $password, $con) {
+    $restrict_str = "WHERE email = '$email' AND password = '$password'";
     $result = select_from("users", "`userid`, `activate`", $restrict_str, $con);
 
     $success = false;
@@ -209,10 +216,10 @@ class User
     return $success;
   }
 
-  // Returns a userid with the username given
+  // Returns a userid with the email given
   // Throws an exception if obtained more than one userid
-  public static function id_from_name($username, $con) {
-    $result = select_from("users", "`userid`", "WHERE `username` = '$username'", $con);
+  public static function id_from_name($email, $con) {
+    $result = select_from("users", "`userid`", "WHERE `email` = '$email'", $con);
     try {
       if ($result->num_rows > 1) {
         throw 45;
@@ -224,7 +231,7 @@ class User
         }
       }
     } catch (int $ex) {
-        echo "Error $ex: Duplicate username in database";
+        echo "Error $ex: Duplicate email in database";
     }
   }
 } // end of User class

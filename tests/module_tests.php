@@ -33,81 +33,104 @@ class UserTest extends PHPUnit_Framework_TestCase
      when the user is able to be registered
    */
   public function testRegsiterAvailble() {
-    $username = 'user1';
-    $password = 'dummy';
-    $success = User::register($username, $password, $this->con);
+    $info = array(
+        'email' => 'abc@123.com',
+        'first' => 'Chen',
+        'last' => 'Bomb',
+        'password' => '123',
+        'birth' => '03-02-1995'
+    );
+    $success = User::register($info, $this->con);
     $this->assertEquals(true, $success);
     
     // see if this user is activate and online
     $result = select_from("users", "*", 
-                          "WHERE `username` = '$username' AND `password` = '$password'", $this->con);
+                          "WHERE `email` = '{$info['email']}' AND `password` = '{$info['email']}'", $this->con);
     while($row = mysqli_fetch_assoc($result)) {
       $this->assertEquals('1', $row['activate']);
-      $this->assertEquals('0', $row['online']);
+      $this->assertEquals('abc@123.com', $row['email']);
+      $this->assertEquals('Chen', $row['first']);
+      $this->assertEquals('Bomb', $row['last']);
+      $this->assertEquals('1959-03-02', $row['birth']);
     }
 
     // delete this user
-    delete_from("users", "WHERE `username` = '$username' AND `password` = '$password'", '1', $this->con);
+    delete_from("users", "", '', $this->con);
   }
 
   /*
      Tests User::register() function in the case
      when the user is not able to be registered because there
-     exists user with same username and is activate
+     exists user with same email and is activate
    */
   public function testRegisterUnavailable() {
-    $username = 'user1';
-    $password = 'dummy';
-    $success = User::register($username, $password, $this->con);
+    $info = array(
+        'email' => 'abc@123.com',
+        'first' => 'Chen',
+        'last' => 'Bomb',
+        'password' => '123',
+        'birth' => '03-02-1995'
+    );
+    $success = User::register($info, $this->con);
     $this->assertEquals(true, $success);
     
-    // register with same username again:
-    $success = User::register($username, $password, $this->con);
+    // register with same email again:
+    $success = User::register($info, $this->con);
     $this->assertEquals(false, $success);
     
     // delete this user
-    delete_from("users", "WHERE `username` = '$username' AND `password` = '$password'", '1', $this->con);
+    delete_from("users", "", '', $this->con);
   }
 
   /*
      Tests User::register() function in the case
      when the user is not able to be registered because there
-     exists user with same username and is activate
+     exists user with same email and is activate
    */
-  public function testRegisterForNotActivateUsername() {
-    $username = 'user1';
-    $password = 'dummy';
-    $success = User::register($username, $password, $this->con);
+  public function testRegisterForNotActivateEmail() {
+    $info = array(
+        'email' => 'abc@123.com',
+        'first' => 'Chen',
+        'last' => 'Bomb',
+        'password' => '123',
+        'birth' => '03-02-1995'
+    );
+    $success = User::register($info, $this->con);
     $this->assertEquals(true, $success);
     
     // now deactivate the user
-    User::deactivate($username, $password, $this->con);
+    User::deactivate($info['email'], $info['password'], $this->con);
     
     $result = select_from("users", "*", 
-                          "WHERE `username` = '$username' AND `password` = '$password'", $this->con);
+                          "WHERE `email` = '{$info['email']}' AND `password` = '{$info['password']}'", $this->con);
     while($row = mysqli_fetch_assoc($result)) {
       $this->assertEquals('0', $row['activate']);
       $this->assertEquals('0', $row['online']);
     }
 
     // now register again -- should be successful
-    $success = User::register($username, $password, $this->con);
+    $success = User::register($info, $this->con);
     $this->assertEquals(true, $success);
 
     // delete this user
-    delete_from("users", "WHERE `username` = '$username' AND `password` = '$password'", '1', $this->con);    
+    delete_from("users", "", "", $this->con);
   }
 
   /*
      Test User::sign_in() If the user is registered
    */
   public function testSignInUserRegistered() {
-    $username = 'user1';
-    $password = 'dummy';
-    $success = User::register($username, $password, $this->con);
+    $info = array(
+        'email' => 'abc@123.com',
+        'first' => 'Chen',
+        'last' => 'Bomb',
+        'password' => '123',
+        'birth' => '03-02-1995'
+    );
+    $success = User::register($info, $this->con);
     $this->assertEquals(true, $success);
     
-    $user = User::sign_in($username, $password, $this->con);
+    $user = User::sign_in($info['email'], $info['password'], $this->con);
     // assert if user is not null and is instance of User
     $this->assertEquals(false, is_null($user));
     $this->assertEquals(true, $user instanceof User);
@@ -119,41 +142,51 @@ class UserTest extends PHPUnit_Framework_TestCase
     $this->assertEquals('1', $user_info['online']);
 
     // delete this user
-    delete_from("users", "WHERE `username` = '$username' AND `password` = '$password'", '1', $this->con);    
+    delete_from("users", "", '', $this->con);    
   }
 
   public function testLogOut() {
-    $username = 'user1';
-    $password = 'dummy';
-    $success = User::register($username, $password, $this->con);
+    $info = array(
+        'email' => 'abc@123.com',
+        'first' => 'Chen',
+        'last' => 'Bomb',
+        'password' => '123',
+        'birth' => '03-02-1995'
+    );
+    $success = User::register($info, $this->con);
     $this->assertEquals(true, $success);
 
-    $user = User::sign_in($username, $password, $this->con);
+    $user = User::sign_in($info['email'], $info['password'], $this->con);
     $user->logout($this->con);
     $this->assertEquals('0', $user->get_info()['online']);
   
     $result = select_from("users", "*", 
-                          "WHERE `username` = '$username' AND `password` = '$password'", $this->con);
+                          "WHERE `email` = '{$info['email']}' AND `password` = '{$info['email']}'", $this->con);
     while($row = mysqli_fetch_assoc($result)) {
       $this->assertEquals('0', $row['online']);
     }
 
     // delete this user
-    delete_from("users", "WHERE `username` = '$username' AND `password` = '$password'", '1', $this->con);    
+    delete_from("users", "", '', $this->con);
   }
 
   public function testIdFromName() {
-    $username = 'user1';
-    $password = 'dummy';
-    $success = User::register($username, $password, $this->con);
+    $info = array(
+        'email' => 'abc@123.com',
+        'first' => 'Chen',
+        'last' => 'Bomb',
+        'password' => '123',
+        'birth' => '03-02-1995'
+    );
+    $success = User::register($info, $this->con);
     $this->assertEquals(true, $success);
-    $user = User::sign_in($username, $password, $this->con);
+    $user = User::sign_in($info['email'], $info['password'], $this->con);
     $userid_exp = $user->get_id();
     
-    $userid_get = User::id_from_name($username, $this->con);
+    $userid_get = User::id_from_name($info['email'], $this->con);
     $this->assertEquals($userid_exp, $userid_get);
     // delete this user
-    delete_from("users", "WHERE `username` = '$username' AND `password` = '$password'", '1', $this->con);    
+    delete_from("users", "", '', $this->con);    
   }
 }
 
@@ -174,11 +207,16 @@ class DeckAndCardTest extends PHPUnit_Framework_TestCase
       
     init_tables($this->con);
 
-    $username = 'user1';
-    $password = 'dummy';
-    $success = User::register($username, $password, $this->con);
+    $info = array(
+        'email' => 'abc@123.com',
+        'first' => 'Chen',
+        'last' => 'Bomb',
+        'password' => '123',
+        'birth' => '03-02-1995'
+    );
+    $success = User::register($info, $this->con);
     $this->assertEquals(true, $success);
-    $this->user = User::sign_in($username, $password, $this->con);
+    $this->user = User::sign_in($info['email'], $info['password'], $this->con);
   }
   
   public function testAddDeck() {
@@ -361,14 +399,27 @@ class ShareTest extends PHPUnit_Framework_Testcase
                                 $db['password'], $db['database']);
       
     init_tables($this->con);
-
-    $success_1 = User::register("user1", "12345", $this->con);
+    $info1 = array(
+        'email' => 'abc@123.com',
+        'first' => 'Chen',
+        'last' => 'Bomb',
+        'password' => '123',
+        'birth' => '03-02-1995'
+    );
+    $success_1 = User::register($info1, $this->con);
     $this->assertEquals(true, $success_1);
-    $this->user1 = User::sign_in("user1", "12345", $this->con);
+    $this->user1 = User::sign_in($info1['email'], $info1['password'], $this->con);
 
-    $success_2 = User::register("user2", "43852", $this->con);
+    $info2 = array(
+        'email' => 'wft@123.com',
+        'first' => 'James',
+        'last' => 'Yak',
+        'password' => '123',
+        'birth' => '11-30-1932'
+    );
+    $success_2 = User::register($info2, $this->con);
     $this->assertEquals(true, $success_2);
-    $this->user2 = User::sign_in("user2", "43852", $this->con);
+    $this->user2 = User::sign_in($info2['email'], $info2['password'], $this->con);
 
     // add the decks -- they are all user2's deck
     $this->deckids = array();
@@ -427,7 +478,6 @@ class ShareTest extends PHPUnit_Framework_Testcase
 
   public function tearDown() {
     // delete this user
-    $userid = $this->user1->get_id();
     delete_from("users", "", "", $this->con);
     // delete decks
     delete_from("decks", "", "", $this->con);
