@@ -25,16 +25,19 @@ function init_users_table($con)
   $tablename='users';
 
   // attention, you must use ` to quote names
+  // basically, email is the username -- unique required
   $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
         ."`userid` VARCHAR(32) UNIQUE NOT NULL,"
-        ."`username` VARCHAR(128) UNIQUE NOT NULL,"
+        ."`email` VARCHAR(128) UNIQUE NOT NULL,"
+        ."`first` VARCHAR(128) NOT NULL,"
+        ."`last` VARCHAR(128) NOT NULL,"
         ."`password` VARCHAR(128) NOT NULL,"
+        ."`birth` DATE NOT NULL,"
         ."`register_time` DATE NOT NULL,"
         ."`current_deckid` VARCHAR(32),"
         ."`activate` BOOL NOT NULL,"
         ."`online` BOOL NOT NULL,"
-        ."PRIMARY KEY(`userid`),"
-        ."INDEX(`username`(10))" 
+        ."PRIMARY KEY(`userid`)"
         .") ENGINE InnoDB"
         ."  CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
   if (!mysqli_query($con, $query))
