@@ -37,6 +37,8 @@ function init_users_table($con)
         ."`current_deckid` VARCHAR(32),"
         ."`activate` BOOL NOT NULL,"
         ."`online` BOOL NOT NULL,"
+        ."`followers` INT(16),"
+        ."`circle` INT(8),"
         ."PRIMARY KEY(`userid`)"
         .") ENGINE InnoDB"
         ."  CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
@@ -59,6 +61,7 @@ function init_decks_table($con)
         ."`last_edit` DATETIME NOT NULL,"
         ."`deleted` BOOL NOT NULL,"
         ."`open` BOOL NOT NULL,"
+        ."`subscribers` INT(16),"
         ."INDEX(`title`(10)),"
         ."PRIMARY KEY (`deckid`),"
         ."FOREIGN KEY (`userid`) REFERENCES users(`userid`) "
@@ -144,6 +147,75 @@ function init_shares_table($con)
         .") ENGINE InnoDB"
         ."  CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
   
+  if (!mysqli_query($con, $query))
+  {
+    die ("Unable to create table $tablename " . mysqli_error($con));
+  }
+}
+
+function init_followers_table() {
+  $tablename='followers';
+  $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
+        ."`flwrid` VARCHAR(32) UNIQUE NOT NULL,"
+        ."`userid` VARCHAR(32) NOT NULL,"
+        ."`flwr_userid` VARCHAR(32) NOT NULL,"
+        ."PRIMARY KEY(`flwrid`),"
+        ."FOREIGN KEY(`userid`) REFERENCES users(`userid`)"
+        ."   ON DELETE CASCADE,"
+        ."FOREIGN KEY(`flwr_userid`) REFERENCES users(`userid`)"
+        ."   ON DELETE CASCADE"
+        .") ENGINE InnoDB"
+        ."  CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
+
+  if (!mysqli_query($con, $query))
+  {
+    die ("Unable to create table $tablename " . mysqli_error($con));
+  }
+}
+
+function init_subscribers_table() {
+  $tablename='subscribers';
+  $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
+        ."`sbrid` VARCHAR(32) UNIQUE NOT NULL,"
+        ."`deckid` VARCHAR(32) NOT NULL,"
+        ."`sbr_userid` VARCHAR(32) NOT NULL,"
+        ."PRIMARY KEY(`sbrid`),"
+        ."FOREIGN KEY(`deckid`) REFERENCES deck(`deckid`)"
+        ."   ON DELETE CASCADE,"
+        ."FOREIGN KEY(`sbr_userid`) REFERENCES users(`userid`)"
+        ."   ON DELETE CASCADE"
+        .") ENGINE InnoDB"
+        ."  CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
+
+  if (!mysqli_query($con, $query))
+  {
+    die ("Unable to create table $tablename " . mysqli_error($con));
+  }
+}
+
+// circles is just like friends
+// relation is an integer representing the type of relationship
+// 0 : normal connection
+// 1 : normal friend
+// 2 : serious relationship
+// 3 : school mate
+// 4 : family
+// 5 : work/project colleague
+function init_circles_table() {
+  $tablename='circles';
+  $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
+        ."`circleid` VARCHAR(32) UNIQUE NOT NULL,"
+        ."`userid_req` VARCHAR(32) NOT NULL,"
+        ."`userid_acpt` VARCHAR(32) NOT NULL,"
+        ."`relation` INT(1) NOT NULL,"
+        ."PRIMARY KEY(`circleid`),"
+        ."FOREIGN KEY(`userid_req`) REFERENCES users(`userid`)"
+        ."   ON DELETE CASCADE,"
+        ."FOREIGN KEY(`userid_acpt`) REFERENCES users(`userid`)"
+        ."   ON DELETE CASCADE"
+        .") ENGINE InnoDB"
+        ."  CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
+
   if (!mysqli_query($con, $query))
   {
     die ("Unable to create table $tablename " . mysqli_error($con));
