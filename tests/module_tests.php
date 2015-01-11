@@ -183,7 +183,7 @@ class UserTest extends PHPUnit_Framework_TestCase
     $user = User::sign_in($info['email'], $info['password'], $this->con);
     $userid_exp = $user->get_id();
     
-    $userid_get = User::id_from_name($info['email'], $this->con);
+    $userid_get = User::id_from_email($info['email'], $this->con);
     $this->assertEquals($userid_exp, $userid_get);
     // delete this user
     delete_from("users", "", '', $this->con);    
@@ -475,6 +475,86 @@ class ShareTest extends PHPUnit_Framework_Testcase
     $shareid = Share::share_to($this->deckids[0], $this->user2->get_id(), 1, $this->con);
     $this->assertEquals(NULL, $shareid);
   }
+
+  public function testForeignKeyConstrainDeleteDeck() {
+    $shareid_1 = Share::share_to($this->deckids[0], $this->user1->get_id(), 1, $this->con);
+    $shareid_2 = Share::share_to($this->deckids[1], $this->user1->get_id(), 2, $this->con);
+    $shareid_3 = Share::share_to($this->deckids[2], $this->user1->get_id(), 1, $this->con);
+
+    // If Deck1 is deleted
+    Deck::delete_completely($this->deckids[0], $this->con);
+
+    $result = select_from("shares", "*", "WHERE `shareid` = '$shareid_1'", $this->con);
+    $deleted = true;
+    while ($row = mysqli_fetch_assoc($result)) {
+      $deleted = false;
+    }
+    $this->assertTrue($deleted);
+
+    // add the deck 1 back
+    $title = "Deck1";
+    $tags = array("aaa", "bbb", "ccc");
+    $this->deckids[0] = $this->user2->add_deck($title, $tags, $this->con);
+
+  }
+
+  public function testForeignKeyConstrainDeleteUserSharedTo() {
+    // notice, because of the previous test, deckids[0] here may be different from the previous
+    $shareid_1 = Share::share_to($this->deckids[0], $this->user1->get_id(), 1, $this->con);
+    $shareid_2 = Share::share_to($this->deckids[1], $this->user1->get_id(), 2, $this->con);
+    $shareid_3 = Share::share_to($this->deckids[2], $this->user1->get_id(), 1, $this->con);
+
+    // If User1 is deleted
+    User::delete_completely($this->user1->get_info()['email'], $this->user1->get_info()['password'], $this->con);
+
+    $result = select_from("shares", "*", "WHERE `shareid` = '$shareid_1'", $this->con);
+    $deleted = true;
+    while ($row = mysqli_fetch_assoc($result)) {
+      $deleted = false;
+    }
+    $this->assertTrue($deleted);
+
+    // register the user1 back again
+    $info1 = array(
+        'email' => 'abc@123.com',
+        'first' => 'Chen',
+        'last' => 'Bomb',
+        'password' => '123',
+        'birth' => '03-02-1995'
+    );
+    $success_1 = User::register($info1, $this->con);
+    $this->assertEquals(true, $success_1);
+    $this->user1 = User::sign_in($info1['email'], $info1['password'], $this->con);
+  }
+
+  public function testForeignKeyConstrainDeleteUserOwnDeck() {
+    // notice, because of the previous test, deckids[0] here may be different from the previous
+    $shareid_1 = Share::share_to($this->deckids[0], $this->user1->get_id(), 1, $this->con);
+    $shareid_2 = Share::share_to($this->deckids[1], $this->user1->get_id(), 2, $this->con);
+    $shareid_3 = Share::share_to($this->deckids[2], $this->user1->get_id(), 1, $this->con);
+
+    // If User2 is deleted; User2 is the owner of the deck
+    User::delete_completely($this->user2->get_info()['email'], $this->user2->get_info()['password'], $this->con);
+
+    $result = select_from("shares", "*", "WHERE `shareid` = '$shareid_1'", $this->con);
+    $deleted = true;
+    while ($row = mysqli_fetch_assoc($result)) {
+      $deleted = false;
+    }
+    $this->assertTrue($deleted);
+
+    // register user2 back again
+    $info2 = array(
+        'email' => 'wft@123.com',
+        'first' => 'James',
+        'last' => 'Yak',
+        'password' => '123',
+        'birth' => '11-30-1932'
+    );
+    $success_2 = User::register($info2, $this->con);
+    $this->assertEquals(true, $success_2);
+    $this->user2 = User::sign_in($info2['email'], $info2['password'], $this->con);
+  }  
 
   public function tearDown() {
     // delete this user
