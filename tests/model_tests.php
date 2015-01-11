@@ -1,10 +1,10 @@
 <?php
 
 /*
-   Unit tests for classes in modules.php
+   Unit tests for classes in models.php
  */
 
-require_once "../modules.php";
+require_once "../models.php";
 require_once "../database.php";
 
 /*

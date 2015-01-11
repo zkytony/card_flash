@@ -9,7 +9,7 @@ if ($_SESSION['loggedIn']) // if already logged in
 
 require_once "view/login_view.php";
 require_once "database.php";
-require_once "modules.php";
+require_once "models.php";
 
 $con=connect();
 init_tables($con); // make sure all tables are there

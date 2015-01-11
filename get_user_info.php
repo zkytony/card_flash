@@ -10,7 +10,7 @@
    p.s. the name of this file may not be appropriate for its use
  */
 require_once "database.php";
-require_once "modules.php";
+require_once "models.php";
 
 session_start();
 if (!$_SESSION['loggedIn'])

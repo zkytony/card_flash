@@ -7,7 +7,7 @@ if ($_SESSION['loggedIn']) // if already logged in
 
 require_once "database.php";
 require_once "functions.php";
-require_once "modules.php";
+require_once "models.php";
 
 if (isset($_POST['submit']))
 {
