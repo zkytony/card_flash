@@ -73,7 +73,7 @@ class Share
         $status = Share::check_status($deckid, $userid, $con);
         if (!Deck::is_owner_of($deckid, $userid, $con)) {
           if ($status == 0) {
-            $result = select_from("users", "*", "", $con);
+            $result = select_from("shares", "*", "", $con);
             $shareid = "share_" . $result->num_rows;
             $shareid = ensure_unique_id($shareid, "shares", "shareid", $con);
 
