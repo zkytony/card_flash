@@ -137,12 +137,12 @@ class User
         // ensure uniqueness
         $userid = ensure_unique_id($userid, "users", "userid", $con); 
 
-        $columns = "`userid`,`email`,`first`,`last`,`password`,`birth`,`register_time`,`activate`, `online`";
-        $values = "'$userid','{$info['email']}','{$info['first']}','{$info['last']}','{$info['password']}',STR_TO_DATE(\"{$info['birth']}\", \"%m-%d-%Y\"), NOW(), '1', '0'";
+        $columns = "`userid`,`email`,`first`,`last`,`password`,`birth`,`register_time`,`activate`, `online`, `followers`,`following`";
+        $values = "'$userid','{$info['email']}','{$info['first']}','{$info['last']}','{$info['password']}',STR_TO_DATE(\"{$info['birth']}\", \"%m-%d-%Y\"), NOW(), '1', '0', '0', '0'";
         insert_into('users', $columns, $values, $con); // insert into 'users'
       } else {
-        $columns = array("`first`","`last`","`password`", "`birth`", "`activate`", "`online`", "`register_time`");
-        $values = array("'{$info['first']}'", "'{$info['last']}'", "'{$info['password']}'", "STR_TO_DATE(\"{$info['birth']}\", \"%m-%d-%Y\")", "'1'", "'0'", "NOW()");
+        $columns = array("`first`","`last`","`password`", "`birth`", "`activate`", "`online`", "`register_time`", "`followers`", "`following`");
+        $values = array("'{$info['first']}'", "'{$info['last']}'", "'{$info['password']}'", "STR_TO_DATE(\"{$info['birth']}\", \"%m-%d-%Y\")", "'1'", "'0'", "NOW()", "'0'", "'0'");
         update_table('users', $columns, $values, "", $con);
       }
       return true;
@@ -231,6 +231,51 @@ class User
         echo "Error $ex: Duplicate email in database";
     }
   }
+
+  // adds one to the number of followers this user has
+  public static function follower_add_one($userid, $con) {
+    $restrict_str="WHERE `userid`='$userid'";
+    update_table("users", array("`followers`"), array("`followers`+1"), $restrict_str, $con);
+  }
+
+  // subtracts one to the number of followers this user has
+  public static function follower_subtract_one($userid, $con) {
+    $restrict_str="WHERE `userid`='$userid'";
+    update_table("users", array("`followers`"), array("`followers`-1"), $restrict_str, $con);
+  }
+
+  // adds one to the number of followers this user has
+  public static function following_add_one($userid, $con) {
+    $restrict_str="WHERE `userid`='$userid'";
+    update_table("users", array("`following`"), array("`following`+1"), $restrict_str, $con);
+  }
+
+  // subtracts one to the number of followers this user has
+  public static function following_subtract_one($userid, $con) {
+    $restrict_str="WHERE `userid`='$userid'";
+    update_table("users", array("`following`"), array("`following`-1"), $restrict_str, $con);
+  }
+
+  // Returns the number of followers a user has
+  public function num_followers($userid, $con) {
+    $num = 0;
+    $result = select_from("users", "`followers`", "WHERE `userid` = '$userid'", $con);
+    while ($row = mysqli_fetch_assoc($result)) {
+      $num = $result['followers'];
+    }
+    return $num;
+  }
+
+  // Returns the number of people that a user is following
+  public function num_following($userid, $con) {
+    $num = 0;
+    $result = select_from("users", "`following`", "WHERE `userid` = '$userid'", $con);
+    while ($row = mysqli_fetch_assoc($result)) {
+      $num = $result['following'];
+    }
+    return $num;
+  }
+
 } // end of User class
 
 ?>
