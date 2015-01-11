@@ -17,6 +17,9 @@ function init_tables($con)
   init_cards_table($con);
   init_tags_table($con);
   init_shares_table($con);
+  init_followers_table($con);
+  init_subscribers_table($con);
+  init_circles_table($con);
 }
 
 function init_users_table($con)
@@ -38,6 +41,7 @@ function init_users_table($con)
         ."`activate` BOOL NOT NULL,"
         ."`online` BOOL NOT NULL,"
         ."`followers` INT(16),"
+        ."`following` INT(16),"
         ."`circle` INT(8),"
         ."PRIMARY KEY(`userid`)"
         .") ENGINE InnoDB"
@@ -142,6 +146,8 @@ function init_shares_table($con)
         ."`userid` VARCHAR(32) NOT NULL,"
         ."`type` INT(1) NOT NULL,"
         ."PRIMARY KEY(`shareid`),"
+        ."FOREIGN KEY(`userid`) REFERENCES users(`userid`)"
+        ."   ON DELETE CASCADE,"
         ."FOREIGN KEY(`deckid`) REFERENCES decks(`deckid`)"
         ."   ON DELETE CASCADE"
         .") ENGINE InnoDB"
@@ -153,7 +159,7 @@ function init_shares_table($con)
   }
 }
 
-function init_followers_table() {
+function init_followers_table($con) {
   $tablename='followers';
   $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
         ."`flwrid` VARCHAR(32) UNIQUE NOT NULL,"
@@ -173,14 +179,14 @@ function init_followers_table() {
   }
 }
 
-function init_subscribers_table() {
+function init_subscribers_table($con) {
   $tablename='subscribers';
   $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
         ."`sbrid` VARCHAR(32) UNIQUE NOT NULL,"
         ."`deckid` VARCHAR(32) NOT NULL,"
         ."`sbr_userid` VARCHAR(32) NOT NULL,"
         ."PRIMARY KEY(`sbrid`),"
-        ."FOREIGN KEY(`deckid`) REFERENCES deck(`deckid`)"
+        ."FOREIGN KEY(`deckid`) REFERENCES decks(`deckid`)"
         ."   ON DELETE CASCADE,"
         ."FOREIGN KEY(`sbr_userid`) REFERENCES users(`userid`)"
         ."   ON DELETE CASCADE"
@@ -201,7 +207,7 @@ function init_subscribers_table() {
 // 3 : school mate
 // 4 : family
 // 5 : work/project colleague
-function init_circles_table() {
+function init_circles_table($con) {
   $tablename='circles';
   $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
         ."`circleid` VARCHAR(32) UNIQUE NOT NULL,"
