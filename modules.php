@@ -194,7 +194,7 @@ class User
   // Input should be an instance of User class
   // Deletes this user from database; Because of foreign key,
   // the assoiciated deck and cards should also be deleted
-  public static function delete($email, $password, $con) {
+  public static function delete_completely($email, $password, $con) {
     $restrict_str = "WHERE email = '$email' AND password = '$password'";
     delete_from("users", $restrict_str, 1, $con);
   }
@@ -218,7 +218,7 @@ class User
 
   // Returns a userid with the email given
   // Throws an exception if obtained more than one userid
-  public static function id_from_name($email, $con) {
+  public static function id_from_email($email, $con) {
     $result = select_from("users", "`userid`", "WHERE `email` = '$email'", $con);
     try {
       if ($result->num_rows > 1) {

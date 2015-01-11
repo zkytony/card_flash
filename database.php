@@ -139,8 +139,6 @@ function init_shares_table($con)
         ."`userid` VARCHAR(32) NOT NULL,"
         ."`type` INT(1) NOT NULL,"
         ."PRIMARY KEY(`shareid`),"
-        ."FOREIGN KEY(`userid`) REFERENCES users(`userid`)"
-        ."   ON DELETE CASCADE,"
         ."FOREIGN KEY(`deckid`) REFERENCES decks(`deckid`)"
         ."   ON DELETE CASCADE"
         .") ENGINE InnoDB"
