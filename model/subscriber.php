@@ -46,10 +46,10 @@ class Subscriber
     $sbrid = Subscriber::get_sbrid($deckid, $userid, $con);
     if ($sbrid != NULL) {
       return $sbrid;
-    } else if (Deck::is_open($deckid)) {
+    } else if (!Deck::is_owner_of($deckid, $userid, $con) and  Deck::is_open($deckid, $con)) {
       $result = select_from("subscribers", "*", "", $con);
       $sbrid = "sbr_" . $result->num_rows;
-      $flwrid = ensure_unique_id($sbrid, "subscriberrs", "sbrid", $con);
+      $sbrid = ensure_unique_id($sbrid, "subscribers", "sbrid", $con);
 
       insert_into("subscribers",
                   "`sbrid`, `deckid`, `sbr_userid`",
@@ -67,8 +67,8 @@ class Subscriber
                 "WHERE `sbr_userid` = '$userid' AND `deckid` = '$deckid'", 
                 "", $con);
     if (mysqli_affected_rows($con) > 0) {
-      User::follower_subtract_one($userid, $con);
-      User::following_subtract_one($flwr_userid, $con);
+      User::subscribing_subtract_one($userid, $con);
+      Deck::subscriber_subtract_one($deckid, $con);
     }
   }
 
