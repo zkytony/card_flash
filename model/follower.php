@@ -76,12 +76,12 @@ class Follower
     }
   }
 
-  // Returns an array of the followers' id of a user
+  // Returns an array of the followers' userid of a user
   public static function followers($userid, $con) {
     $return_ids = array();
-    $result = select_from("followers", "`flwrid`", "WHERE `userid` = '$userid'", $con);
+    $result = select_from("followers", "`flwr_userid`", "WHERE `userid` = '$userid'", $con);
     while ($row = mysqli_fetch_assoc($result)) {
-      $return_ids[] = $row['flwrid'];
+      $return_ids[] = $row['flwr_userid'];
     }
     return $return_ids;
   }
