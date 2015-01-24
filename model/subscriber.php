@@ -15,7 +15,7 @@ class Subscriber
   private $exist;
 
   function __construct($sbrid, $con) {
-    $result = select_from("subscribers", "*", "WHERE `flwrid` = '$flwrid'", $con);
+    $result = select_from("subscribers", "*", "WHERE `sbrid` = '$sbrid'", $con);
     $this->exist = $result->num_rows == 1;
     if ($this->exist) {
       $this->sbrid = $sbrid;
@@ -28,7 +28,7 @@ class Subscriber
   }
 
   public function get_id() {
-    return $this->flwrid;
+    return $this->sbrid;
   }
 
   public static function get_sbrid($deckid, $userid, $con) {
