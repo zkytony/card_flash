@@ -42,6 +42,7 @@ function init_users_table($con)
         ."`online` BOOL NOT NULL,"
         ."`followers` INT(16),"
         ."`following` INT(16),"
+        ."`subscribing` INT(16),"
         ."`circle` INT(8),"
         ."PRIMARY KEY(`userid`)"
         .") ENGINE InnoDB"

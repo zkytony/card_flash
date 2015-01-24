@@ -137,5 +137,26 @@ class Deck
     }
     return false;
   }
+
+  // Returns true if this deck is open to public
+  public static function is_open($deckid, $con) {
+    $result = select_from("decks", "`open`", "WHERE `deckid` = '$deckid'", $con);    
+    while ($row = mysqli_fetch_assoc($result)) {
+      return $row['open'];
+    }
+    return false;
+  }
+
+  // adds one to the number of subscribers this deck has
+  public static function subscriber_add_one($deckid, $con) {
+    $restrict_str="WHERE `deckid`='$deckid'";
+    update_table("decks", array("`subscribers`"), array("`subscribers`+1"), $restrict_str, $con);
+  }
+
+  // subtracts one to the number of subscriberrs this deck has
+  public static function subscriber_subtract_one($deckid, $con) {
+    $restrict_str="WHERE `deckid`='$deckid'";
+    update_table("decks", array("`subscribers`"), array("`subscribers`-1"), $restrict_str, $con);
+  }
 }
 ?>
