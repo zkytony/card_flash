@@ -266,7 +266,7 @@ function select_from($tablename, $columns, $restrict_str, $con)
   $query.=$restrict_str . ";";
   if (!$result=mysqli_query($con, $query)) 
     die ("Error in selecting from $tablename; The query is $query " 
-        . mysqli_error($con));
+        . mysqli_error($con) . "\n");
 
   return $result;
 }
@@ -282,7 +282,7 @@ function insert_into($tablename, $columns, $values, $con)
   $query.="VALUES (" . $values . ");";
   if (!mysqli_query($con, $query))
   {
-    die ("Error in inserting into $tablename " . mysqli_error($con) . " The query was: " . $query);
+    die ("Error in inserting into $tablename " . mysqli_error($con) . " The query was: " . $query . "\n");
   }
 }
 
@@ -318,7 +318,7 @@ function update_table($tablename, $columns,
   $query.=$restrict_str . ";";
   if (!mysqli_query($con, $query))
   {
-    die ("Error in Update $tablename " . mysqli_error($con) . " YOUR QUERY IS " . $query);
+    die ("Error in Update $tablename " . mysqli_error($con) . " YOUR QUERY IS " . $query . "\n");
   }  
 }
 
@@ -335,7 +335,7 @@ function delete_from($tablename, $restrict_str, $limit, $con)
   $query .= ";";
   if (!mysqli_query($con, $query))
   {
-    die ("Error in deleting from $tablename " . mysqli_error($con));
+    die ("Error in Update $tablename " . mysqli_error($con) . " YOUR QUERY IS " . $query . "\n");
   }
 }
 ?>
