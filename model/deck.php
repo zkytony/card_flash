@@ -47,20 +47,25 @@ class Deck
 
   // static function for adding a deck
   // $tags is an array of tags of the deck
+  // Checks if the user already has a deck with same title
   // Returns the deckid of the added deck
-  public static function add($title, $tags, $userid, $con) {
-    $result = select_from('decks',"`deckid`","",$con);
-    $num_rows = $result->num_rows;
-    $deckid = 'deck_' . $num_rows;
-    $deckid = ensure_unique_id($deckid, "decks", "deckid", $con);
+  public static function add($title, $tags, $userid, $open, $con) {
+    if (!Deck::deck_exists($title, $userid, $con)) {
+      $result = select_from('decks',"`deckid`","",$con);
+      $num_rows = $result->num_rows;
+      $deckid = 'deck_' . $num_rows;
+      $deckid = ensure_unique_id($deckid, "decks", "deckid", $con);
 
-    $columns = "`deckid`,`title`,`userid`,`create_time`,`deleted`";
-    $values = "'$deckid','$title','$userid',NOW(), '0'";
-    insert_into('decks', $columns, $values, $con);
+      $columns = "`deckid`,`title`,`userid`,`create_time`,`deleted`,`open`,`subscribers`";
+      $values = "'$deckid','$title','$userid',NOW(), '0', '$open', '0'";
+      insert_into('decks', $columns, $values, $con);
 
-    // add the tags to 'tags' table:
-    Tag::add($tags, $deckid, $con);
-    return $deckid;
+      // add the tags to 'tags' table:
+      Tag::add($tags, $deckid, $con);
+      return $deckid;
+    } else {
+      return NULL;
+    }
   }
 
   // Edits a card with given information
@@ -147,6 +152,15 @@ class Deck
     return false;
   }
 
+  // given a deck title, and a userid, check if this the deck exists
+  public static function deck_exists($title, $userid, $con) {
+    $result = select_from("decks", "`deckid`", "WHERE `title` = '$title' AND `userid` = '$userid'", $con);
+    while ($row = mysqli_fetch_assoc($result)) {
+      return true;
+    }
+    return false;
+  }
+
   // adds one to the number of subscribers this deck has
   public static function subscriber_add_one($deckid, $con) {
     $restrict_str="WHERE `deckid`='$deckid'";
@@ -157,6 +171,16 @@ class Deck
   public static function subscriber_subtract_one($deckid, $con) {
     $restrict_str="WHERE `deckid`='$deckid'";
     update_table("decks", array("`subscribers`"), array("`subscribers`-1"), $restrict_str, $con);
+  }
+  
+  // returns the number of subscribers to a specified deck
+  public static function num_subscribers($deckid, $con) {
+    $num = 0;
+    $result = select_from("decks", "`subscribers`", "WHERE `deckid` = '$deckid'", $con);
+    while ($row = mysqli_fetch_assoc($result)) {
+      $num = $row['subscribers'];
+    }
+    return $num;
   }
 }
 ?>

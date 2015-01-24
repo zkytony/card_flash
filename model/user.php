@@ -79,8 +79,8 @@ class User
   // $tags is an array containing the tags of this deck
   // Also inserts necessary entries to 'tags' table
   // Returns the deckid of the added deck
-  public function add_deck($title, $tags, $con) {
-    $deckid = Deck::add($title, $tags, $this->userid, $con);
+  public function add_deck($title, $tags, $open, $con) {
+    $deckid = Deck::add($title, $tags, $this->userid, $open, $con);
     $this->update_current_deck($deckid, $con);
     return $deckid;
   }
@@ -137,8 +137,8 @@ class User
         // ensure uniqueness
         $userid = ensure_unique_id($userid, "users", "userid", $con); 
 
-        $columns = "`userid`,`email`,`first`,`last`,`password`,`birth`,`register_time`,`activate`, `online`, `followers`,`following`";
-        $values = "'$userid','{$info['email']}','{$info['first']}','{$info['last']}','{$info['password']}',STR_TO_DATE(\"{$info['birth']}\", \"%m-%d-%Y\"), NOW(), '1', '0', '0', '0'";
+        $columns = "`userid`,`email`,`first`,`last`,`password`,`birth`,`register_time`,`activate`, `online`, `followers`,`following`, `subscribing`";
+        $values = "'$userid','{$info['email']}','{$info['first']}','{$info['last']}','{$info['password']}',STR_TO_DATE(\"{$info['birth']}\", \"%m-%d-%Y\"), NOW(), '1', '0', '0', '0', '0'";
         insert_into('users', $columns, $values, $con); // insert into 'users'
       } else {
         $columns = array("`first`","`last`","`password`", "`birth`", "`activate`", "`online`", "`register_time`", "`followers`", "`following`");
@@ -273,7 +273,7 @@ class User
     $num = 0;
     $result = select_from("users", "`followers`", "WHERE `userid` = '$userid'", $con);
     while ($row = mysqli_fetch_assoc($result)) {
-      $num = $result['followers'];
+      $num = $row['followers'];
     }
     return $num;
   }
@@ -283,7 +283,7 @@ class User
     $num = 0;
     $result = select_from("users", "`following`", "WHERE `userid` = '$userid'", $con);
     while ($row = mysqli_fetch_assoc($result)) {
-      $num = $result['following'];
+      $num = $row['following'];
     }
     return $num;
   }
@@ -293,7 +293,7 @@ class User
     $num = 0;
     $result = select_from("users", "`subscribing`", "WHERE `userid` = '$userid'", $con);
     while ($row = mysqli_fetch_assoc($result)) {
-      $num = $result['subscribing'];
+      $num = $row['subscribing'];
     }
     return $num;
   }
