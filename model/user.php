@@ -256,6 +256,18 @@ class User
     update_table("users", array("`following`"), array("`following`-1"), $restrict_str, $con);
   }
 
+  // adds one to the number of decks subscribing this user has
+  public static function subscribing_add_one($userid, $con) {
+    $restrict_str="WHERE `userid`='$userid'";
+    update_table("users", array("`subscribing`"), array("`subscribing`+1"), $restrict_str, $con);
+  }
+
+  // subtracts one to the decks subscribing this user has
+  public static function subscribing_subtract_one($userid, $con) {
+    $restrict_str="WHERE `userid`='$userid'";
+    update_table("users", array("`subscribing`"), array("`subscribing`-1"), $restrict_str, $con);
+  }
+
   // Returns the number of followers a user has
   public function num_followers($userid, $con) {
     $num = 0;
@@ -272,6 +284,16 @@ class User
     $result = select_from("users", "`following`", "WHERE `userid` = '$userid'", $con);
     while ($row = mysqli_fetch_assoc($result)) {
       $num = $result['following'];
+    }
+    return $num;
+  }
+
+  // Returns the number of people that a user is subscribing
+  public function num_subscribing($userid, $con) {
+    $num = 0;
+    $result = select_from("users", "`subscribing`", "WHERE `userid` = '$userid'", $con);
+    while ($row = mysqli_fetch_assoc($result)) {
+      $num = $result['subscribing'];
     }
     return $num;
   }
