@@ -212,13 +212,41 @@ function init_circles_table($con) {
   $tablename='circles';
   $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
         ."`circleid` VARCHAR(32) UNIQUE NOT NULL,"
-        ."`userid_req` VARCHAR(32) NOT NULL,"
-        ."`userid_acpt` VARCHAR(32) NOT NULL,"
-        ."`relation` INT(1) NOT NULL,"
+        ."`userid` VARCHAR(32) UNIQUE NOT NULL," // userid for the creator
+        ."`title` VARCHAR(32) NOT NULL,"
+        ."`forwhat` VARCHAR(128) NOT NULL,"
+        ."`create_time` DATETIME NOT NULL,"
+        ."`member_count` INT(4) NOT NULL,"
+        ."`admin_count` INT(1) NOT NULL,"
         ."PRIMARY KEY(`circleid`),"
-        ."FOREIGN KEY(`userid_req`) REFERENCES users(`userid`)"
+        ."FOREIGN KEY(`userid`) REFERENCES users(`userid`)"
         ."   ON DELETE CASCADE,"
-        ."FOREIGN KEY(`userid_acpt`) REFERENCES users(`userid`)"
+        .") ENGINE InnoDB"
+        ."  CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
+
+  if (!mysqli_query($con, $query))
+  {
+    die ("Unable to create table $tablename " . mysqli_error($con));
+  }
+}
+
+// represents the members for each circle
+// `role` refers to the role of the user in the circle:
+// 0 - admin --> the ability to kick people out, and assign other people as admin
+// 1 - normal --> normal abilities: leave, invite others, see updates
+function init_members_table() {
+    $tablename='circles';
+  $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
+        ."`memberid` VARCHAR(32) UNIQUE NOT NULL,"
+        ."`circleid` VARCHAR(32) NOT NULL,"
+        ."`userid` VARCHAR(32) UNIQUE NOT NULL," // userid for the member
+        ."`role` INT(1) NOT NULL," // role of the user
+        ."`join_time` DATETIME NOT NULL,"
+        ."`last_activity_time` DATETIME NOT NULL,"
+        ."PRIMARY KEY(`memberid`),"
+        ."FOREIGN KEY(`userid`) REFERENCES users(`userid`)"
+        ."   ON DELETE CASCADE,"
+        ."FOREIGN KEY(`circleid`) REFERENCES circles(`circleid`)"
         ."   ON DELETE CASCADE"
         .") ENGINE InnoDB"
         ."  CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
