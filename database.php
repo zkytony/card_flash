@@ -20,6 +20,7 @@ function init_tables($con)
   init_followers_table($con);
   init_subscribers_table($con);
   init_circles_table($con);
+  init_members_table($con);
 }
 
 function init_users_table($con)
@@ -43,13 +44,12 @@ function init_users_table($con)
         ."`followers` INT(16) NOT NULL,"
         ."`following` INT(16) NOT NULL,"
         ."`subscribing` INT(16) NOT NULL,"
-        ."`circle` INT(8) NOT NULL,"
         ."PRIMARY KEY(`userid`)"
         .") ENGINE InnoDB"
         ."  CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
   if (!mysqli_query($con, $query))
   {
-    die ("Unable to create table $tablename " . mysqli_error($con));      
+    die ("Unable to create table $tablename " . mysqli_error($con) . " The query was: " . $query . "\n");
   }
 }
 
@@ -77,7 +77,7 @@ function init_decks_table($con)
 
   if (!mysqli_query($con, $query))
   {
-    die ("Unable to create table $tablename " . mysqli_error($con));
+    die ("Unable to create table $tablename " . mysqli_error($con) . " The query was: " . $query . "\n");
   }
 }
 
@@ -111,7 +111,7 @@ function init_cards_table($con)
 
   if (!mysqli_query($con, $query))
   {
-    die ("Unable to create table $tablename " . mysqli_error($con));
+    die ("Unable to create table $tablename " . mysqli_error($con) . " The query was: " . $query . "\n");
   }
 }
 
@@ -131,7 +131,7 @@ function init_tags_table($con)
   
   if (!mysqli_query($con, $query))
   {
-    die ("Unable to create table $tablename " . mysqli_error($con));
+    die ("Unable to create table $tablename " . mysqli_error($con) . " The query was: " . $query . "\n");
   }
 }
 
@@ -156,7 +156,7 @@ function init_shares_table($con)
   
   if (!mysqli_query($con, $query))
   {
-    die ("Unable to create table $tablename " . mysqli_error($con));
+    die ("Unable to create table $tablename " . mysqli_error($con) . " The query was: " . $query . "\n");
   }
 }
 
@@ -176,7 +176,7 @@ function init_followers_table($con) {
 
   if (!mysqli_query($con, $query))
   {
-    die ("Unable to create table $tablename " . mysqli_error($con));
+    die ("Unable to create table $tablename " . mysqli_error($con) . " The query was: " . $query . "\n");
   }
 }
 
@@ -196,18 +196,12 @@ function init_subscribers_table($con) {
 
   if (!mysqli_query($con, $query))
   {
-    die ("Unable to create table $tablename " . mysqli_error($con));
+    die ("Unable to create table $tablename " . mysqli_error($con) . " The query was: " . $query . "\n");
   }
 }
 
 // circles is just like friends
-// relation is an integer representing the type of relationship
-// 0 : normal connection
-// 1 : normal friend
-// 2 : serious relationship
-// 3 : school mate
-// 4 : family
-// 5 : work/project colleague
+// circle is like group
 function init_circles_table($con) {
   $tablename='circles';
   $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
@@ -220,13 +214,13 @@ function init_circles_table($con) {
         ."`admin_count` INT(1) NOT NULL,"
         ."PRIMARY KEY(`circleid`),"
         ."FOREIGN KEY(`userid`) REFERENCES users(`userid`)"
-        ."   ON DELETE CASCADE,"
+        ."   ON DELETE CASCADE"
         .") ENGINE InnoDB"
         ."  CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
 
   if (!mysqli_query($con, $query))
   {
-    die ("Unable to create table $tablename " . mysqli_error($con));
+    die ("Unable to create table $tablename " . mysqli_error($con) . " The query was: " . $query . "\n");
   }
 }
 
@@ -234,8 +228,8 @@ function init_circles_table($con) {
 // `role` refers to the role of the user in the circle:
 // 0 - admin --> the ability to kick people out, and assign other people as admin
 // 1 - normal --> normal abilities: leave, invite others, see updates
-function init_members_table() {
-    $tablename='circles';
+function init_members_table($con) {
+  $tablename='members';
   $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
         ."`memberid` VARCHAR(32) UNIQUE NOT NULL,"
         ."`circleid` VARCHAR(32) NOT NULL,"
@@ -253,7 +247,7 @@ function init_members_table() {
 
   if (!mysqli_query($con, $query))
   {
-    die ("Unable to create table $tablename " . mysqli_error($con));
+    die ("Unable to create table $tablename " . mysqli_error($con) . " The query was: " . $query . "\n");
   }
 }
 
