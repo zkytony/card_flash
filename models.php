@@ -12,4 +12,5 @@ require_once "model/tag.php";
 require_once "model/share.php";
 require_once "model/follower.php";
 require_once "model/subscriber.php";
+require_once "model/circle.php";
 ?>
