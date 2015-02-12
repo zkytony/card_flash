@@ -30,6 +30,14 @@ function filter_html_tags($html_str)
   return $html_str;
 }
 
+function make_id($prefix, $tablename, $id_column, $con) {
+  $result = select_from($tablename, "`$id_column`", "", $con);
+  $num_rows = $result->num_rows;
+  $id = $prefix . '_' . $num_rows;
+  $id = ensure_unique_id($id, $tablename, $id_column, $con);
+  return $id;
+}
+
 // Returns a unique id (PREFIX_nnn) in the specified table, given
 // an id that 'might' make this id unique already;
 function ensure_unique_id($id, $tablename, $id_column, $con)

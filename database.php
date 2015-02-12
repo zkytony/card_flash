@@ -58,6 +58,7 @@ function select_from($tablename, $columns, $restrict_str, $con)
 // "`col1`,`col2`..."
 // $values is the string that stores each value corresponding
 // to each column (the ordering should be the same as in $columns)
+// "'val1','val2'..."
 function insert_into($tablename, $columns, $values, $con)
 {
   $query="INSERT INTO `$tablename` (" . $columns . ")";
