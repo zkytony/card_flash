@@ -240,6 +240,40 @@ function init_members_table($con) {
   }
 }
 
+// refid is the id for reference in other activity tables
+// reftable is the tablename of the specific activity table
+// Activity types:
+// 0 - user register
+// 1 - user creates a deck
+// 2 - card(s) added to a deck
+// 3 - tag(s) of a deck is changed
+// 4 - a deck is shared to other users
+// 5 - a user subscribes to a deck
+// 6 - a user joins a group
+// 7 - a user follows another user
+// 8 - a deck's information is edited (title, description, open, close)
+// 9 - a card's information is edited (title, subtitle, content)
+function init_timeline_table($con) {
+  $tablename='timeline';
+  $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
+        ."`timeid` VARCHAR(32) UNIQUE NOT NULL,"
+        ."`userid` VARCHAR(32) NOT NULL,"
+        ."`refid` VARCHAR(32) NOT NULL,"
+        ."`reftable` VARCHAR(16) NOT NULL"
+        ."`type` INT(1) NOT NULL,"
+        ."`time` DATETIME NOT NULL,"
+        ."PRIMARY KEY(`timeid`),"
+        ."FOREIGN KEY(`userid`) REFERENCES users(`userid`)"
+        ."   ON DELETE CASCADE"
+        .") ENGINE InnoDB"
+        ."  CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
+
+  if (!mysqli_query($con, $query))
+  {
+    die ("Unable to create table $tablename " . mysqli_error($con) . " The query was: " . $query . "\n");
+  }
+}
+
 function init_activity_tables($con) {
   init_activity_user_register_table($con);
   init_activity_deck_new_del_table($con);
@@ -322,6 +356,8 @@ function init_activity_card_new_del_table($con) {
 }
 
 // circleid here is not null if the tags are changed for a deck in a circle with that id
+// prev_tag : tags that are deleted (they previously exist)
+// now_tag : tags that are added now (they now exist) -- Needs consideration
 // To have 'tag create' activity - set prev_tag to NULL
 // To have 'tag removed' activity - set now_tag to NULL
 function init_activity_tags_changed_table($con) {
@@ -495,37 +531,4 @@ function init_activity_card_edited_table($con) {
   }
 }
 
-// refid is the id for reference in other activity tables
-// reftable is the tablename of the specific activity table
-// Activity types:
-// 0 - user register
-// 1 - user creates a deck
-// 2 - card(s) added to a deck
-// 3 - tag(s) of a deck is changed
-// 4 - a deck is shared to other users
-// 5 - a user subscribes to a deck
-// 6 - a user joins a group
-// 7 - a user follows another user
-// 8 - a deck's information is edited (title, description, open, close)
-// 9 - a card's information is edited (title, subtitle, content)
-function init_timeline_table($con) {
-  $tablename='timeline';
-  $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
-        ."`timeid` VARCHAR(32) UNIQUE NOT NULL,"
-        ."`userid` VARCHAR(32) NOT NULL,"
-        ."`refid` VARCHAR(32) NOT NULL,"
-        ."`reftable` VARCHAR(16) NOT NULL"
-        ."`type` INT(1) NOT NULL,"
-        ."`time` DATETIME NOT NULL,"
-        ."PRIMARY KEY(`timeid`),"
-        ."FOREIGN KEY(`userid`) REFERENCES users(`userid`)"
-        ."   ON DELETE CASCADE"
-        .") ENGINE InnoDB"
-        ."  CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
-
-  if (!mysqli_query($con, $query))
-  {
-    die ("Unable to create table $tablename " . mysqli_error($con) . " The query was: " . $query . "\n");
-  }
-}
 ?>
