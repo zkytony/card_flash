@@ -63,6 +63,19 @@ class Activity
   //      - 'new' :  (BOOL) creating or deleting?
   // 'newcard' : specific dta for new card activity (...)
   //      - 'new' :  (BOOL) creating or deleting?
+  // 'tagchange' : specific data for tags changed activity
+  //      - 'added_tags' : (STRING) tags separated by comma
+  // 'deckshare' : specific data for deck share activity
+  //      - 'from_user' : the userid from whom the deck is shared
+  //      - 'to_user' : the userid to whom the deck is shared
+  //      - 'sharing' : (BOOL) true if 'share', false if 'unshare'
+  // 'subscribe' : specific data for subscribe deck activity
+  //      - 'subscribing' : (BOOL) true if subscribing; false if unsubscribe;
+  // 'joingroup' : specific data for user join group activity
+  //      - 'init' : (BOOL) true if the user is the creator
+  // 'userfollow' : specific data for user follow activity
+  //      - 'targetid' : the userid who is followed
+  //      - 'following' : (BOOL) true if following; false if unfollow
   public static add_activity($type, $data, $con) {
     switch ($type) {
 
@@ -95,40 +108,63 @@ class Activity
       case 3: // tag(s) of a deck is changed
         $tablename = "activity_tags_changed";
         $id = make_id("tch", $tablename, "actid", $con);
-        $columns = "`actid`, `userid`, `deckid`, `cardid`, `circleid`, `new`, `time`";
+        $columns = "`actid`, `userid`, `deckid`, `added_tags`, `circleid`, `time`";
         $values = "'$id', '{$data['userid']}', '{$data['deckid']}', "
-                ."'{$data['tagchange']['prev_tag']}', '{$data['tagchange']['now_tag']}', '{$data['circleid']}', '{$data['newcard']['new']}', '{$data['time']}";
+                ."'{$data['tagchange']['added_tags']}', '{$data['circleid']}', '{$data['time']}";
         insert_into($tablename, $columns, $values, $con);
-
         break;
 
       case 4: // a deck is shared to other users
         $tablename = "activity_deck_share";
+        $id = make_id("dks", $tablename, "actid", $con);
+        $columns = "`actid`, `from_userid`, `to_userid`, `deckid`, `circleid`, `sharing`, `time`";
+        $values = "'$id', '{$data['deckshare']['from_userid']}', '{$data['deckshare']['to_userid']}', '{$data['deckid']}', "
+                ."'{$data['circleid']}', '{$data['deckshare']['sharing']}', '{$data['time']}";
+        insert_into($tablename, $columns, $values, $con);
         break;
 
       case 5: // a user subscribes to a deck
         $tablename = "activity_deck_subscribe";
+        $id = make_id("sub", $tablename, "actid", $con);
+        $columns = "`actid`, `userid`, `deckid`, `circleid`, `subscribing`, `time`";
+        $values = "'$id', '{$data['userid']}', '{$data['deckid']}', '{$data['circleid']}', '{$data['subscribe']['subscribing']}', '{$data['time']}'";
+        insert_into($tablename, $columns, $values, $con);
         break;
 
       case 6: // a user joins a group
         $tablename = "activity_group_join";
+        $id = make_id("jgp", $tablename, "actid", $con);
+        $columns = "`actid`, `userid`, `circleid`, `init`, `time`";
+        $values = "'$id', '{$data['userid']}', '{$data['deckid']}', '{$data['circleid']}', '{$data['joingroup']['init']}', '{$data['time']}'";
+        insert_into($tablename, $columns, $values, $con);
         break;
 
       case 7: // a user follows another user
         $tablename = "activity_user_follow";
+        $id = make_id("fol", $tablename, "actid", $con);
+        $columns = "`actid`, `userid`, `targetid`, `following`, `time`";
+        $values = "'$id', '{$data['userid']}', '{$data['userfollow']['targetid']}', '{$data['userfollow']['following']}', '{$data['time']}'";
+        insert_into($tablename, $columns, $values, $con);
         break;
 
       case 8: // a deck's information is edited
         $tablename = "activity_deck_edited";
+        $id = make_id("dup", $tablename, "actid", $con);
+        $columns = "`actid`, `userid`, `deckid`, `circleid`, `time`";
+        $values = "'$id', '{$data['userid']}', '{$data['deckid']}', '{$data['circleid']}', '{$data['time']}";
+        insert_into($tablename, $columns, $values, $con);
         break;
 
       case 9: // a card's information is edited
         $tablename = "activity_card_edited";
+        $id = make_id("dup", $tablename, "actid", $con);
+        $columns = "`actid`, `userid`, `cardid`, `circleid`, `time`";
+        $values = "'$id', '{$data['userid']}', '{$data['cardid']}', '{$data['circleid']}', '{$data['time']}";
+        insert_into($tablename, $columns, $values, $con);
         break;
 
       default:
         return NULL;
-        break;
     }
   }
 }
