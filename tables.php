@@ -10,6 +10,7 @@ function init_tables($con)
   init_subscribers_table($con);
   init_circles_table($con);
   init_members_table($con);
+  init_timeline_table($con);
   init_activity_tables($con);
 }
 
@@ -283,8 +284,8 @@ function init_activity_tables($con) {
   init_activity_deck_subscribe_table($con);
   init_activity_group_join_table($con);
   init_activity_user_follow_table($con);
-  init_activity_deck_edited_table($con);
-  init_activity_card_edited_table($con);
+  init_activity_deck_updated_table($con);
+  init_activity_card_updated_table($con);
 }
 
 function init_activity_user_register_table($con) {
@@ -356,18 +357,16 @@ function init_activity_card_new_del_table($con) {
 }
 
 // circleid here is not null if the tags are changed for a deck in a circle with that id
-// prev_tag : tags that are deleted (they previously exist)
-// now_tag : tags that are added now (they now exist) -- Needs consideration
-// To have 'tag create' activity - set prev_tag to NULL
-// To have 'tag removed' activity - set now_tag to NULL
+// NOTICE: when a user untag a tag, this activity is not very valuable. 
+// The valuable activity is when he add some new tags
+// added_tags : tags that are added now (they now exist) - Tags should be separated by comma
 function init_activity_tags_changed_table($con) {
   $tablename='activity_tags_changed';
   $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
         ."`actid` VARCHAR(32) UNIQUE NOT NULL,"
         ."`userid` VARCHAR(32) NOT NULL,"
-        ."`deckid` VARCHAR(32) NOT NULL,"
-        ."`prev_tag` VARCHAR(32),"
-        ."`now_tag` VARCHAR(32),"
+        ."`deckid` VARCHAR(32) NOT NULL,"    
+        ."`added_tags` VARCHAR(128),"
         ."`circleid` VARCHAR(32),"
         ."`time` DATETIME NOT NULL,"
         ."PRIMARY KEY(`actid`),"
@@ -383,6 +382,8 @@ function init_activity_tags_changed_table($con) {
 }
 
 // Stores deck share and unshare activity
+// `sharing` is true if the deck is shared,
+// false if it is unshared
 function init_activity_deck_share_table($con) {
   $tablename='activity_deck_share';
   $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
@@ -408,6 +409,8 @@ function init_activity_deck_share_table($con) {
 }
 
 // Stores the activity of subscribing or unsubscribing a deck
+// `subscribing` is true if user subscribes a deck,
+// false otherwise
 function init_activity_deck_subscribe_table($con) {
   $tablename='activity_deck_subscribe';
   $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
@@ -472,23 +475,17 @@ function init_activity_user_follow_table($con) {
   }
 }
 
-// type refers to which type of change
-// 0 - changed title
-// 1 - changed description
-// 2 - opened
-// 3 - closed
-// If content is changed, prev and now can be NULL
-// because the data is inappropriate to store here
-function init_activity_deck_edited_table($con) {
-  $tablename='activity_deck_edited';
+// Stores the activity that a deck is updated.
+// This DOES NOT include when user adds a card.
+// This also DOES NOT record what is specificly updated. It
+// just records that the deck's information (title, description...) is updated
+function init_activity_deck_updated_table($con) {
+  $tablename='activity_deck_updated';
   $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
         ."`actid` VARCHAR(32) UNIQUE NOT NULL,"
         ."`userid` VARCHAR(32) NOT NULL,"
         ."`deckid` VARCHAR(32) NOT NULL,"
-        ."`prev` VARCHAR(128) NOT NULL,"
-        ."`now` VARCHAR(128) NOT NULL,"
         ."`circleid` VARCHAR(32),"
-        ."`type` INT(1) NOT NULL,"
         ."`time` DATETIME NOT NULL,"
         ."PRIMARY KEY(`actid`),"
         ."FOREIGN KEY(`userid`) REFERENCES users(`userid`)"
@@ -502,22 +499,17 @@ function init_activity_deck_edited_table($con) {
   }
 }
 
-// type refers to which type of change
-// 0 - changed title
-// 1 - changed subtitle
-// 2 - changed content
-// If content is changed, prev and now can be NULL
-// because the data is inappropriate to store here
-function init_activity_card_edited_table($con) {
-  $tablename='activity_card_edited';
+// Stores the activity that a card is updated.
+// This DOES NOT include when user adds a card.
+// This also DOES NOT record what is specificly updated. It
+// just records that the card's information (title, description...) is updated
+function init_activity_card_updated_table($con) {
+  $tablename='activity_card_updated';
   $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
         ."`actid` VARCHAR(32) UNIQUE NOT NULL,"
         ."`userid` VARCHAR(32) NOT NULL,"
         ."`cardid` VARCHAR(32) NOT NULL,"
-        ."`prev` VARCHAR(128),"
-        ."`now` VARCHAR(128),"
         ."`circleid` VARCHAR(32),"
-        ."`type` INT(1) NOT NULL,"
         ."`time` DATETIME NOT NULL,"
         ."PRIMARY KEY(`actid`),"
         ."FOREIGN KEY(`userid`) REFERENCES users(`userid`)"
@@ -530,5 +522,4 @@ function init_activity_card_edited_table($con) {
     die ("Unable to create table $tablename " . mysqli_error($con) . " The query was: " . $query . "\n");
   }
 }
-
 ?>
