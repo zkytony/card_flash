@@ -6,6 +6,7 @@
 
 require_once "../models.php";
 require_once "../database.php";
+require_once "../tables.php";
 
 /*
    Unit test for User class
