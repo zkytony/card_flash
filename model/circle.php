@@ -87,8 +87,8 @@ class Circle
     $memberid = "mem_" . $result->num_rows;
     $memberid = ensure_unique_id($memberid, "members", "memberid", $con);
 
-    $columns = "`memberid`, `circleid`, `userid`, `role`, `join_time`, `last_activity_time`";
-    $values = "'$memberid', '$circleid', '$userid', '$role', NOW(), NOW()";
+    $columns = "`memberid`, `circleid`, `userid`, `role`, `join_time`";
+    $values = "'$memberid', '$circleid', '$userid', '$role', NOW()";
     insert_into("members", $columns, $values, $con);
     
     $admin = $role == 0;
