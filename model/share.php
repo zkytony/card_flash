@@ -58,6 +58,7 @@ class Share
     return 0;
   }
 
+  // $circleid is not NULL if this deck is related to a circle
   // $type's values
   // 1: shared as visitor
   // 2: shared as editor
@@ -67,24 +68,42 @@ class Share
   // or trying to share to the owner
   // in the same type; Updates the type of sharing if it is currently
   // different
-  public static function share_to($deckid, $userid, $type, $con) {    
+  public static function share_to($deckid, $from_userid, $to_userid, $type, $circleid, $con) {
     try {
       if ($type == 1 or $type == 2) {
-        $status = Share::check_status($deckid, $userid, $con);
-        if (!Deck::is_owner_of($deckid, $userid, $con)) {
+        $status = Share::check_status($deckid, $to_userid, $con);
+        if (!Deck::is_owner_of($deckid, $to_userid, $con)) {
+
+	  // For the sake of activity, we want to keep time consistent. So we will use PHP date() to get current time, and
+	  // use MYSQL's STR_TO_DATE() to convert it to MySQL datetime format
+	  $datetime = date("H:i:s,m-d-Y"); // the format is specified in activity.php:add_activity()
+
+	  // Add the deck shared activity (4)
+	  $type = 4;
+	  $data = array(
+	    'deckid' => $deckid,
+	    'time' => $datetime
+	  );
+	  if (!is_null($circleid)) $data['circleid'] = $circleid;
+	  if ($status == 0 || $status != $type) {
+	    $data['deckshare']['from_user'] = $from_user;
+	    $data['deckshare']['to_user'] = $to_user;
+	    $data['deckshare']['sharing'] = true;
+	  }
+
           if ($status == 0) {
             $result = select_from("shares", "*", "", $con);
             $shareid = "share_" . $result->num_rows;
             $shareid = ensure_unique_id($shareid, "shares", "shareid", $con);
 
             insert_into("shares", "`shareid`, `deckid`, `userid`, `type`",
-                        "'$shareid', '$deckid', '$userid', '$type'", $con);
+                        "'$shareid', '$deckid', '$to_userid', '$type'", $con);
             return $shareid;
           } else if ($status != $type) {
             update_table("shares", array("`type`"), array("'$type'"),
-                         "WHERE `userid` = '$userid' AND `deckid` = '$deckid'",
+                         "WHERE `userid` = '$to_userid' AND `deckid` = '$deckid'",
                          $con);
-            return Share::get_shareid($deckid, $userid, $con);
+            return Share::get_shareid($deckid, $to_userid, $con);
           } else {
             return NULL;
           }
