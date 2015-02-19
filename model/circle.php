@@ -37,6 +37,11 @@ class Circle
   }
 
   public static function create($userid, $title, $forwhat, $con) {
+    
+    // For the sake of activity, we want to keep time consistent. So we will use PHP date() to get current time, and
+    // use MYSQL's STR_TO_DATE() to convert it to MySQL datetime format
+    $datetime = date("H:i:s,m-d-Y"); // the format is specified in activity.php:add_activity()
+
     // insert into circles
 
     $result = select_from("circles", "`circleid`", "", $con);
@@ -44,7 +49,7 @@ class Circle
     $circleid = ensure_unique_id($circleid, "circles", "circleid", $con);
 
     $columns = "`circleid`, `userid`, `title`, `forwhat`, `create_time`, `member_count`, `admin_count`";
-    $values = "'$circleid', '$userid', '$title', '$forwhat', NOW(), '0', '0'";
+    $values = "'$circleid', '$userid', '$title', '$forwhat',  STR_TO_DATE(\"{$datetime}\", \"%H:%i:%s,%m-%d-%Y\"), '0', '0'";
     insert_into("circles", $columns, $values, $con);
 
     // insert into members
@@ -83,12 +88,16 @@ class Circle
   // 0 - admin --> the ability to kick people out, and assign other people as admin
   // 1 - normal --> normal abilities: leave, invite others, see updates
   public static function add_member($circleid, $userid, $role, $con) {
+    // For the sake of activity, we want to keep time consistent. So we will use PHP date() to get current time, and
+    // use MYSQL's STR_TO_DATE() to convert it to MySQL datetime format
+    $datetime = date("H:i:s,m-d-Y"); // the format is specified in activity.php:add_activity()
+
     $result = select_from("members", "*", "", $con);
     $memberid = "mem_" . $result->num_rows;
     $memberid = ensure_unique_id($memberid, "members", "memberid", $con);
 
     $columns = "`memberid`, `circleid`, `userid`, `role`, `join_time`";
-    $values = "'$memberid', '$circleid', '$userid', '$role', NOW()";
+    $values = "'$memberid', '$circleid', '$userid', '$role',  STR_TO_DATE(\"{$datetime}\", \"%H:%i:%s,%m-%d-%Y\")";
     insert_into("members", $columns, $values, $con);
     
     $admin = $role == 0;

@@ -51,13 +51,17 @@ class Deck
   // Returns the deckid of the added deck
   public static function add($title, $tags, $userid, $open, $con) {
     if (!Deck::deck_exists($title, $userid, $con)) {
+      // For the sake of activity, we want to keep time consistent. So we will use PHP date() to get current time, and
+      // use MYSQL's STR_TO_DATE() to convert it to MySQL datetime format
+      $datetime = date("H:i:s,m-d-Y"); // the format is specified in activity.php:add_activity()
+      
       $result = select_from('decks',"`deckid`","",$con);
       $num_rows = $result->num_rows;
       $deckid = 'deck_' . $num_rows;
       $deckid = ensure_unique_id($deckid, "decks", "deckid", $con);
 
       $columns = "`deckid`,`title`,`userid`,`create_time`,`deleted`,`open`,`subscribers`";
-      $values = "'$deckid','$title','$userid',NOW(), '0', '$open', '0'";
+      $values = "'$deckid','$title','$userid',STR_TO_DATE(\"{$datetime}\", \"%H:%i:%s,%m-%d-%Y\"), '0', '$open', '0'";
       insert_into('decks', $columns, $values, $con);
 
       // add the tags to 'tags' table:

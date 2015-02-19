@@ -47,6 +47,10 @@ class Card
       if ($type != 0 && $type != 1 && $type != 2) {
         throw 98;
       }
+
+      // For the sake of activity, we want to keep time consistent. So we will use PHP date() to get current time, and
+      // use MYSQL's STR_TO_DATE() to convert it to MySQL datetime format
+      $datetime = date("H:i:s,m-d-Y"); // the format is specified in activity.php:add_activity()
       
       $result=select_from("cards", "`cardid`", "", $con);
       $num_rows=$result->num_rows;
@@ -57,7 +61,7 @@ class Card
       $columns="`cardid`,`title`,`sub`,`content`,";
       $columns.="`userid`,`deckid`,`create_time`,`deleted`, `type`";
       $values="'$cardid','$title','$sub','$content',"
-             ."'$userid','$deckid',NOW(), '0', '$type'";
+             ."'$userid','$deckid',STR_TO_DATE(\"{$datetime}\", \"%H:%i:%s,%m-%d-%Y\"), '0', '$type'";
       insert_into("cards", $columns, $values, $con);
       return $cardid;
     } catch (int $exp) {
