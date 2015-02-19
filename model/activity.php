@@ -60,7 +60,6 @@ class Activity
   // 'circleid' : the circleid of the associated circle, if there is one
   // for more specific data, pass them in by 2D array as defined here:
   // 'newdeck' : specific data for new deck activity (of course, this includes delete deck activity)
-  //      - 'first' : (BOOL) first deck?
   //      - 'new' :  (BOOL) creating or deleting?
   // 'newcard' : specific dta for new card activity (...)
   //      - 'new' :  (BOOL) creating or deleting?
@@ -100,11 +99,11 @@ class Activity
         $id = make_id("dkn", $tablename, "actid", $con);
         $columns = "`actid`, `userid`, `deckid`, `first`, `circleid`, `new`, `time`";
         $values = "'$id', '{$data['userid']}', '{$data['deckid']}', "
-                ."'{$data['newdeck']['first']}', '{$data['circleid']}', '{$data['newdeck']['new']}', STR_TO_DATE(\"{$data['time']}\", \"%H:%i:%S,%m-%d-%Y\")";
+                ."'{$data['circleid']}', '{$data['newdeck']['new']}', STR_TO_DATE(\"{$data['time']}\", \"%H:%i:%S,%m-%d-%Y\")";
         insert_into($tablename, $columns, $values, $con);
         break;
 
-      case 2: // card(s) added to a deck
+      case 2: // card(s) added to a card
         $tablename = "activity_card_new_del";
         $id = make_id("cdn", $tablename, "actid", $con);
         $columns = "`actid`, `userid`, `deckid`, `cardid`, `circleid`, `new`, `time`";
@@ -143,7 +142,7 @@ class Activity
         $tablename = "activity_group_join";
         $id = make_id("jgp", $tablename, "actid", $con);
         $columns = "`actid`, `userid`, `circleid`, `init`, `time`";
-        $values = "'$id', '{$data['userid']}', '{$data['deckid']}', '{$data['circleid']}', '{$data['joingroup']['init']}', STR_TO_DATE(\"{$data['time']}\", \"%H:%i:%S,%m-%d-%Y\")";
+        $values = "'$id', '{$data['userid']}', '{$data['circleid']}', '{$data['joingroup']['init']}', STR_TO_DATE(\"{$data['time']}\", \"%H:%i:%S,%m-%d-%Y\")";
         insert_into($tablename, $columns, $values, $con);
         break;
 
