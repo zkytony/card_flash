@@ -47,9 +47,10 @@ class Deck
 
   // static function for adding a deck
   // $tags is an array of tags of the deck
+  // $circleid is not NULL if this deck is related to a circle
   // Checks if the user already has a deck with same title
   // Returns the deckid of the added deck
-  public static function add($title, $tags, $userid, $open, $con) {
+  public static function add($title, $tags, $userid, $open, $circleid, $con) {
     if (!Deck::deck_exists($title, $userid, $con)) {
       // For the sake of activity, we want to keep time consistent. So we will use PHP date() to get current time, and
       // use MYSQL's STR_TO_DATE() to convert it to MySQL datetime format
@@ -66,6 +67,18 @@ class Deck
 
       // add the tags to 'tags' table:
       Tag::add($tags, $deckid, $con);
+
+      // Add user creates / deletes a deck activity
+      $type = 1;
+      $data = array(
+	'userid' => $userid,
+	'deckid' => $deckid,
+	'time' => $datetime
+      );
+      $data['newdeck']['new'] = '1';
+      if (!is_null($circleid)) $data['circleid'] = $circleid;
+      Activity::add_activity($type, $data, $con);
+      
       return $deckid;
     } else {
       return NULL;
