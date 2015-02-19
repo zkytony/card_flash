@@ -131,6 +131,10 @@ class User
     if (!$available) {
       return false;
     } else {
+      // For the sake of activity, we want to keep time consistent. So we will use PHP date() to get current time, and
+      // use MYSQL's STR_TO_DATE() to convert it to MySQL datetime format
+      $datetime = date("H:i:s,m-d-Y"); // the format is specified in activity.php:add_activity()
+
       // register the user -- don't set online = 1 yet
       if (!$change_password) {
         $userid = 'user_' . $result->num_rows; // result has been obtained previously
@@ -138,11 +142,11 @@ class User
         $userid = ensure_unique_id($userid, "users", "userid", $con); 
 
         $columns = "`userid`,`email`,`first`,`last`,`password`,`birth`,`register_time`,`activate`, `online`, `followers`,`following`, `subscribing`";
-        $values = "'$userid','{$info['email']}','{$info['first']}','{$info['last']}','{$info['password']}',STR_TO_DATE(\"{$info['birth']}\", \"%m-%d-%Y\"), NOW(), '1', '0', '0', '0', '0'";
+        $values = "'$userid','{$info['email']}','{$info['first']}','{$info['last']}','{$info['password']}',STR_TO_DATE(\"{$info['birth']}\", \"%m-%d-%Y\"), STR_TO_DATE(\"{$datetime}\", \"%H:%i:%s,%m-%d-%Y\"), '1', '0', '0', '0', '0'";
         insert_into('users', $columns, $values, $con); // insert into 'users'
       } else {
         $columns = array("`first`","`last`","`password`", "`birth`", "`activate`", "`online`", "`register_time`", "`followers`", "`following`");
-        $values = array("'{$info['first']}'", "'{$info['last']}'", "'{$info['password']}'", "STR_TO_DATE(\"{$info['birth']}\", \"%m-%d-%Y\")", "'1'", "'0'", "NOW()", "'0'", "'0'");
+        $values = array("'{$info['first']}'", "'{$info['last']}'", "'{$info['password']}'", "STR_TO_DATE(\"{$info['birth']}\", \"%m-%d-%Y\")", "'1'", "'0'", "STR_TO_DATE(\"{$datetime}\", \"%H:%i:%s,%m-%d-%Y\")", "'0'", "'0'");
         update_table('users', $columns, $values, "", $con);
       }
       return true;

@@ -53,7 +53,7 @@ class Activity
   // table, $data will be an array of the information necessary
   // The keys are specific Strings that will be defined below:
   // 'time' : the time string that activity happens in datetime format
-  //        Format: %H:%i:%S,%m-%d-%Y. Example: 02:53:23,4-5-1995
+  //        Format: %H:%i:%s,%m-%d-%Y. Example: 02:53:23,4-5-1995
   // 'userid' : the userid of the user that is the subject of the activity
   // 'deckid' : the deckid of the associated deck, if there is one
   // 'cardid' : the deckid of the associated card, if there is one
