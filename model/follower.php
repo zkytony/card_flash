@@ -50,6 +50,11 @@ class Follower
       // already followed
       return $flwrid;
     } else {
+
+      // For the sake of activity, we want to keep time consistent. So we will use PHP date() to get current time, and
+      // use MYSQL's STR_TO_DATE() to convert it to MySQL datetime format
+      $datetime = date("H:i:s,m-d-Y"); // the format is specified in activity.php:add_activity()
+
       // not followed
       $result = select_from("followers", "*", "", $con);
       $flwrid = "flwr_" . $result->num_rows;
@@ -61,6 +66,17 @@ class Follower
                   $con);
       User::follower_add_one($userid, $con);
       User::following_add_one($flwr_userid, $con);
+
+      // Add user follows another user activity (7)
+      $type = 7;
+      $data = array(
+	'userid' => $flwr_userid,
+	'time' => $datetime
+      );
+      $data['userfollow']['following'] = true;
+      $data['userfollow']['targetid'] = $userid;
+      Activity::add_activity($type, $data, $con);
+
       return $flwrid;
     }
   }

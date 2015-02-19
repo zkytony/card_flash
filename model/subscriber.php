@@ -42,11 +42,17 @@ class Subscriber
     return NULL;
   }
 
+  // Called when userid subscribes to deckid
   public static function subscribe($deckid, $userid, $con) {
     $sbrid = Subscriber::get_sbrid($deckid, $userid, $con);
-    if ($sbrid != NULL) {
+    if (!is_null($sbrid)) {
       return $sbrid;
     } else if (!Deck::is_owner_of($deckid, $userid, $con) and  Deck::is_open($deckid, $con)) {
+
+      // For the sake of activity, we want to keep time consistent. So we will use PHP date() to get current time, and
+      // use MYSQL's STR_TO_DATE() to convert it to MySQL datetime format
+      $datetime = date("H:i:s,m-d-Y"); // the format is specified in activity.php:add_activity()
+
       $result = select_from("subscribers", "*", "", $con);
       $sbrid = "sbr_" . $result->num_rows;
       $sbrid = ensure_unique_id($sbrid, "subscribers", "sbrid", $con);
@@ -57,6 +63,18 @@ class Subscriber
                   $con);
       Deck::subscriber_add_one($deckid, $con);
       User::subscribing_add_one($userid, $con);
+
+      // Add user subscribes deck activity (5)
+      $type = 5;
+      $data = array(
+	'userid' => $userid,
+	'deckid' => $deckid,
+	'time' => $datetime
+      );
+      if (!is_null($circleid)) { $deck['circleid'] = $circleid; }
+      $data['subscribe']['subscribing'] = true;
+      Activity::add_activity($type, $data, $con);
+
       return $sbrid;
     }
     return NULL;

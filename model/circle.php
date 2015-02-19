@@ -102,6 +102,17 @@ class Circle
     
     $admin = $role == 0;
     Circle::member_count_add_one($circleid, $admin, $con);
+
+    // Add user joins a group (6)
+    $type = 6;
+    $data = array(
+      'userid' => $userid,
+      'circleid' => $circleid,
+      'time' => $datetime
+    );
+    if ($admin) { $data['joingroup']['init'] = '1'; }
+    Activity::add_activity($type, $data, $con);
+
     return $memberid;
   }
 
