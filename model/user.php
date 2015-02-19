@@ -149,6 +149,15 @@ class User
         $values = array("'{$info['first']}'", "'{$info['last']}'", "'{$info['password']}'", "STR_TO_DATE(\"{$info['birth']}\", \"%m-%d-%Y\")", "'1'", "'0'", "STR_TO_DATE(\"{$datetime}\", \"%H:%i:%s,%m-%d-%Y\")", "'0'", "'0'");
         update_table('users', $columns, $values, "", $con);
       }
+
+      // Add user register activity (0)
+      $type = 0;
+      $data = array(
+	'userid' => $userid,
+	'time' => $datetime
+      );
+      Activity::add_activity($type, $data, $con);
+      
       return true;
     }
   }
