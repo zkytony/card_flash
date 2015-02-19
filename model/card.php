@@ -33,6 +33,7 @@ class Card
 
   // Adds a card to a deck
   // $title, $sub, $content are information of the card
+  // $circleid is not NULL if this card is related to a circle
   // $type is the type of the card:
   //     0 - Normal
   //     1 - User Card
@@ -42,7 +43,7 @@ class Card
   // create all these type of cards. User Card and Status Card
   // should be created directly, and added to a specific deck
   // fixed for each user
-  public static function add($title, $sub, $content, $deckid, $userid, $type, $con) {
+  public static function add($title, $sub, $content, $deckid, $userid, $type, $circleid, $con) {
     try {
       if ($type != 0 && $type != 1 && $type != 2) {
         throw 98;
@@ -63,6 +64,19 @@ class Card
       $values="'$cardid','$title','$sub','$content',"
              ."'$userid','$deckid',STR_TO_DATE(\"{$datetime}\", \"%H:%i:%s,%m-%d-%Y\"), '0', '$type'";
       insert_into("cards", $columns, $values, $con);
+
+      // A card added to deck activity (2)
+      $type = 2;
+      $data = array(
+	'userid' => $userid,
+	'deckid' => $deckid,
+	'cardid' => $cardid,
+	'time' => $datetime
+      );
+      $data['newcard']['new'] = '1';
+      if (!is_null($circleid)) $data['circleid'] = $circleid;
+      Activity::add_activity($type, $data, $con);
+
       return $cardid;
     } catch (int $exp) {
       echo "Error $exp: You are not giving the right type";
