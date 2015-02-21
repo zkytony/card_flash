@@ -267,7 +267,7 @@ class DeckAndCardTest extends PHPUnit_Framework_TestCase
     $title = "Card99";
     $sub = "One card";
     $content = "<h1>Hi</h1>";
-    $cardid = $this->user->add_card($title, $sub, $content, $deckid, 0, $this->con);
+    $cardid = $this->user->add_card($title, $sub, $content, $deckid, 0, NULL, $this->con);
 
     $result = select_from("cards", "*", "WHERE `cardid` = '$cardid'", $this->con);
     while ($row = mysqli_fetch_assoc($result)) {
@@ -342,12 +342,12 @@ class DeckAndCardTest extends PHPUnit_Framework_TestCase
     $title = "Card99";
     $sub = "One card";
     $content = "<h1>Hi</h1>";
-    $cardid = $this->user->add_card($title, $sub, $content, $deckid, 1, $this->con);
+    $cardid = $this->user->add_card($title, $sub, $content, $deckid, 1, NULL, $this->con);
 
     $title = "Card100";
     $sub = "One card";
     $content = "<h1>Heya</h1>";
-    $cardid = $this->user->add_card($title, $sub, $content, $deckid, 0, $this->con);
+    $cardid = $this->user->add_card($title, $sub, $content, $deckid, 0, NULL, $this->con);
 
     $success = Deck::delete($deckid, $this->con);
     $result=select_from("decks", "*", 
@@ -446,9 +446,9 @@ class ShareTest extends PHPUnit_Framework_Testcase
   }
 
   public function testShareToNew() {
-    $shareid_1 = Share::share_to($this->deckids[0], $this->user1->get_id(), 1, $this->con);
-    $shareid_2 = Share::share_to($this->deckids[1], $this->user1->get_id(), 2, $this->con);
-    $shareid_3 = Share::share_to($this->deckids[2], $this->user1->get_id(), 1, $this->con);
+    $shareid_1 = Share::share_to($this->deckids[0], $this->user1->get_id(), 1, NULL, $this->con);
+    $shareid_2 = Share::share_to($this->deckids[1], $this->user1->get_id(), 2, NULL, $this->con);
+    $shareid_3 = Share::share_to($this->deckids[2], $this->user1->get_id(), 1, NULL, $this->con);
 
     $deckids_get = Share::shared_decks($this->user1->get_id(), 1, $this->con);
     $deckids_exp = array($this->deckids[0], $this->deckids[2]);
@@ -460,7 +460,7 @@ class ShareTest extends PHPUnit_Framework_Testcase
     $this->assertEquals($userids_exp, $userids_get);
     
     // test if update works
-    $shareid_2_new = Share::share_to($this->deckids[1], $this->user1->get_id(), 1, $this->con);
+    $shareid_2_new = Share::share_to($this->deckids[1], $this->user1->get_id(), 1, NULL, $this->con);
     $this->assertEquals($shareid_2, $shareid_2_new);
     $deckids_get = Share::shared_decks($this->user1->get_id(), 1, $this->con);
     $deckids_exp = array($this->deckids[0], $this->deckids[1], $this->deckids[2]);
@@ -468,9 +468,9 @@ class ShareTest extends PHPUnit_Framework_Testcase
   }
 
   public function testUnshare() {
-    $shareid_1 = Share::share_to($this->deckids[0], $this->user1->get_id(), 1, $this->con);
-    $shareid_2 = Share::share_to($this->deckids[1], $this->user1->get_id(), 2, $this->con);
-    $shareid_3 = Share::share_to($this->deckids[2], $this->user1->get_id(), 1, $this->con);
+    $shareid_1 = Share::share_to($this->deckids[0], $this->user1->get_id(), 1, NULL, $this->con);
+    $shareid_2 = Share::share_to($this->deckids[1], $this->user1->get_id(), 2, NULL, $this->con);
+    $shareid_3 = Share::share_to($this->deckids[2], $this->user1->get_id(), 1, NULL, $this->con);
 
     Share::unshare($this->deckids[0], $this->user1->get_id(), $this->con);
     $status = Share::check_status($this->deckids[0], $this->user1->get_id(), $this->con);
@@ -478,14 +478,14 @@ class ShareTest extends PHPUnit_Framework_Testcase
   }
 
   public function testShareToOwner() {
-    $shareid = Share::share_to($this->deckids[0], $this->user2->get_id(), 1, $this->con);
+    $shareid = Share::share_to($this->deckids[0], $this->user2->get_id(), 1, NULL, $this->con);
     $this->assertEquals(NULL, $shareid);
   }
 
   public function testForeignKeyConstrainDeleteDeck() {
-    $shareid_1 = Share::share_to($this->deckids[0], $this->user1->get_id(), 1, $this->con);
-    $shareid_2 = Share::share_to($this->deckids[1], $this->user1->get_id(), 2, $this->con);
-    $shareid_3 = Share::share_to($this->deckids[2], $this->user1->get_id(), 1, $this->con);
+    $shareid_1 = Share::share_to($this->deckids[0], $this->user1->get_id(), 1, NULL, $this->con);
+    $shareid_2 = Share::share_to($this->deckids[1], $this->user1->get_id(), 2, NULL, $this->con);
+    $shareid_3 = Share::share_to($this->deckids[2], $this->user1->get_id(), 1, NULL, $this->con);
 
     // If Deck1 is deleted
     Deck::delete_completely($this->deckids[0], $this->con);
@@ -506,9 +506,9 @@ class ShareTest extends PHPUnit_Framework_Testcase
 
   public function testForeignKeyConstrainDeleteUserSharedTo() {
     // notice, because of the previous test, deckids[0] here may be different from the previous
-    $shareid_1 = Share::share_to($this->deckids[0], $this->user1->get_id(), 1, $this->con);
-    $shareid_2 = Share::share_to($this->deckids[1], $this->user1->get_id(), 2, $this->con);
-    $shareid_3 = Share::share_to($this->deckids[2], $this->user1->get_id(), 1, $this->con);
+    $shareid_1 = Share::share_to($this->deckids[0], $this->user1->get_id(), 1, NULL, $this->con);
+    $shareid_2 = Share::share_to($this->deckids[1], $this->user1->get_id(), 2, NULL, $this->con);
+    $shareid_3 = Share::share_to($this->deckids[2], $this->user1->get_id(), 1, NULL, $this->con);
 
     // If User1 is deleted
     User::delete_completely($this->user1->get_info()['email'], $this->user1->get_info()['password'], $this->con);
@@ -535,9 +535,9 @@ class ShareTest extends PHPUnit_Framework_Testcase
 
   public function testForeignKeyConstrainDeleteUserOwnDeck() {
     // notice, because of the previous test, deckids[0] here may be different from the previous
-    $shareid_1 = Share::share_to($this->deckids[0], $this->user1->get_id(), 1, $this->con);
-    $shareid_2 = Share::share_to($this->deckids[1], $this->user1->get_id(), 2, $this->con);
-    $shareid_3 = Share::share_to($this->deckids[2], $this->user1->get_id(), 1, $this->con);
+    $shareid_1 = Share::share_to($this->deckids[0], $this->user1->get_id(), 1, NULL, $this->con);
+    $shareid_2 = Share::share_to($this->deckids[1], $this->user1->get_id(), 2, NULL, $this->con);
+    $shareid_3 = Share::share_to($this->deckids[2], $this->user1->get_id(), 1, NULL, $this->con);
 
     // If User2 is deleted; User2 is the owner of the deck
     User::delete_completely($this->user2->get_info()['email'], $this->user2->get_info()['password'], $this->con);
@@ -783,9 +783,9 @@ class SubscriberTest extends PHPUnit_Framework_Testcase
     $this->deckids[] = $this->user2->add_deck($title, $tags, false, $this->con);
 
     // let user1 and user3 subscribe to deck1, and user3 subscribe to deck2
-    $this->sbrid1 = Subscriber::subscribe($this->deckids[0], $this->user1->get_id(), $this->con);
-    $this->sbrid2 = Subscriber::subscribe($this->deckids[0], $this->user3->get_id(), $this->con);
-    $this->sbrid3 = Subscriber::subscribe($this->deckids[1], $this->user3->get_id(), $this->con);
+    $this->sbrid1 = Subscriber::subscribe($this->deckids[0], $this->user1->get_id(), NULL, $this->con);
+    $this->sbrid2 = Subscriber::subscribe($this->deckids[0], $this->user3->get_id(), NULL, $this->con);
+    $this->sbrid3 = Subscriber::subscribe($this->deckids[1], $this->user3->get_id(), NULL, $this->con);
   }
 
   public function testSubscribeTable() {
@@ -815,7 +815,7 @@ class SubscriberTest extends PHPUnit_Framework_Testcase
 
   public function testSubscribeUnopenDeck() {
     // deck3 is unopen, try to let user1 to subscribe it
-    $sbrid = Subscriber::subscribe($this->deckids[2], $this->user1->get_id(), $this->con);    
+    $sbrid = Subscriber::subscribe($this->deckids[2], $this->user1->get_id(), NULL, $this->con);
     // should return null
     $this->assertEquals(NULL, $sbrid);
   }

@@ -71,10 +71,10 @@ class Card
 	'userid' => $userid,
 	'deckid' => $deckid,
 	'cardid' => $cardid,
+	'circleid' => $circleid,
 	'time' => $datetime
       );
       $data['newcard']['new'] = '1';
-      if (!is_null($circleid)) $data['circleid'] = $circleid;
       Activity::add_activity($type, $data, $con);
 
       return $cardid;

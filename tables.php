@@ -129,6 +129,7 @@ function init_tags_table($con)
 // `type` will have these value bindings
 // 1: shared as visitor
 // 2: shared as editor
+// `userid` is the target user
 function init_shares_table($con)
 {
   $tablename='shares';
@@ -260,7 +261,7 @@ function init_timeline_table($con) {
         ."`timeid` VARCHAR(32) UNIQUE NOT NULL,"
         ."`userid` VARCHAR(32) NOT NULL,"
         ."`refid` VARCHAR(32) NOT NULL,"
-        ."`reftable` VARCHAR(16) NOT NULL"
+        ."`reftable` VARCHAR(16) NOT NULL,"
         ."`type` INT(1) NOT NULL,"
         ."`time` DATETIME NOT NULL,"
         ."PRIMARY KEY(`timeid`),"
@@ -314,7 +315,6 @@ function init_activity_deck_new_del_table($con) {
         ."`actid` VARCHAR(32) UNIQUE NOT NULL,"
         ."`userid` VARCHAR(32) NOT NULL,"
         ."`deckid` VARCHAR(32) NOT NULL,"
-        ."`first` BOOL NOT NULL,"
         ."`circleid` VARCHAR(32),"
         ."`new` BOOL NOT NULL,"
         ."`time` DATETIME NOT NULL,"

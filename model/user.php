@@ -80,15 +80,15 @@ class User
   // Also inserts necessary entries to 'tags' table
   // Returns the deckid of the added deck
   public function add_deck($title, $tags, $open, $con) {
-    $deckid = Deck::add($title, $tags, $this->userid, $open, $con);
+    $deckid = Deck::add($title, $tags, $this->userid, $open, NULL, $con);
     $this->update_current_deck($deckid, $con);
     return $deckid;
   }
 
   // Adds a card to a specified user's deck
   // Returns the cardid of the added card
-  public function add_card($title, $sub, $content, $deckid, $type, $con) {
-    return Card::add($title, $sub, $content, $deckid, $this->userid, $type, $con);
+  public function add_card($title, $sub, $content, $deckid, $type, $circleid, $con) {
+    return Card::add($title, $sub, $content, $deckid, $this->userid, $type, $circleid, $con);
   }
 
   // Returns an array containing the Deck objects representing
@@ -112,12 +112,13 @@ class User
   // Remember to prevent SQL / HTMl injection in $email and $password
   // Returns true if registration is successful
   public static function register($info, $con) {
-    $column = "`email`, `activate`";
+    $column = "`userid`, `email`, `activate`";
     $result = select_from('users', $column, "",  $con);
 
     $available = true;
     $change_password = false;
     while ($row = mysqli_fetch_assoc($result)) {
+      $userid = $row['userid'];
       if ($row['email'] == $info['email'] && $row['activate'] == true) {
         $available = false;
         break;

@@ -73,10 +73,10 @@ class Deck
       $data = array(
 	'userid' => $userid,
 	'deckid' => $deckid,
-	'time' => $datetime
+	'time' => $datetime,
+	'circleid' => NULL
       );
       $data['newdeck']['new'] = '1';
-      if (!is_null($circleid)) $data['circleid'] = $circleid;
       Activity::add_activity($type, $data, $con);
       
       return $deckid;
@@ -158,6 +158,16 @@ class Deck
       }
     }
     return false;
+  }
+
+  // Returns the userid of the owner of the deck
+  // Returns NULL if the deck does not exist
+  public static function owner_id($deckid, $con) {
+    $result = select_from("decks", "*", "WHERE `deckid` = '$deckid'", $con);
+    while ($row = mysqli_fetch_assoc($result)) {
+      return $row['userid'];
+    }
+    return NULL;
   }
 
   // Returns true if this deck is open to public

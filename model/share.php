@@ -68,7 +68,7 @@ class Share
   // or trying to share to the owner
   // in the same type; Updates the type of sharing if it is currently
   // different
-  public static function share_to($deckid, $from_userid, $to_userid, $type, $circleid, $con) {
+  public static function share_to($deckid, $to_userid, $type, $circleid, $con) {
     try {
       if ($type == 1 or $type == 2) {
         $status = Share::check_status($deckid, $to_userid, $con);
@@ -77,18 +77,24 @@ class Share
 	  // For the sake of activity, we want to keep time consistent. So we will use PHP date() to get current time, and
 	  // use MYSQL's STR_TO_DATE() to convert it to MySQL datetime format
 	  $datetime = date("H:i:s,m-d-Y"); // the format is specified in activity.php:add_activity()
-
+	  
 	  // Add the deck shared activity (4)
-	  $type = 4;
+
+	  // If we want the from_user not to be the owner only, we may want to change this
+	  $from_userid = Deck::owner_id($deckid, $con); // get the userid of the owner 
+
+	  $act_type = 4; // We already have $type variable
 	  $data = array(
+	    'userid' => $from_userid,
 	    'deckid' => $deckid,
+	    'circleid' => $circleid,
 	    'time' => $datetime
 	  );
-	  if (!is_null($circleid)) $data['circleid'] = $circleid;
 	  if ($status == 0 || $status != $type) {
-	    $data['deckshare']['from_user'] = $from_user;
-	    $data['deckshare']['to_user'] = $to_user;
+	    $data['deckshare']['from_userid'] = $from_userid;
+	    $data['deckshare']['to_userid'] = $to_userid;
 	    $data['deckshare']['sharing'] = true;
+	    Activity::add_activity($act_type, $data, $con);
 	  }
 
           if ($status == 0) {
@@ -161,6 +167,8 @@ class Share
     $restrict_str = "WHERE `userid` = '$userid'";
     if ($type == 1 or $type == 2) {
       $restrict_str .= " AND `type` = '$type'";
+    } else {
+      return NULL;
     }
     $result = select_from("shares", "*", $restrict_str, $con);
     $deckids = array();

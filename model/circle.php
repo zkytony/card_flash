@@ -108,9 +108,14 @@ class Circle
     $data = array(
       'userid' => $userid,
       'circleid' => $circleid,
-      'time' => $datetime
+      'time' => $datetime,
+      'joingroup' => NULL
     );
-    if ($admin) { $data['joingroup']['init'] = '1'; }
+    if ($admin) { 
+      $data['joingroup'] = array (
+	'init' => '1'
+      );
+    }
     Activity::add_activity($type, $data, $con);
 
     return $memberid;

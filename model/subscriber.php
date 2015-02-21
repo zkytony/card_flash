@@ -43,7 +43,8 @@ class Subscriber
   }
 
   // Called when userid subscribes to deckid
-  public static function subscribe($deckid, $userid, $con) {
+  // $circleid is not NULL if the deck to be subscribed is related to a circle
+  public static function subscribe($deckid, $userid, $circleid, $con) {
     $sbrid = Subscriber::get_sbrid($deckid, $userid, $con);
     if (!is_null($sbrid)) {
       return $sbrid;
@@ -69,9 +70,9 @@ class Subscriber
       $data = array(
 	'userid' => $userid,
 	'deckid' => $deckid,
-	'time' => $datetime
+	'time' => $datetime,
+	'circleid' => $circleid
       );
-      if (!is_null($circleid)) { $deck['circleid'] = $circleid; }
       $data['subscribe']['subscribing'] = true;
       Activity::add_activity($type, $data, $con);
 

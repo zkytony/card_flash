@@ -79,7 +79,7 @@ class Activity
   //
   // Returns the timeid for this activity in timeline table, if successfully added;
   // otherwise, returns NULL
-  public static add_activity($type, $data, $con) {
+  public static function add_activity($type, $data, $con) {
 
     $id = '';
     $tablename = '';
@@ -97,7 +97,7 @@ class Activity
       case 1: // user creates / deletes a deck
         $tablename = "activity_deck_new_del";
         $id = make_id("dkn", $tablename, "actid", $con);
-        $columns = "`actid`, `userid`, `deckid`, `first`, `circleid`, `new`, `time`";
+        $columns = "`actid`, `userid`, `deckid`, `circleid`, `new`, `time`";
         $values = "'$id', '{$data['userid']}', '{$data['deckid']}', "
                 ."'{$data['circleid']}', '{$data['newdeck']['new']}', STR_TO_DATE(\"{$data['time']}\", \"%H:%i:%S,%m-%d-%Y\")";
         insert_into($tablename, $columns, $values, $con);
@@ -178,7 +178,7 @@ class Activity
     // And $tablename is the name of the particular table
     $timeid = make_id("time", "timeline", "timeid", $con);
     $columns = "`timeid`, `userid`, `refid`, `reftable`, `type`, `time`";
-    $values = "'$timeid', '{$data['userid']}', '$id', '$tablename', STR_TO_DATE(\"{$data['time']}\", \"%H:%i:%S,%m-%d-%Y\")";
+    $values = "'$timeid', '{$data['userid']}', '$id', '$tablename', '$type', STR_TO_DATE(\"{$data['time']}\", \"%H:%i:%S,%m-%d-%Y\")";
     insert_into('timeline', $columns, $values, $con);
 
     return $timeid;
