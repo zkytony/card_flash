@@ -54,10 +54,11 @@ function init_decks_table($con)
         ."`title` VARCHAR(128) NOT NULL,"
         ."`userid` VARCHAR(32) NOT NULL,"
         ."`create_time` DATETIME NOT NULL,"
-        ."`last_edit` DATETIME NOT NULL,"
+        ."`last_edit` DATETIME NOT NULL," // Is this necessary?
         ."`deleted` BOOL NOT NULL,"
         ."`open` BOOL NOT NULL,"
         ."`subscribers` INT(16) NOT NULL,"
+	."`folderid` VARCHAR(32),"
         ."INDEX(`title`(10)),"
         ."PRIMARY KEY (`deckid`),"
         ."FOREIGN KEY (`userid`) REFERENCES users(`userid`) "
@@ -125,6 +126,31 @@ function init_tags_table($con)
     die ("Unable to create table $tablename " . mysqli_error($con) . " The query was: " . $query . "\n");
   }
 }
+
+// folders table: to categorize decks.
+// Yet we will only need 2 levels - We don't need multiple depth of categories.
+// This is different from tags. This is used so that when users are browsing
+// their deck list, or creating new decks, things can be clearer for them.
+function init_folders_table($con)
+{
+  $tablename='folders';
+  $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
+	."`folderid` VARCHAR(32) UNIQUE NOT NULL,"
+	."`name` VARCHAR(128) NOT NULL,"
+	."`userid` VARCHAR(32) NOT NULL,"
+	."PRIMARY KEY(`folderid`),"
+        ."FOREIGN KEY(`userid`) REFERENCES users(`userid`)"
+        ."   ON DELETE CASCADE"
+        .") ENGINE InnoDB"
+        ."  CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
+
+  if (!mysqli_query($con, $query))
+  {
+    die ("Unable to create table $tablename " . mysqli_error($con) . " The query was: " . $query . "\n");
+  }
+}
+
+
 
 // `type` will have these value bindings
 // 1: shared as visitor
