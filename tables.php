@@ -5,6 +5,7 @@ function init_tables($con)
   init_decks_table($con);
   init_cards_table($con);
   init_tags_table($con);
+  init_folders_table($con);
   init_shares_table($con);
   init_followers_table($con);
   init_subscribers_table($con);
