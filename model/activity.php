@@ -237,10 +237,12 @@ class Activity
 	'object' => '',
 	'additional' => '',
       );
+
+      $user_info = User::user_info($arr['userid'], $con);
+
       switch ($arr['type']) {
 	case 0: // user register
 	  $details[$timeid]['action'] = $actions[0];
-	  $user_info = User::user_info($arr['userid'], $con);
 	  $details[$timeid]['subject'] = $user_info['first'] . ' ' . $user_info['last'];
 	  // No object or additional is needed for this activity
 	  break;
