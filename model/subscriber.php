@@ -101,8 +101,8 @@ class Subscriber
     return $return_ids;
   }
 
-  // Returns an array of all the decks that a user is following
-  public static function following($sbr_userid, $con) {
+  // Returns an array of all the decks that a user is subscribing
+  public static function subscribing($sbr_userid, $con) {
     $return_ids = array();
     $result = select_from("subscribers", "`userid`", "WHERE `sbr_userid` = '$sbr_userid'", $con);
     while ($row = mysqli_fetch_assoc($result)) {
