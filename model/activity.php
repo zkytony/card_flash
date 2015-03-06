@@ -244,14 +244,18 @@ class Activity
 
       $user_info = User::user_info($arr['userid'], $con);
       $details[$timeid]['subject'] = $user_info['first'] . ' ' . $user_info['last'];
-
+      
+      // Get the activity data (array) from reftable and refid
+      $activity_data = get_activity_data($arr['reftable'], $arr['refid'], $con);
+    
       switch ($arr['type']) {
 	case 0: // user register
 	  $details[$timeid]['action'] = $actions[0];
 	  // No object or additional is needed for this activity
 	  break;
-	case 1: // user creates / deletes a deck
+	case 1: // user creates / deletes a deck (Assume created for now)
 	  $details[$timeid]['action'] = $actions[1];
+	  $details[$timeid]['object'] = 'a deck';
 	  break;
 	case 2: // card(s) added to a card
 	  $details[$timeid]['action'] = $actions[2];
@@ -279,6 +283,14 @@ class Activity
 	  break;
 
       }
+    }
+  }
+
+  public static function get_activity_data($reftable, $refid, $con) {
+    $result = select_from($reftable, '*', "WHERE `actid` = '$refid'", $con);
+    $activity_data = array();
+    while ($row = mysqli_fetch_assoc($result)) {
+      return $row;
     }
   }
 }
