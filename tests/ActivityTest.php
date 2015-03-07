@@ -21,7 +21,7 @@ class ActivityTest extends PHPUnit_Framework_Testcase {
       "password"=>"123abc",
     );
     $this->con = mysqli_connect($db['hostname'], $db['username'], 
-n                                $db['password'], $db['database']);
+                                $db['password'], $db['database']);
     
     init_tables($this->con);
 

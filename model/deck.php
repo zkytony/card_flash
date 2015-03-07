@@ -293,6 +293,19 @@ class Deck
     while ($row = mysqli_fetch_assoc($result)) {
       return $row['folderid'];
     }
+  }
+
+  // Returns an array storing the information about a deck given the deckid
+  // Information contains:
+  // title, create_time, open, subscribers
+  // Returns NULL if not found any information given the userid
+  public static function deck_info($deckid, $con) {
+    $result = select_from("decks", 
+			  "`title`, `create_time`, `open`, `subscribers`",
+			  "WHERE `deckid` = '$deckid'", $con);
+    while ($row = mysqli_fetch_assoc($result)) {
+      return $row;
+    }
     return NULL;
   }
 }

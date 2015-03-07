@@ -1,4 +1,4 @@
-<?php 
+ <?php 
 
 require_once "../database.php";
 require_once "../functions.php";
@@ -130,7 +130,7 @@ class Activity
         insert_into($tablename, $columns, $values, $con);
         break;
 
-      case 5: // a user subscribes to a deck
+      case 5: // a user subscribes to a deckb
         $tablename = "activity_deck_subscribe";
         $id = make_id("sub", $tablename, "actid", $con);
         $columns = "`actid`, `userid`, `deckid`, `circleid`, `subscribing`, `time`";
@@ -182,6 +182,62 @@ class Activity
     insert_into('timeline', $columns, $values, $con);
 
     return $timeid;
+  }
+
+  // Given start time (string) and end time (string),
+  // returns an 2D array of human understandable sentence elements 
+  // that describes each activities happened within the given time range.
+  // returns a 2D array containing the data of the activities retrieved
+  // The activity data are obtained from the specific tables that the
+  // particular types of activities are stored.
+  // NOTE: time string is of this form: "H:i:s,m-d-Y". E.g. 3:42:32,5-3-2001
+  public static function range($start, $end, $userid, $con) {
+    $data = Activity::within($start, $end, $userid, $con);
+    return collect($data, $con);
+  }
+
+  // Given start time (string) and end time (string),
+  // returns an array of the necessary information about
+  // a given user's activities happening in the period.
+  // Specifically, it contains:
+  // `timeid`, `userid`, `refid`, `reftable`, `type`, `time`
+  // If end time is set to NULL, then this function returns
+  // all activities up to the current time
+  // NOTE: time string is of this form: "H:i:s,m-d-Y". E.g. 3:42:32,5-3-2001
+  private static function within($start, $end, $userid, $con) {
+    // select the rows from timeline table
+    if (is_null($end)) $end = date("H:i:s,m-d-Y"); // get the current date time
+    $result = select_from("timeline", "*", "WHERE `userid` = '$userid' AND "
+					  ."`time` BETWEEN '$start' AND '$end'", $con);
+    $data = array(); // the returning array
+    while ($row = mysqli_fetch_assoc($result)) {
+      $timeid = $row['timeid'];
+      $data[$timeid] = $row; // PHP automatically copies the array
+      $data[$timeid]['type'] = $row['type']; // For later filtering purposes
+    }
+    return $data;
+  }
+
+  // Based on the data given from Activity::within(), this function
+  // returns a 2D array containing the data of the activities retrieved
+  // The activity data are obtained from the specific tables that the
+  // particular types of activities are stored.
+  private static function collect($data, $con) {
+    $details = array(); // the array to return
+   
+    // iterate through key and value
+    foreach ($data as $timeid => $arr) {
+      $details[$timeid] = get_activity_data($arr['reftable'], $arr['refid'], $con);
+      $details[$timeid]['type'] = $arr['type'];
+    }
+  }
+
+  public static function get_activity_data($reftable, $refid, $con) {
+    $result = select_from($reftable, '*', "WHERE `actid` = '$refid'", $con);
+    $activity_data = array();
+    while ($row = mysqli_fetch_assoc($result)) {
+      return $row;
+    }
   }
 }
 
