@@ -187,16 +187,9 @@ class Activity
   // Given start time (string) and end time (string),
   // returns an 2D array of human understandable sentence elements 
   // that describes each activities happened within the given time range.
-  // The resulting 2D array will take this form:
-  // array(
-  //    $timeid => array(
-  //        'time'
-  //        'subject'
-  //        'action'
-  //        'object'
-  //        'additional'
-  //    )
-  // )
+  // returns a 2D array containing the data of the activities retrieved
+  // The activity data are obtained from the specific tables that the
+  // particular types of activities are stored.
   // NOTE: time string is of this form: "H:i:s,m-d-Y". E.g. 3:42:32,5-3-2001
   public static function range($start, $end, $userid, $con) {
     $data = Activity::within($start, $end, $userid, $con);
