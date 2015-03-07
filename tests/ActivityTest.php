@@ -25,6 +25,9 @@ class ActivityTest extends PHPUnit_Framework_Testcase {
     
     init_tables($this->con);
 
+    // Keep track of what time it is when starting the test
+    $this->starttime = date("H:i:s,m-d-Y"); // the format is specified in activity.php:add_activity()
+
     // create user1
     $info1 = array(
       'email' => 'abc@123.com',
@@ -136,6 +139,29 @@ class ActivityTest extends PHPUnit_Framework_Testcase {
     $this->assertTrue($got_it);
     $this->assertEquals($time, $time_get); // time should match. This is important
     $this->assertEquals($reftable, $reftable_get);
+  }
+
+  public function testGetActivityWithinRange() {
+    // Get the current time as end time
+    $this->endtime = date("H:i:s,m-d-Y"); // the format is specified in activity.php:add_activity()
+    $data = Activity::range($this->starttime, $this->endtime, $this->user1->get_id(), $this->con);
+
+    // With the user register activity and the circle join activity,
+    // the length of $data should be 2
+    $this->assertEquals(2, sizeof($data));
+
+    // iterate each activity
+    foreach ($data as $timeid => $arr) {
+      switch ($arr['type']) {
+	case '0': // these are strings not int, due to mysql fetch; user register
+	  $this->assertEquals($this->user1->get_id(), $arr['userid']);
+	  break;
+	case '6': // user join group
+	  $this->assertEquals($this->user1->get_id(), $arr['userid']);
+	  $this->assertEquals($this->circleid1, $arr['circleid']);
+	  break;
+      }
+    }
   }
 
   /*
