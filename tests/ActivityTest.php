@@ -21,7 +21,7 @@ class ActivityTest extends PHPUnit_Framework_Testcase {
       "password"=>"123abc",
     );
     $this->con = mysqli_connect($db['hostname'], $db['username'], 
-n                                $db['password'], $db['database']);
+                                $db['password'], $db['database']);
     
     init_tables($this->con);
 
@@ -84,6 +84,42 @@ n                                $db['password'], $db['database']);
       $refid = $row['actid'];
       $time = $row['time'];
       $got_it = true;
+    }
+    $this->assertTrue($got_it);
+
+    // timeline table; Use userid and time to select the proper row
+    $result = select_from("timeline", "*", "WHERE `refid` = '$refid'", $this->con);
+    $got_it = false;
+    $time_get = '';
+    $reftable_get = '';
+    while ($row = mysqli_fetch_assoc($result)) {
+      $got_it = true;
+      $time_get = $row['time'];
+      $reftable_get = $row['reftable'];
+    }
+    $this->assertTrue($got_it);
+    $this->assertEquals($time, $time_get); // time should match. This is important
+    $this->assertEquals($reftable, $reftable_get);
+  }
+
+  public function testActivityCreateCircle_6() {
+    // since we have created a circle, we should have the activity about that
+
+    $refid = '';
+    $reftable = "activity_group_join";    
+    $time = '';
+    // activity table
+    $result = select_from($reftable, "*", 
+			  "WHERE `userid` = '{$this->user1->get_id()}'"
+			  ." AND `circleid` = '{$this->circleid1}'", $this->con);
+    $got_it = false;
+    while ($row = mysqli_fetch_assoc($result)) {
+      $refid = $row['actid'];
+      $time = $row['time'];
+      $got_it = true;
+      
+      // Since user1 is the group creator, init should be '1' (Representing 'true')
+      $this->assertEquals('1', $row['init']);
     }
     $this->assertTrue($got_it);
 
