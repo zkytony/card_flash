@@ -209,5 +209,91 @@ class Deck
     }
     return $num;
   }
+
+  // Given deckid, folder name, and userid, add the deck to
+  // that specific folder. If the name+userid combination does not exist
+  // in the table, then we are creating a new folder.
+  // Then it will replace the value of `folderid` to a new folderid
+  // Returns true if we create a new folder; false if doesn't
+  public static function add_to_folder($deckid, $folder_name, $userid, $con) {
+    $folderid = "";
+    $created_new = false;
+    if (!Deck::folder_exists_for_user($folder_name, $userid, $con)) {
+      // folder does not exists, create a new one
+      $folderid = make_id("folder", "folders", "folderid", $con);
+      $columns = "`folderid`, `name`, `userid`";
+      $values = "'$folderid', '$folder_name', '$userid'";
+      insert_into("folders", $columns, $values, $con);
+      $created_new = true;
+    } else {
+      // folder already exists. Get the folderid
+      $folderid = Deck::get_folderid($folder_name, $userid, $con);
+    }
+    
+    // update decks table, change the `folderid` column to current folderid
+    update_table("decks", array("`folderid`"), array("'$folderid'"), "WHERE `deckid` = '$deckid'", $con);
+    return $created_new;
+  }
+
+  // Deletes the deck from a folder
+  // Returns true if the deletion is successful; false otherwise -- probably the deck is not in that specific folder
+  public static function delete_from_folder($deckid, $folder_name, $userid, $con) {
+    $folderid = Deck::get_folderid($folder_name, $userid, $con);
+    if (!is_null($folderid)) {
+      // update decks table, change the `folderid` column to NULL
+      update_table("decks", array("`folderid`"), array("NULL"), "WHERE `deckid` = '$deckid'", $con);
+      return true;
+    }
+    return false;
+  }
+
+  // Creates a folder; Returns the folderid
+  // Returns NULL if the creation faild - the folder already exists for the user
+  public static function add_folder($folder_name, $userid, $con) {
+    if (!Deck::folder_exists_for_user($folder_name, $userid, $con)) {
+      $folderid = make_id("folder", "folders", "folderid", $con);
+      $columns = "`folderid`, `name`, `userid`";
+      $values = "'$folderid', '$folder_name', '$userid'";
+      insert_into("folders", $columns, $values, $con);
+      return $folderid;
+    }
+    return NULL;
+  }
+
+  // Deletes a folder; Returns true if successful; false otherwise -- probably the folder does not exist
+  public static function delete_folder($folder_name, $userid, $con) {
+    $folderid = Deck::get_folderid($folder_name, $userid, $con);
+    if (!is_null($folderid)) {
+      delete_from("folders", "WHERE `folderid` = '$folderid'", "", $con);
+      
+      // delete all `folderid` value for the decks that were in this folder
+      update_table("decks", array("`folderid`"), array("NULL"), "WHERE `folderid` = '$folderid'", $con);
+      return true;
+    }
+    return false;
+  }
+
+  // Given folder name, userid, determine if the user has a folder with this name
+  // Returns true if he does have a folder with the given name
+  public static function folder_exists_for_user($folder_name, $userid, $con) {
+    $result = select_from("folders", "`folderid`", "WHERE `name` = '$folder_name' AND `userid` = '$userid'", $con);
+    return $result->num_rows > 0;
+  }
+
+  public static function get_folderid($folder_name, $userid, $con) {
+    $result = select_from("folders", "`folderid`", "WHERE `name` = '$folder_name' AND `userid` = '$userid'", $con);
+    while ($row = mysqli_fetch_assoc($result)) {
+      return $row['folderid'];
+    }
+    return NULL;
+  }
+  
+  public static function folderid_for_deck($deckid, $con) {
+    $result = select_from("decks", "`folderid`", "WHERE `deckid` = '$deckid'", $con);
+    while ($row = mysqli_fetch_assoc($result)) {
+      return $row['folderid'];
+    }
+    return NULL;
+  }
 }
 ?>
