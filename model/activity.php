@@ -200,7 +200,7 @@ class Activity
   // NOTE: time string is of this form: "H:i:s,m-d-Y". E.g. 3:42:32,5-3-2001
   public static function range($start, $end, $userid, $con) {
     $data = Activity::within($start, $end, $userid, $con);
-    return collect($data, $con);
+    return Activity::collect($data, $con);
   }
 
   // Given start time (string) and end time (string),
@@ -212,10 +212,14 @@ class Activity
   // all activities up to the current time
   // NOTE: time string is of this form: "H:i:s,m-d-Y". E.g. 3:42:32,5-3-2001
   private static function within($start, $end, $userid, $con) {
+    // Convert $start and $end to mysql-friendly string:
+    $start = str_to_date($start, "%H:%i:%s,%m-%d-%Y"); // str_to_date is a function from database.php
+    $end = str_to_date($end, "%H:%i:%s,%m-%d-%Y");
+
     // select the rows from timeline table
     if (is_null($end)) $end = date("H:i:s,m-d-Y"); // get the current date time
     $result = select_from("timeline", "*", "WHERE `userid` = '$userid' AND "
-					  ."`time` BETWEEN '$start' AND '$end'", $con);
+					  ."`time` BETWEEN $start AND $end", $con);
     $data = array(); // the returning array
     while ($row = mysqli_fetch_assoc($result)) {
       $timeid = $row['timeid'];
@@ -234,9 +238,10 @@ class Activity
    
     // iterate through key and value
     foreach ($data as $timeid => $arr) {
-      $details[$timeid] = get_activity_data($arr['reftable'], $arr['refid'], $con);
+      $details[$timeid] = Activity::get_activity_data($arr['reftable'], $arr['refid'], $con);
       $details[$timeid]['type'] = $arr['type'];
     }
+    return $details;
   }
 
   public static function get_activity_data($reftable, $refid, $con) {
