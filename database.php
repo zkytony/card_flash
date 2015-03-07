@@ -121,4 +121,12 @@ function delete_from($tablename, $restrict_str, $limit, $con)
     die ("Error in Update $tablename " . mysqli_error($con) . " YOUR QUERY IS " . $query . "\n");
   }
 }
+
+// It is always uncomfortable to type all the STR_TO_DATE string and
+// pass it in select_from(); Thus, this function takes in a time string,
+// and a format string, and returns the string 'STR_TO_DATE(xx,xx)' that
+// is good for using in select_from()
+function str_to_date($datetime, $format) {
+  return "STR_TO_DATE(\"{$datetime}\", \"{$format}\")";
+}
 ?>
