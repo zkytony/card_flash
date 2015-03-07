@@ -283,7 +283,7 @@ class User
   }
 
   // Returns the number of followers a user has
-  public function num_followers($userid, $con) {
+  public static function num_followers($userid, $con) {
     $num = 0;
     $result = select_from("users", "`followers`", "WHERE `userid` = '$userid'", $con);
     while ($row = mysqli_fetch_assoc($result)) {
@@ -293,7 +293,7 @@ class User
   }
 
   // Returns the number of people that a user is following
-  public function num_following($userid, $con) {
+  public static function num_following($userid, $con) {
     $num = 0;
     $result = select_from("users", "`following`", "WHERE `userid` = '$userid'", $con);
     while ($row = mysqli_fetch_assoc($result)) {
@@ -303,13 +303,27 @@ class User
   }
 
   // Returns the number of people that a user is subscribing
-  public function num_subscribing($userid, $con) {
+  public static function num_subscribing($userid, $con) {
     $num = 0;
     $result = select_from("users", "`subscribing`", "WHERE `userid` = '$userid'", $con);
     while ($row = mysqli_fetch_assoc($result)) {
       $num = $row['subscribing'];
     }
     return $num;
+  }
+
+  // Returns an array storing the information about a user given the userid
+  // Information contains:
+  // email, first, last, birth, online, followers, following, subscribing
+  // Returns NULL if not found any information given the userid
+  public static function user_info($userid, $con) {
+    $result = select_from("users", 
+			  "`email`, `first`, `last`, `birth`, `online`, `followers`, `following`, `subscribing`",
+			  "WHERE `userid` = '$userid'", $con);
+    while ($row = mysqli_fetch_assoc($result)) {
+      return $row;
+    }
+    return NULL;
   }
 
 } // end of User class

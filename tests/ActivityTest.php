@@ -21,9 +21,12 @@ class ActivityTest extends PHPUnit_Framework_Testcase {
       "password"=>"123abc",
     );
     $this->con = mysqli_connect($db['hostname'], $db['username'], 
-n                                $db['password'], $db['database']);
+                                $db['password'], $db['database']);
     
     init_tables($this->con);
+
+    // Keep track of what time it is when starting the test
+    $this->starttime = date("H:i:s,m-d-Y"); // the format is specified in activity.php:add_activity()
 
     // create user1
     $info1 = array(
@@ -100,6 +103,65 @@ n                                $db['password'], $db['database']);
     $this->assertTrue($got_it);
     $this->assertEquals($time, $time_get); // time should match. This is important
     $this->assertEquals($reftable, $reftable_get);
+  }
+
+  public function testActivityCreateCircle_6() {
+    // since we have created a circle, we should have the activity about that
+
+    $refid = '';
+    $reftable = "activity_group_join";    
+    $time = '';
+    // activity table
+    $result = select_from($reftable, "*", 
+			  "WHERE `userid` = '{$this->user1->get_id()}'"
+			  ." AND `circleid` = '{$this->circleid1}'", $this->con);
+    $got_it = false;
+    while ($row = mysqli_fetch_assoc($result)) {
+      $refid = $row['actid'];
+      $time = $row['time'];
+      $got_it = true;
+      
+      // Since user1 is the group creator, init should be '1' (Representing 'true')
+      $this->assertEquals('1', $row['init']);
+    }
+    $this->assertTrue($got_it);
+
+    // timeline table; Use userid and time to select the proper row
+    $result = select_from("timeline", "*", "WHERE `refid` = '$refid'", $this->con);
+    $got_it = false;
+    $time_get = '';
+    $reftable_get = '';
+    while ($row = mysqli_fetch_assoc($result)) {
+      $got_it = true;
+      $time_get = $row['time'];
+      $reftable_get = $row['reftable'];
+    }
+    $this->assertTrue($got_it);
+    $this->assertEquals($time, $time_get); // time should match. This is important
+    $this->assertEquals($reftable, $reftable_get);
+  }
+
+  public function testGetActivityWithinRange() {
+    // Get the current time as end time
+    $this->endtime = date("H:i:s,m-d-Y"); // the format is specified in activity.php:add_activity()
+    $data = Activity::range($this->starttime, $this->endtime, $this->user1->get_id(), $this->con);
+
+    // With the user register activity and the circle join activity,
+    // the length of $data should be 2
+    $this->assertEquals(2, sizeof($data));
+
+    // iterate each activity
+    foreach ($data as $timeid => $arr) {
+      switch ($arr['type']) {
+	case '0': // these are strings not int, due to mysql fetch; user register
+	  $this->assertEquals($this->user1->get_id(), $arr['userid']);
+	  break;
+	case '6': // user join group
+	  $this->assertEquals($this->user1->get_id(), $arr['userid']);
+	  $this->assertEquals($this->circleid1, $arr['circleid']);
+	  break;
+      }
+    }
   }
 
   /*
