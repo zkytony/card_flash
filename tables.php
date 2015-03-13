@@ -321,7 +321,7 @@ function init_timeline_table($con) {
         ."`userid` VARCHAR(32) NOT NULL,"
         ."`refid` VARCHAR(32) UNIQUE NOT NULL,"
         ."`reftable` VARCHAR(32) NOT NULL,"
-        ."`type` INT(1) NOT NULL,"
+        ."`type` INT(2) NOT NULL,"
         ."`time` DATETIME NOT NULL,"
         ."PRIMARY KEY(`timeid`),"
         ."FOREIGN KEY(`userid`) REFERENCES users(`userid`)"
