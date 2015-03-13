@@ -22,7 +22,7 @@ class Activity
   // 7 - a user follows another user
   // 8 - a deck's information is edited (title, description, open, close)
   // 9 - a card's information is edited (title, subtitle, content)
-
+  // 10 - user comments on something
   private $timeid;
   // An array that stores information about this user
   private $info; 
@@ -76,7 +76,10 @@ class Activity
   // 'userfollow' : specific data for user follow activity
   //      - 'targetid' : the userid who is followed
   //      - 'following' : (BOOL) true if following; false if unfollow
-  //
+  // 'comments' : specific data for user comments activity
+  //      - 'commentid' : the comment's id in comments table
+  //      - 'type' : the type of comment; 0 for card, 1 for deck
+  //      - 'targetid' : the id of that target that this comment points to
   // Returns the timeid for this activity in timeline table, if successfully added;
   // otherwise, returns NULL
   public static function add_activity($type, $data, $con) {
@@ -169,6 +172,14 @@ class Activity
         $values = "'$id', '{$data['userid']}', '{$data['cardid']}', '{$data['circleid']}', STR_TO_DATE(\"{$data['time']}\", \"%H:%i:%S,%m-%d-%Y\")";
         insert_into($tablename, $columns, $values, $con);
         break;
+
+      case 10: // user makes a comment
+	$tablename = "activity_user_comments";
+        $id = make_id("uct", $tablename, "actid", $con);
+        $columns = "`actid`, `userid`, `commentid`, `type`,`targetid`,`circleid`,`time`";
+        $values = "'$id', '{$data['userid']}', '{$data['comments']['commentid']}', '{$data['comments']['type']}','{$data['comments']['targetid']}','{$data['circleid']}', STR_TO_DATE(\"{$data['time']}\", \"%H:%i:%S,%m-%d-%Y\")";
+        insert_into($tablename, $columns, $values, $con);
+	break;
 
       default:
         return NULL;
