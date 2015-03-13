@@ -346,7 +346,7 @@ function init_activity_tables($con) {
   init_activity_user_follow_table($con);
   init_activity_deck_updated_table($con);
   init_activity_card_updated_table($con);
-  init_activity_user_comments_table($con)
+  init_activity_user_comments_table($con);
 }
 
 function init_activity_user_register_table($con) {
@@ -595,7 +595,7 @@ function init_activity_user_comments_table($con) {
         ."`actid` VARCHAR(32) UNIQUE NOT NULL,"
         ."`userid` VARCHAR(32) NOT NULL,"
         ."`commentid` VARCHAR(32) NOT NULL,"
-	."`type` INT(1) INT,"
+	."`type` INT(1) NOT NULL,"
 	."`targetid` VARCHAR(32) NOT NULL,"
         ."`circleid` VARCHAR(32),"
         ."`time` DATETIME NOT NULL,"
