@@ -5,7 +5,7 @@ require_once "../functions.php";
 
 /* 
    ----------------
-   The User class
+   The Comment class
    ----------------
  */
 class Comment
