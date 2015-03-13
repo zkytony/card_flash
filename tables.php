@@ -346,6 +346,7 @@ function init_activity_tables($con) {
   init_activity_user_follow_table($con);
   init_activity_deck_updated_table($con);
   init_activity_card_updated_table($con);
+  init_activity_user_comments_table($con)
 }
 
 function init_activity_user_register_table($con) {
@@ -581,4 +582,35 @@ function init_activity_card_updated_table($con) {
     die ("Unable to create table $tablename " . mysqli_error($con) . " The query was: " . $query . "\n");
   }
 }
+
+// Stores the activity that a user makes a comment on something
+// type: the type of comment this is for. Currently we have:
+// 0 - commenting on a card
+// 1 - commenting on a deck
+// targetid - the id of that target that this comment pointing to. For example,
+//     if this comment is for card, then targetid is a cardid.
+function init_activity_user_comments_table($con) {
+  $tablename='activity_user_comments';
+  $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
+        ."`actid` VARCHAR(32) UNIQUE NOT NULL,"
+        ."`userid` VARCHAR(32) NOT NULL,"
+        ."`commentid` VARCHAR(32) NOT NULL,"
+	."`type` INT(1) INT,"
+	."`targetid` VARCHAR(32) NOT NULL,"
+        ."`circleid` VARCHAR(32),"
+        ."`time` DATETIME NOT NULL,"
+        ."PRIMARY KEY(`actid`),"
+        ."FOREIGN KEY(`userid`) REFERENCES users(`userid`)"
+        ."   ON DELETE CASCADE,"
+        ."FOREIGN KEY(`commentid`) REFERENCES comments(`commentid`)"
+        ."   ON DELETE CASCADE"
+        .") ENGINE InnoDB"
+        ."  CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
+
+  if (!mysqli_query($con, $query))
+  {
+    die ("Unable to create table $tablename " . mysqli_error($con) . " The query was: " . $query . "\n");
+  }
+}
+
 ?>
