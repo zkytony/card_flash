@@ -45,13 +45,18 @@ class Comment
   // 1 - commenting on a deck
   // $targetid - the id of that target that this comment pointing to. For example,
   //     if this comment is for card, then targetid is a cardid.
+  // $circleid is not NULL if this comment is related to a circle
   // Returns the commentid. If not successful, return NULL
   public static function comment($userid, $content, $reply_commentid, 
-				 $type, $targetid, $con) {
+				 $type, $targetid, $circleid, $con) {
 
     if ($type != 0 && $type != 1) {
       return NULL;
     }
+
+    // For the sake of activity, we want to keep time consistent. So we will use PHP date() to get current time, and
+    // use MYSQL's STR_TO_DATE() to convert it to MySQL datetime format
+    $datetime = date("H:i:s,m-d-Y"); // the format is specified in activity.php:add_activity()
 
     // Prevent injection:
     $content = mysqli_entities_fix_string($con, $content);
@@ -61,6 +66,20 @@ class Comment
     $columns = "`commentid`,`userid`,`reply_commentid`,`type`,`targetid`,`content`";
     $values = "'$commentid','$userid','$reply_commentid','$type','$targetid','$content'";
     insert_into("comments", $columns, $values, $con);
+
+    // Add user comments activity
+    $act_type = 10;
+    $data = array(
+      'userid' => $userid,
+      'time' => $datetime,
+      '$circleid' => $circleid
+    );
+    $data['comments']['commentid'] = $commentid;
+    $data['comments']['type'] = $type;
+    $data['comments']['targetid'] = $targetid;
+    Activity::add_activity($act_type, $data, $con);
+
+    return $commentid;
   }
 
   // Delete a comment from database
