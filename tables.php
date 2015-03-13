@@ -11,6 +11,7 @@ function init_tables($con)
   init_subscribers_table($con);
   init_circles_table($con);
   init_members_table($con);
+  init_comments_table($con);
   init_timeline_table($con);
   init_activity_tables($con);
 }
@@ -259,6 +260,36 @@ function init_members_table($con) {
         ."FOREIGN KEY(`userid`) REFERENCES users(`userid`)"
         ."   ON DELETE CASCADE,"
         ."FOREIGN KEY(`circleid`) REFERENCES circles(`circleid`)"
+        ."   ON DELETE CASCADE"
+        .") ENGINE InnoDB"
+        ."  CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
+
+  if (!mysqli_query($con, $query))
+  {
+    die ("Unable to create table $tablename " . mysqli_error($con) . " The query was: " . $query . "\n");
+  }
+}
+
+// Stores information about comments
+// userid - the user who made this comment
+// reply_commentid - the comment id of the comment that this comment is replying. If this
+//     is a new comment, the value is NULL
+// type: the type of comment this is for. Currently we have:
+// 0 - commenting on a card
+// 1 - commenting on a deck
+// targetid - the id of that target that this comment pointing to. For example,
+//     if this comment is for card, then targetid is a cardid.
+function init_comments_table($con) {
+  $tablename='comments';
+  $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
+        ."`commentid` VARCHAR(32) UNIQUE NOT NULL,"
+        ."`userid` VARCHAR(32) NOT NULL,"
+        ."`reply_commentid` VARCHAR(32) NOT NULL,"
+        ."`targetid` VARCHAR(32) NOT NULL,"
+        ."`type` INT(1) NOT NULL,"
+        ."`time` DATETIME NOT NULL,"
+        ."PRIMARY KEY(`commentid`),"
+        ."FOREIGN KEY(`userid`) REFERENCES users(`userid`)"
         ."   ON DELETE CASCADE"
         .") ENGINE InnoDB"
         ."  CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
