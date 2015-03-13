@@ -39,7 +39,7 @@ class Comment
   // Necessary information:
   // $userid - the user who made this comment
   // $reply_commentid - the comment id of the comment that this comment is replying. If this
-  //     is a new comment, the value is NULL
+  //     is a new comment, set the value to NULL
   // $type: the type of comment this is for. Currently we have:
   // 0 - commenting on a card
   // 1 - commenting on a deck
@@ -63,8 +63,13 @@ class Comment
 
     $commentid = make_id("cmt", "comments", "commentid", $con);
 
-    $columns = "`commentid`,`userid`,`reply_commentid`,`type`,`targetid`,`content`";
-    $values = "'$commentid','$userid','$reply_commentid','$type','$targetid','$content'";
+    $columns = "`commentid`,`userid`,`type`,`targetid`,`content`";
+    $values = "'$commentid','$userid','$type','$targetid','$content'";
+    // see if we need reply_commentid:
+    if (!is_null($reply_commentid)) {
+      $columns .= ",`reply_commentid`";
+      $values .= ",'$reply_commentid'";
+    }
     insert_into("comments", $columns, $values, $con);
 
     // Add user comments activity
@@ -72,7 +77,7 @@ class Comment
     $data = array(
       'userid' => $userid,
       'time' => $datetime,
-      '$circleid' => $circleid
+      'circleid' => $circleid
     );
     $data['comments']['commentid'] = $commentid;
     $data['comments']['type'] = $type;
@@ -84,11 +89,13 @@ class Comment
 
   // Delete a comment from database
   // Any comments that replies to this comment are also deleted
+  // THIS NEEDS IMPROVEMENT about dealing with deleting replies
   public static function delete($commentid, $con) {
     delete_from("comments", "WHERE `commentid` = '$commentid'", "", $con);
     
     // Delete replying comments
     delete_from("comments", "WHERE `reply_commentid` = '$commentid'", "", $con);
+    
   }
 
   // Returns the userid of the commenter
@@ -118,7 +125,7 @@ class Comment
   // If call this function to count number of replies that CommentA has, it will
   // be 1, because only CommentB is directly replying CommentA
   public static function num_replies($commentid, $con) {
-    $result = select_from("comments", "`commentid`", "WHERE `reply_commentid` = '$comment'", $con);
+    $result = select_from("comments", "`commentid`", "WHERE `reply_commentid` = '$commentid'", $con);
     return $result->num_rows;    
   }
 }
