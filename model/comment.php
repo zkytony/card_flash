@@ -1,0 +1,106 @@
+<?php 
+
+require_once "../database.php";
+require_once "../functions.php";
+
+/* 
+   ----------------
+   The User class
+   ----------------
+ */
+class Comment
+{
+  private $commentid;
+  private $info;
+  private $exist;
+
+  function __construct($commentid, $con) {
+    $result = select_from("comments", "*", "WHERE `commentid` = '$commentid'", $con);
+    $this->exist = $result->num_rows == 1;
+    if ($this->exist) {
+      $this->commentid = $commentid;
+      $this->info = array();
+      while ($rows = mysqli_fetch_assoc($result)) {
+        $this->info = $rows; // In PHP, arrays are assigned in copy
+        break; // only can be 1 match
+      }
+    }
+  }
+
+  public function get_info() {
+    return $this->info;
+  }
+
+  public function get_id() {
+    return $this->commentid;
+  }
+
+  // Make a comment.
+  // Necessary information:
+  // $userid - the user who made this comment
+  // $reply_commentid - the comment id of the comment that this comment is replying. If this
+  //     is a new comment, the value is NULL
+  // $type: the type of comment this is for. Currently we have:
+  // 0 - commenting on a card
+  // 1 - commenting on a deck
+  // $targetid - the id of that target that this comment pointing to. For example,
+  //     if this comment is for card, then targetid is a cardid.
+  // Returns the commentid. If not successful, return NULL
+  public static function comment($userid, $content, $reply_commentid, 
+				 $type, $targetid, $con) {
+
+    if ($type != 0 && $type != 1) {
+      return NULL;
+    }
+
+    // Prevent injection:
+    $content = mysqli_entities_fix_string($con, $content);
+
+    $commentid = make_id("cmt", "comments", "commentid", $con);
+
+    $columns = "`commentid`,`userid`,`reply_commentid`,`type`,`targetid`,`content`";
+    $values = "'$commentid','$userid','$reply_commentid','$type','$targetid','$content'";
+    insert_into("comments", $columns, $values, $con);
+  }
+
+  // Delete a comment from database
+  // Any comments that replies to this comment are also deleted
+  public static function delete($commentid, $con) {
+    delete_from("comments", "WHERE `commentid` = '$commentid'", "", $con);
+    
+    // Delete replying comments
+    delete_from("comments", "WHERE `reply_commentid` = '$commentid'", "", $con);
+  }
+
+  // Returns the userid of the commenter
+  // Returns NULL if this commentid cant relate to any user
+  public static function commenter($commentid, $con) {
+    $result = select_from("comments", "`userid`", "WHERE `commentid` = '$commentid'", $con);
+    
+    while ($row = mysqli_fetch_assoc($result)) {
+      return $row['userid'];
+    }
+    return NULL;
+  }
+
+  // Returns the number of comments that a deck or a card has
+  // $targetid - the id of that target that this comment pointing to. For example,
+  //     if this comment is for card, then targetid is a cardid.
+  public static function num_comments($targetid, $con) {
+    $result = select_from("comments", "`commentid`", "WHERE `targetid` = '$targetid'", $con);
+    return $result->num_rows;
+  }
+
+  // Returns the number of replies that a comment has
+  // Based on reply_commentid
+  // Notice: This will only count the number of replies directly to a comment.
+  // In situations like this:
+  // CommentA <- CommentB <- CommentC
+  // If call this function to count number of replies that CommentA has, it will
+  // be 1, because only CommentB is directly replying CommentA
+  public static function num_replies($commentid, $con) {
+    $result = select_from("comments", "`commentid`", "WHERE `reply_commentid` = '$comment'", $con);
+    return $result->num_rows;    
+  }
+}
+?>
