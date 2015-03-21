@@ -23,6 +23,7 @@ class Activity
   // 8 - a deck's information is edited (title, description, open, close)
   // 9 - a card's information is edited (title, subtitle, content)
   // 10 - user comments on something
+  // 11 - user likes something
   private $timeid;
   // An array that stores information about this user
   private $info; 
@@ -80,6 +81,9 @@ class Activity
   //      - 'commentid' : the comment's id in comments table
   //      - 'type' : the type of comment; 0 for card, 1 for deck
   //      - 'targetid' : the id of that target that this comment points to
+  // 'likes' : specific data for user likes activity
+  //      - 'type' : the type of thing that is liked.
+  //      - 'targetid' : the id of the thing that is liked
   // Returns the timeid for this activity in timeline table, if successfully added;
   // otherwise, returns NULL
   public static function add_activity($type, $data, $con) {
@@ -178,6 +182,14 @@ class Activity
         $id = make_id("uct", $tablename, "actid", $con);
         $columns = "`actid`, `userid`, `commentid`, `type`,`targetid`,`circleid`,`time`";
         $values = "'$id', '{$data['userid']}', '{$data['comments']['commentid']}', '{$data['comments']['type']}','{$data['comments']['targetid']}','{$data['circleid']}', STR_TO_DATE(\"{$data['time']}\", \"%H:%i:%S,%m-%d-%Y\")";
+        insert_into($tablename, $columns, $values, $con);
+	break;
+
+      case 11: // user likes something
+	$tablename = "activity_user_likes";
+	$id = make_id("ulk", $tablename, "actid", $con);
+	$columns = "`actid`,`userid`,`type`,`targetid,`circleid`,`time`";
+	$values = "'$id','{$data['userid']}','{$data['likes']['type']}','{$data['likes']['targetid']}','{$data['circleid']}', STR_TO_DATE(\"{$data['time']}\", \"%H:%i:%S,%m-%d-%Y\")";
         insert_into($tablename, $columns, $values, $con);
 	break;
 
