@@ -188,7 +188,7 @@ class Activity
       case 11: // user likes something
 	$tablename = "activity_user_likes";
 	$id = make_id("ulk", $tablename, "actid", $con);
-	$columns = "`actid`,`userid`,`type`,`targetid,`circleid`,`time`";
+	$columns = "`actid`,`userid`,`type`,`targetid`,`circleid`,`time`";
 	$values = "'$id','{$data['userid']}','{$data['likes']['type']}','{$data['likes']['targetid']}','{$data['circleid']}', STR_TO_DATE(\"{$data['time']}\", \"%H:%i:%S,%m-%d-%Y\")";
         insert_into($tablename, $columns, $values, $con);
 	break;

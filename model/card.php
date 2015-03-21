@@ -126,7 +126,7 @@ class Card
     $data = array(
       'userid' => $userid,
       'time' => $datetime,
-      'circleid' => $cricleid
+      'circleid' => $circleid
     );
     $data['likes']['type'] = 0; // type 1 for liking a card
     $data['likes']['targetid'] = $cardid;

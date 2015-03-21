@@ -323,7 +323,7 @@ class Deck
     $data = array(
       'userid' => $userid,
       'time' => $datetime,
-      'circleid' => $cricleid
+      'circleid' => $circleid
     );
     $data['likes']['type'] = 1; // type 1 for liking a deck
     $data['likes']['targetid'] = $deckid;

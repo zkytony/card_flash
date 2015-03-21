@@ -143,7 +143,7 @@ class Comment
     $data = array(
       'userid' => $userid,
       'time' => $datetime,
-      'circleid' => $cricleid
+      'circleid' => $circleid
     );
     $data['likes']['type'] = 2; // type 1 for liking a comment
     $data['likes']['targetid'] = $commentid;
