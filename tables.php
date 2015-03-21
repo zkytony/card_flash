@@ -317,6 +317,8 @@ function init_comments_table($con) {
 // 7 - a user follows another user
 // 8 - a deck's information is edited (title, description, open, close)
 // 9 - a card's information is edited (title, subtitle, content)
+// 10 - a user comments on someting
+// 11 - a user likes something
 function init_timeline_table($con) {
   $tablename='timeline';
   $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
@@ -350,6 +352,7 @@ function init_activity_tables($con) {
   init_activity_deck_updated_table($con);
   init_activity_card_updated_table($con);
   init_activity_user_comments_table($con);
+  init_activity_user_likes_table($con);
 }
 
 function init_activity_user_register_table($con) {
@@ -616,4 +619,32 @@ function init_activity_user_comments_table($con) {
   }
 }
 
+// Stores activity that a user likes something
+// type:
+// 0 - likes a card
+// 1 - likes a deck
+// 2 - likes a comment
+// targetid: the id of the thing that is liked. 
+// For example, if the type is '0', then the targetid should be a cardid
+function init_activity_user_likes_table($con) {
+  $tablename='activity_user_likes';
+
+  $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
+        ."`actid` VARCHAR(32) UNIQUE NOT NULL,"
+        ."`userid` VARCHAR(32) NOT NULL,"
+	."`type` INT(1) NOT NULL,"
+	."`targetid` VARCHAR(32) NOT NULL,"
+        ."`circleid` VARCHAR(32),"
+        ."`time` DATETIME NOT NULL,"
+        ."PRIMARY KEY(`actid`),"
+        ."FOREIGN KEY(`userid`) REFERENCES users(`userid`)"
+        ."   ON DELETE CASCADE,"
+        .") ENGINE InnoDB"
+        ."  CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
+
+  if (!mysqli_query($con, $query))
+  {
+    die ("Unable to create table $tablename " . mysqli_error($con) . " The query was: " . $query . "\n");
+  }
+}
 ?>
