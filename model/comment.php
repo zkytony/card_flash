@@ -130,14 +130,30 @@ class Comment
   }
 
   // Likes a comment - increments the count of likes in `like` column
-  public static function like($userid, $cardid, $con) {
-    update_table("cards", array("`like`"), array("`like`+1"), "WHERE `cardid` = '$cardid'" $con);
+  // $circleid is not NULL if this comment is related to a circle
+  public static function like($userid, $commentid, $circleid, $con) {
+    // For the sake of activity, we want to keep time consistent. So we will use PHP date() to get current time, and
+    // use MYSQL's STR_TO_DATE() to convert it to MySQL datetime format
+    $datetime = date("H:i:s,m-d-Y"); // the format is specified in activity.php:add_activity()
+
+    update_table("comments", array("`like`"), array("`like`+1"), "WHERE `commentid` = '$commentid'" $con);
+
+    // Add user likes activity (11)
+    $act_type = 11;
+    $data = array(
+      'userid' => $userid,
+      'time' => $datetime,
+      'circleid' => $cricleid
+    );
+    $data['likes']['type'] = 2; // type 1 for liking a comment
+    $data['likes']['targetid'] = $commentid;
+    Activity::add_activity($act_type, $data, $con);
   }
 
   // Unlikes a comment - increments the count of likes in `like` column
   // Assume that a person cannot unlike if he has not yet liked
-  public static function unlike($userid, $cardid, $con) {
-    update_table("cards", array("`like`"), array("`like`-1"), "WHERE `cardid` = '$cardid'" $con);
+  public static function unlike($userid, $commentid, $con) {
+    update_table("comments", array("`like`"), array("`like`-1"), "WHERE `commentid` = '$commentid'" $con);
   }
 }
 ?>

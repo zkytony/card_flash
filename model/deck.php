@@ -310,8 +310,24 @@ class Deck
   }
 
   // Likes a deck - increments the count of likes in `like` column
-  public static function like($userid, $deckid, $con) {
+  // $circleid is not NULL if this comment is related to a circle
+  public static function like($userid, $deckid, $circleid, $con) {
+    // For the sake of activity, we want to keep time consistent. So we will use PHP date() to get current time, and
+    // use MYSQL's STR_TO_DATE() to convert it to MySQL datetime format
+    $datetime = date("H:i:s,m-d-Y"); // the format is specified in activity.php:add_activity()
+
     update_table("decks", array("`like`"), array("`like`+1"), "WHERE `deckid` = '$deckid'" $con);
+
+    // Add user likes activity (11)
+    $act_type = 11;
+    $data = array(
+      'userid' => $userid,
+      'time' => $datetime,
+      'circleid' => $cricleid
+    );
+    $data['likes']['type'] = 1; // type 1 for liking a deck
+    $data['likes']['targetid'] = $deckid;
+    Activity::add_activity($act_type, $data, $con);
   }
 
   // Unlikes a deck - increments the count of likes in `like` column
