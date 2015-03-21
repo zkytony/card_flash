@@ -308,5 +308,16 @@ class Deck
     }
     return NULL;
   }
+
+  // Likes a deck - increments the count of likes in `like` column
+  public static function like($userid, $deckid, $con) {
+    update_table("decks", array("`like`"), array("`like`+1"), "WHERE `deckid` = '$deckid'" $con);
+  }
+
+  // Unlikes a deck - increments the count of likes in `like` column
+  // Assume that a person cannot unlike if he has not yet liked
+  public static function unlike($userid, $deckid, $con) {
+    update_table("decks", array("`like`"), array("`like`-1"), "WHERE `deckid` = '$deckid'" $con);
+  }
 }
 ?>

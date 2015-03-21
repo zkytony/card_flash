@@ -112,5 +112,15 @@ class Card
     return true;
   }
 
+  // Likes a card - increments the count of likes in `like` column
+  public static function like($userid, $cardid, $con) {
+    update_table("cards", array("`like`"), array("`like`+1"), "WHERE `cardid` = '$cardid'" $con);
+  }
+
+  // Unlikes a card - increments the count of likes in `like` column
+  // Assume that a person cannot unlike if he has not yet liked
+  public static function unlike($userid, $cardid, $con) {
+    update_table("cards", array("`like`"), array("`like`-1"), "WHERE `cardid` = '$cardid'" $con);
+  }
 }
 ?>

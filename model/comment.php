@@ -128,5 +128,16 @@ class Comment
     $result = select_from("comments", "`commentid`", "WHERE `reply_commentid` = '$commentid'", $con);
     return $result->num_rows;    
   }
+
+  // Likes a comment - increments the count of likes in `like` column
+  public static function like($userid, $cardid, $con) {
+    update_table("cards", array("`like`"), array("`like`+1"), "WHERE `cardid` = '$cardid'" $con);
+  }
+
+  // Unlikes a comment - increments the count of likes in `like` column
+  // Assume that a person cannot unlike if he has not yet liked
+  public static function unlike($userid, $cardid, $con) {
+    update_table("cards", array("`like`"), array("`like`-1"), "WHERE `cardid` = '$cardid'" $con);
+  }
 }
 ?>
