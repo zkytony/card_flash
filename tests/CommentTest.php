@@ -145,6 +145,27 @@ class CommentTest extends PHPUnit_Framework_Testcase
 
     // NEED MORE TESTING HERE
   }
+
+  public function testCommentingActivity() {
+    // User2 now makes a comment on the card:
+    $content = 'Wonderful!';
+    $commentid1 = Comment::comment($this->user2->get_id(), $content, 
+				   NULL, 0, $this->cardid1, NULL, $this->con);
+
+    // Check if timeline table and activity_user_comments table are updated
+    $result = select_from("activity_user_comments", "*", "WHERE `commentid` = '$commentid1'", $this->con);
+    $actid = "";
+    while ($row = mysqli_fetch_assoc($result)) {
+      $this->assertEquals($this->cardid1, $row['targetid']);
+      $this->assertEquals(0, $row['type']); // 0 is for commenting on a card
+      $actid = $row['actid'];
+    }
+
+    $result = select_from("timeline", "*", "WHERE `refid` = '$actid'", $this->con);
+    while ($row = mysqli_fetch_assoc($result)) {
+      $this->assertEquals("activity_user_comments", $row['reftable']);
+    }
+  }
   
   /*
    * @after     
