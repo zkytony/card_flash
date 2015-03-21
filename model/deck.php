@@ -316,7 +316,7 @@ class Deck
     // use MYSQL's STR_TO_DATE() to convert it to MySQL datetime format
     $datetime = date("H:i:s,m-d-Y"); // the format is specified in activity.php:add_activity()
 
-    update_table("decks", array("`like`"), array("`like`+1"), "WHERE `deckid` = '$deckid'" $con);
+    update_table("decks", array("`like`"), array("`like`+1"), "WHERE `deckid` = '$deckid'", $con);
 
     // Add user likes activity (11)
     $act_type = 11;
@@ -333,7 +333,7 @@ class Deck
   // Unlikes a deck - increments the count of likes in `like` column
   // Assume that a person cannot unlike if he has not yet liked
   public static function unlike($userid, $deckid, $con) {
-    update_table("decks", array("`like`"), array("`like`-1"), "WHERE `deckid` = '$deckid'" $con);
+    update_table("decks", array("`like`"), array("`like`-1"), "WHERE `deckid` = '$deckid'", $con);
   }
 }
 ?>

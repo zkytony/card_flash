@@ -136,7 +136,7 @@ class Comment
     // use MYSQL's STR_TO_DATE() to convert it to MySQL datetime format
     $datetime = date("H:i:s,m-d-Y"); // the format is specified in activity.php:add_activity()
 
-    update_table("comments", array("`like`"), array("`like`+1"), "WHERE `commentid` = '$commentid'" $con);
+    update_table("comments", array("`like`"), array("`like`+1"), "WHERE `commentid` = '$commentid'", $con);
 
     // Add user likes activity (11)
     $act_type = 11;
@@ -153,7 +153,7 @@ class Comment
   // Unlikes a comment - increments the count of likes in `like` column
   // Assume that a person cannot unlike if he has not yet liked
   public static function unlike($userid, $commentid, $con) {
-    update_table("comments", array("`like`"), array("`like`-1"), "WHERE `commentid` = '$commentid'" $con);
+    update_table("comments", array("`like`"), array("`like`-1"), "WHERE `commentid` = '$commentid'", $con);
   }
 }
 ?>

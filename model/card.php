@@ -119,7 +119,7 @@ class Card
     // use MYSQL's STR_TO_DATE() to convert it to MySQL datetime format
     $datetime = date("H:i:s,m-d-Y"); // the format is specified in activity.php:add_activity()
 
-    update_table("cards", array("`like`"), array("`like`+1"), "WHERE `cardid` = '$cardid'" $con);
+    update_table("cards", array("`like`"), array("`like`+1"), "WHERE `cardid` = '$cardid'", $con);
 
     // Add user likes activity (11)
     $act_type = 11;
@@ -136,7 +136,7 @@ class Card
   // Unlikes a card - increments the count of likes in `like` column
   // Assume that a person cannot unlike if he has not yet liked
   public static function unlike($userid, $cardid, $con) {
-    update_table("cards", array("`like`"), array("`like`-1"), "WHERE `cardid` = '$cardid'" $con);
+    update_table("cards", array("`like`"), array("`like`-1"), "WHERE `cardid` = '$cardid'", $con);
   }
 }
 ?>
