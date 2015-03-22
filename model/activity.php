@@ -24,6 +24,7 @@ class Activity
   // 9 - a card's information is edited (title, subtitle, content)
   // 10 - user comments on something
   // 11 - user likes something
+  // 12 - user views cards in a deck
   private $timeid;
   // An array that stores information about this user
   private $info; 
@@ -191,6 +192,27 @@ class Activity
 	$columns = "`actid`,`userid`,`type`,`targetid`,`circleid`,`time`";
 	$values = "'$id','{$data['userid']}','{$data['likes']['type']}','{$data['likes']['targetid']}','{$data['circleid']}', STR_TO_DATE(\"{$data['time']}\", \"%H:%i:%S,%m-%d-%Y\")";
         insert_into($tablename, $columns, $values, $con);
+	break;
+
+      case 12: // user views a deck
+	$tablename = "activity_user_view_deck";
+
+	// Check if the user has viewed this deck before:
+	$result = select_from($tablename, "`actid`", "WHERE `userid` = '$userid' AND `deckid` = '$deckid'", $con);
+	if ($result->num_rows > 0) { // already has
+	  $actid = '';
+	  while ($row = mysqli_fetch_assoc($result)) {
+	    $actid = $row['actid'];
+	  }
+	  update_table($tablename, array("`cardid`","`time`"),
+		       array("'{$data['cardid']}'", "'{$data['time']}'",
+		       "WHERE `actid` = '$actid`", $con),
+	} else {
+          $id = make_id("uvd", $tablename, "actid", $con);
+          $columns = "`actid`, `userid`, `deckid`, `cardid`,`circleid`,`time`";
+          $values = "'$id', '{$data['userid']}', '{$data['deckid']}','{$data['cardid']}','{$data['circleid']}', STR_TO_DATE(\"{$data['time']}\", \"%H:%i:%S,%m-%d-%Y\")";
+          insert_into($tablename, $columns, $values, $con);
+	}
 	break;
 
       default:
