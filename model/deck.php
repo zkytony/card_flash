@@ -335,5 +335,59 @@ class Deck
   public static function unlike($userid, $deckid, $con) {
     update_table("decks", array("`like`"), array("`like`-1"), "WHERE `deckid` = '$deckid'", $con);
   }
+
+  // Increment the number of flips of a particular deck by the given $number
+  public static function add_flips($deckid, $number, $con) {
+    update_table("decks", array("`flips`"), array("`flips`+$number"), "WHERE `deckid` = '$deckid'", $con);   b 
+  }
+
+  // Increment the number of views of a particular deck by the given $number
+  public static function add_views($deckid, $number, $con) {
+    update_table("decks", array("`views`"), array("`views`+$number"), "WHERE `deckid` = '$deckid'", $con);   b     
+  }
+
+  // Returns the number of flip counts
+  // Returns NULL if the deckid does not represent any existing deck
+  public static function flip_count($deckid, $con) {
+    $result = select_from("decks", "`flips`", "WHERE `deckid` = '$deckid'", $con);
+    while ($row = mysqli_fetch_assoc($result)) {
+      return $row['flips'];
+    }
+    return NULL;
+  }
+  
+  // Returns the number of view counts
+  // Returns NULL if the deckid does not represent any existing deck
+  public static function view_count($deckid, $con) {
+    $result = select_from("decks", "`flips`", "WHERE `deckid` = '$deckid'", $con);
+    while ($row = mysqli_fetch_assoc($result)) {
+      return $row['views'];
+    }
+    return NULL;
+  }
+
+  // Function to call when a user views a card in a deck.
+  // This will add a activity to activity_user_visit_deck table
+  // For the sake of speed, it is suggested to call this function only
+  // when the user exits the page or something like that.
+  public static function view($userid, $deckid, $cardid, $con) {
+
+    // For the sake of activity, we want to keep time consistent. So we will use PHP date() to get current time, and
+    // use MYSQL's STR_TO_DATE() to convert it to MySQL datetime format
+    $datetime = date("H:i:s,m-d-Y"); // the format is specified in activity.php:add_activity()
+
+    Deck::add_views($deckid, 1, $con);
+
+    // Add user view deck activity (12)
+    $act_type = 12;
+    $data = array(
+      'userid' => $userid,
+      'deckid' => $deckid,
+      'cardid' => $cardid,
+      'time' => $datetime,
+      'circleid' => $circleid
+    );
+    Activity::add_activity($act_type, $data, $con);
+  }
 }
 ?>
