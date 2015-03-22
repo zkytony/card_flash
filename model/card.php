@@ -90,6 +90,12 @@ class Card
                  "WHERE `cardid` = '$cardid'", $con);
   }
 
+  // Returns number of cards in a given deck
+  public static function num_of_cards($deckid, $con) {
+    $result = select_from("cards", "`cardid`", "WHERE `deckid` = '$deckid'", $con);
+    return $result->num_rows;    
+  }
+
   // Returns an array of Card objects associated with the given deckid
   public static function get_cards($deckid, $active, $con) {
     $restrict_str = "WHERE `deckid`='$deckid' ";
