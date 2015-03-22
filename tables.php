@@ -62,6 +62,8 @@ function init_decks_table($con)
         ."`subscribers` INT(16) NOT NULL,"
 	."`folderid` VARCHAR(32),"
 	."`like` INT(10) NOT NULL DEFAULT '0',"
+	."`flips` INT(10) NOT NULL DEFAULT '0',"
+	."`views` INT(10) NOT NULL DEFAULT '0',"
         ."INDEX(`title`(10)),"
         ."PRIMARY KEY (`deckid`),"
         ."FOREIGN KEY (`userid`) REFERENCES users(`userid`) "
@@ -302,6 +304,7 @@ function init_comments_table($con) {
   {
     die ("Unable to create table $tablename " . mysqli_error($con) . " The query was: " . $query . "\n");
   }
+}
 }
 
 // refid is the id for reference in other activity tables
@@ -634,6 +637,35 @@ function init_activity_user_likes_table($con) {
         ."`userid` VARCHAR(32) NOT NULL,"
 	."`type` INT(1) NOT NULL,"
 	."`targetid` VARCHAR(32) NOT NULL,"
+        ."`circleid` VARCHAR(32),"
+        ."`time` DATETIME NOT NULL,"
+        ."PRIMARY KEY(`actid`),"
+        ."FOREIGN KEY(`userid`) REFERENCES users(`userid`)"
+        ."   ON DELETE CASCADE"
+        .") ENGINE InnoDB"
+        ."  CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
+
+  if (!mysqli_query($con, $query))
+  {
+    die ("Unable to create table $tablename " . mysqli_error($con) . " The query was: " . $query . "\n");
+  }
+}
+
+// The activity that a user views a deck.
+// `deckid` is the deck that a user viewed
+// `cardid` is the card that the user was looking at when
+// he was viewing the deck
+//    (It is always the most current one)
+// Everytime a user looks at a different card, the card column
+// and time will update
+function init_activity_user_view_deck_table($con) {
+  $tablename='activity_user_view_deck';
+
+  $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
+        ."`actid` VARCHAR(32) UNIQUE NOT NULL,"
+        ."`userid` VARCHAR(32) NOT NULL,"
+	."`deckid` VARCHAR(32) NOT NULL,"
+	."`cardid` VARCHAR(32) NOT NULL,"
         ."`circleid` VARCHAR(32),"
         ."`time` DATETIME NOT NULL,"
         ."PRIMARY KEY(`actid`),"
