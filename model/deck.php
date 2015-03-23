@@ -338,12 +338,12 @@ class Deck
 
   // Increment the number of flips of a particular deck by the given $number
   public static function add_flips($deckid, $number, $con) {
-    update_table("decks", array("`flips`"), array("`flips`+$number"), "WHERE `deckid` = '$deckid'", $con);   b 
+    update_table("decks", array("`flips`"), array("`flips`+$number"), "WHERE `deckid` = '$deckid'", $con);
   }
 
   // Increment the number of views of a particular deck by the given $number
   public static function add_views($deckid, $number, $con) {
-    update_table("decks", array("`views`"), array("`views`+$number"), "WHERE `deckid` = '$deckid'", $con);   b     
+    update_table("decks", array("`views`"), array("`views`+$number"), "WHERE `deckid` = '$deckid'", $con);
   }
 
   // Returns the number of flip counts
@@ -359,7 +359,7 @@ class Deck
   // Returns the number of view counts
   // Returns NULL if the deckid does not represent any existing deck
   public static function view_count($deckid, $con) {
-    $result = select_from("decks", "`flips`", "WHERE `deckid` = '$deckid'", $con);
+    $result = select_from("decks", "`views`", "WHERE `deckid` = '$deckid'", $con);
     while ($row = mysqli_fetch_assoc($result)) {
       return $row['views'];
     }
@@ -370,7 +370,10 @@ class Deck
   // This will add a activity to activity_user_visit_deck table
   // For the sake of speed, it is suggested to call this function only
   // when the user exits the page or something like that.
-  public static function view($userid, $deckid, $cardid, $con) {
+  // NOTE:
+  // $circleid is not NULL if the deck being viewed is associated with a circle
+  // If the deck is empty, then make $cardid NULL
+  public static function view($userid, $deckid, $cardid, $circleid, $con) {
 
     // For the sake of activity, we want to keep time consistent. So we will use PHP date() to get current time, and
     // use MYSQL's STR_TO_DATE() to convert it to MySQL datetime format
