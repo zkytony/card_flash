@@ -91,6 +91,7 @@ class Activity
 
     $id = '';
     $tablename = '';
+    $need_insert_timeline = true;
 
     switch ($type) {
 
@@ -198,15 +199,26 @@ class Activity
 	$tablename = "activity_user_view_deck";
 
 	// Check if the user has viewed this deck before:
-	$result = select_from($tablename, "`actid`", "WHERE `userid` = '$userid' AND `deckid` = '$deckid'", $con);
+	$result = select_from($tablename, "`actid`", "WHERE `userid` = '{$data['userid']}' AND `deckid` = '{$data['deckid']}'", $con);
 	if ($result->num_rows > 0) { // already has
 	  $actid = '';
 	  while ($row = mysqli_fetch_assoc($result)) {
 	    $actid = $row['actid'];
 	  }
 	  update_table($tablename, array("`cardid`","`time`"),
-		       array("'{$data['cardid']}'", "'{$data['time']}'",
-		       "WHERE `actid` = '$actid`", $con),
+		       array("'{$data['cardid']}'", "STR_TO_DATE(\"{$data['time']}\", \"%H:%i:%S,%m-%d-%Y\")"),
+		       "WHERE `actid` = '$actid'", $con);
+	  
+	  $need_insert_timeline = false; // Since no duplicate refid in timeline table, we only need to update the time for that refid in the timeline table
+	  update_table("timeline", array("`time`"),
+		       array("STR_TO_DATE(\"{$data['time']}\", \"%H:%i:%S,%m-%d-%Y\")"),
+		       "WHERE `refid` = '$actid'", $con);
+
+	  // Need to return the timeid here
+	  $result = select_from("timeline", "`timeid`", "WHERE `refid` = '$actid'", $con);
+	  while ($row = mysqli_fetch_assoc($result)) {
+	    return $row['timeid'];
+	  }
 	} else {
           $id = make_id("uvd", $tablename, "actid", $con);
           $columns = "`actid`, `userid`, `deckid`, `cardid`,`circleid`,`time`";
@@ -219,14 +231,17 @@ class Activity
         return NULL;
     }
 
-    // now $id is the id for that particular activity table
-    // And $tablename is the name of the particular table
-    $timeid = make_id("time", "timeline", "timeid", $con);
-    $columns = "`timeid`, `userid`, `refid`, `reftable`, `type`, `time`";
-    $values = "'$timeid', '{$data['userid']}', '$id', '$tablename', '$type', STR_TO_DATE(\"{$data['time']}\", \"%H:%i:%S,%m-%d-%Y\")";
-    insert_into('timeline', $columns, $values, $con);
-
-    return $timeid;
+    if ($need_insert_timeline) {
+      // now $id is the id for that particular activity table
+      // And $tablename is the name of the particular table
+      $timeid = make_id("time", "timeline", "timeid", $con);
+      $columns = "`timeid`, `userid`, `refid`, `reftable`, `type`, `time`";
+      $values = "'$timeid', '{$data['userid']}', '$id', '$tablename', '$type', STR_TO_DATE(\"{$data['time']}\", \"%H:%i:%S,%m-%d-%Y\")";
+      insert_into('timeline', $columns, $values, $con);
+      return $timeid;
+    } else {
+      return NULL;
+    }
   }
 
   // Given start time (string) and end time (string),
