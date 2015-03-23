@@ -43,7 +43,7 @@ class LikeTest extends PHPUnit_Framework_Testcase
     $this->assertEquals(true, $success_1);
     $this->user1 = User::sign_in($info1['email'], $info1['password'], $this->con);
 
-        // Create a deck fro user1
+    // Create a deck fro user1
     $title = "Seattle Beauty";
     $tags = array("advanced", "popular", "cool");
     $this->deckid1 = $this->user1->add_deck($title, $tags, true, $this->con);
