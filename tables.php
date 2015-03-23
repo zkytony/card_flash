@@ -305,7 +305,6 @@ function init_comments_table($con) {
     die ("Unable to create table $tablename " . mysqli_error($con) . " The query was: " . $query . "\n");
   }
 }
-}
 
 // refid is the id for reference in other activity tables
 // reftable is the tablename of the specific activity table
@@ -356,6 +355,7 @@ function init_activity_tables($con) {
   init_activity_card_updated_table($con);
   init_activity_user_comments_table($con);
   init_activity_user_likes_table($con);
+  init_activity_user_view_deck_table($con);
 }
 
 function init_activity_user_register_table($con) {
