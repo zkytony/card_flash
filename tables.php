@@ -156,6 +156,45 @@ function init_folders_table($con)
   }
 }
 
+// The purpose of a board is for the user to put decks 
+// or cards on it so that when others visit this user's 
+// homepage, they will see his Board 
+function init_boards_table($con) {
+  $tablename='boards';
+  $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
+	."`boardid` VARCHAR(32) UNIQUE NOT NULL,"
+	."`userid` VARCHAR(32) NOT NULL,"
+	."`circleid` VARCHAR(32)`,"
+	."`create_time DATETIME NOT NULL,`"
+	."PRIMARY KEY(`boardid`),"
+        ."FOREIGN KEY(`userid`) REFERENCES users(`userid`)"
+        ."   ON DELETE CASCADE"
+        .") ENGINE InnoDB"
+        ."  CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
+}
+
+// Stores the relationships between decks, or cards, with the board
+// Assume that decks and cards are of the same user as the board does
+// `type` is the type of thing that is put on the board
+// 0 - card
+// 1 - deck
+// `targetid` is the id of the thing (e.g. if type is 0, then targetid
+// should be card_XX
+// circleid here is not null if the board is created for a circle with that id
+function init_boards_with_table($con) {
+  $tablename='boards_with';
+  $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
+	."`brdwthid` VARCHAR(32) UNIQUE NOT NULL,"
+	."`boardid` VARCHAR(32) NOT NULL,"
+	."`type` INT(1) NOT NULL,"
+	."`targetid` VARCHAR(32) NOT NULL,"
+	."`circleid` VARCHAR(32)`,"
+	."PRIMARY KEY(`brdwthid`),"
+        ."FOREIGN KEY(`userid`) REFERENCES users(`userid`)"
+        ."   ON DELETE CASCADE"
+        .") ENGINE InnoDB"
+        ."  CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
+}
 
 
 // `type` will have these value bindings
