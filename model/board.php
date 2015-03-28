@@ -55,7 +55,7 @@ class Board
   // 0 - card
   // 1 - deck
   // $circleid is not NULL if the board is actually associated with a circle
-  public static function add($boardid, $type, $targetid, $circleid, $con) {
+  public static function add($userid, $boardid, $type, $targetid, $circleid, $con) {
     $brdwthid = Board::exists_on_board($boardid, $type, $targetid, $con);
 
     if (is_null($brdwthid)) {
@@ -100,7 +100,7 @@ class Board
   // $type:
   // 0 - card
   // 1 - deck
-  public static function remove($boardid, $type, $targetid, $con) {
+  public static function remove($userid, $boardid, $type, $targetid, $con) {
     // use MYSQL's STR_TO_DATE() to convert it to MySQL datetime format
     $datetime = date("H:i:s,m-d-Y"); // the format is specified in activity.php:add_activity()
 
