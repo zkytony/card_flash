@@ -17,7 +17,7 @@ class Activity
   // 2 - card(s) added to a deck
   // 3 - tag(s) of a deck is changed
   // 4 - a deck is shared to other users
-  // 5 - a user subscribes to a deck
+  // 5 - a user favorites to a deck
   // 6 - a user joins a group
   // 7 - a user follows another user
   // 8 - a deck's information is edited (title, description, open, close)
@@ -25,6 +25,7 @@ class Activity
   // 10 - user comments on something
   // 11 - user likes something
   // 12 - user views cards in a deck
+  // 13 - user updates his board
   private $timeid;
   // An array that stores information about this user
   private $info; 
@@ -71,8 +72,8 @@ class Activity
   //      - 'from_user' : the userid from whom the deck is shared
   //      - 'to_user' : the userid to whom the deck is shared
   //      - 'sharing' : (BOOL) true if 'share', false if 'unshare'
-  // 'subscribe' : specific data for subscribe deck activity
-  //      - 'subscribing' : (BOOL) true if subscribing; false if unsubscribe;
+  // 'favorite' : specific data for favorite deck activity
+  //      - 'favorites' : (BOOL) true if favorite; false if unfavorite;
   // 'joingroup' : specific data for user join group activity
   //      - 'init' : (BOOL) true if the user is the creator
   // 'userfollow' : specific data for user follow activity
@@ -85,6 +86,11 @@ class Activity
   // 'likes' : specific data for user likes activity
   //      - 'type' : the type of thing that is liked.
   //      - 'targetid' : the id of the thing that is liked
+  // 'board' : specific data for user update board activity
+  //      - 'boardid' : the id of the board where things are put
+  //      - 'type' : the type of thing that added or removed
+  //      - 'targetid' : the id of the thing that is added or removed
+  //      - 'add' : true if user adds stuff to the board
   // Returns the timeid for this activity in timeline table, if successfully added;
   // otherwise, returns NULL
   public static function add_activity($type, $data, $con) {
@@ -139,11 +145,11 @@ class Activity
         insert_into($tablename, $columns, $values, $con);
         break;
 
-      case 5: // a user subscribes to a deckb
-        $tablename = "activity_deck_subscribe";
+      case 5: // a user favorites a deck
+        $tablename = "activity_deck_favorites";
         $id = make_id("sub", $tablename, "actid", $con);
-        $columns = "`actid`, `userid`, `deckid`, `circleid`, `subscribing`, `time`";
-        $values = "'$id', '{$data['userid']}', '{$data['deckid']}', '{$data['circleid']}', '{$data['subscribe']['subscribing']}', STR_TO_DATE(\"{$data['time']}\", \"%H:%i:%S,%m-%d-%Y\")";
+        $columns = "`actid`, `userid`, `deckid`, `circleid`, `favorites`, `time`";
+        $values = "'$id', '{$data['userid']}', '{$data['deckid']}', '{$data['circleid']}', '{$data['favorite']['favorites']}', STR_TO_DATE(\"{$data['time']}\", \"%H:%i:%S,%m-%d-%Y\")";
         insert_into($tablename, $columns, $values, $con);
         break;
 
@@ -225,6 +231,14 @@ class Activity
           $values = "'$id', '{$data['userid']}', '{$data['deckid']}','{$data['cardid']}','{$data['circleid']}', STR_TO_DATE(\"{$data['time']}\", \"%H:%i:%S,%m-%d-%Y\")";
           insert_into($tablename, $columns, $values, $con);
 	}
+	break;
+
+      case 13: // user updates board
+	$tablename = "activity_user_updates_board";
+	$id = make_id("upb", $tablename, "actid", $con);
+	$columns = "`actid`,`userid`,`boardid`,`type`,`targetid`,`add`,`circleid`,`time`";
+	$values = "'$id','{$data['userid']}','{$data['board']['boardid']}','{$data['board']['add']}','{$data['board']['targetid']}','{$data['board']['type']}','{$data['circleid']}', STR_TO_DATE(\"{$data['time']}\", \"%H:%i:%S,%m-%d-%Y\")";
+        insert_into($tablename, $columns, $values, $con);
 	break;
 
       default:

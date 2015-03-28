@@ -5,10 +5,12 @@ function init_tables($con)
   init_decks_table($con);
   init_cards_table($con);
   init_tags_table($con);
+  init_boards_table($con);
+  init_board_with_table($con);
   init_folders_table($con);
   init_shares_table($con);
   init_followers_table($con);
-  init_subscribers_table($con);
+  init_favorites_table($con);
   init_circles_table($con);
   init_members_table($con);
   init_comments_table($con);
@@ -36,7 +38,7 @@ function init_users_table($con)
         ."`online` BOOL NOT NULL,"
         ."`followers` INT(16) NOT NULL,"
         ."`following` INT(16) NOT NULL,"
-        ."`subscribing` INT(16) NOT NULL,"
+        ."`favorites` INT(16) NOT NULL,"
         ."PRIMARY KEY(`userid`)"
         .") ENGINE InnoDB"
         ."  CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
@@ -59,7 +61,7 @@ function init_decks_table($con)
         ."`last_edit` DATETIME NOT NULL," // Is this necessary?
         ."`deleted` BOOL NOT NULL,"
         ."`open` BOOL NOT NULL,"
-        ."`subscribers` INT(16) NOT NULL,"
+        ."`favorites` INT(16) NOT NULL,"
 	."`folderid` VARCHAR(32),"
 	."`like` INT(10) NOT NULL DEFAULT '0',"
 	."`flips` INT(10) NOT NULL DEFAULT '0',"
@@ -156,6 +158,53 @@ function init_folders_table($con)
   }
 }
 
+// The purpose of a board is for the user to put decks 
+// or cards on it so that when others visit this user's 
+// homepage, they will see his Board 
+function init_boards_table($con) {
+  $tablename='boards';
+  $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
+	."`boardid` VARCHAR(32) UNIQUE NOT NULL,"
+	."`userid` VARCHAR(32) NOT NULL,"
+	."`circleid` VARCHAR(32),"
+	."`create_time` DATETIME NOT NULL,"
+	."PRIMARY KEY(`boardid`),"
+        ."FOREIGN KEY(`userid`) REFERENCES users(`userid`)"
+        ."   ON DELETE CASCADE"
+        .") ENGINE InnoDB"
+        ."  CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
+  if (!mysqli_query($con, $query))
+  {
+    die ("Unable to create table $tablename " . mysqli_error($con) . " The query was: " . $query . "\n");
+  }
+}
+
+// Stores the relationships between decks, or cards, with the board
+// Assume that decks and cards are of the same user as the board does
+// `type` is the type of thing that is put on the board
+// 0 - card
+// 1 - deck
+// `targetid` is the id of the thing (e.g. if type is 0, then targetid
+// should be card_XX
+// circleid here is not null if the board is created for a circle with that id
+function init_board_with_table($con) {
+  $tablename='board_with';
+  $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
+	."`brdwthid` VARCHAR(32) UNIQUE NOT NULL,"
+	."`boardid` VARCHAR(32) NOT NULL,"
+	."`type` INT(1) NOT NULL,"
+	."`targetid` VARCHAR(32) NOT NULL,"
+	."`circleid` VARCHAR(32),"
+	."PRIMARY KEY(`brdwthid`),"
+        ."FOREIGN KEY(`boardid`) REFERENCES boards(`boardid`)"
+        ."   ON DELETE CASCADE"
+        .") ENGINE InnoDB"
+        ."  CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
+  if (!mysqli_query($con, $query))
+  {
+    die ("Unable to create table $tablename " . mysqli_error($con) . " The query was: " . $query . "\n");
+  }
+}
 
 
 // `type` will have these value bindings
@@ -171,8 +220,6 @@ function init_shares_table($con)
         ."`userid` VARCHAR(32) NOT NULL,"
         ."`type` INT(1) NOT NULL,"
         ."PRIMARY KEY(`shareid`),"
-        ."FOREIGN KEY(`userid`) REFERENCES users(`userid`)"
-        ."   ON DELETE CASCADE,"
         ."FOREIGN KEY(`deckid`) REFERENCES decks(`deckid`)"
         ."   ON DELETE CASCADE"
         .") ENGINE InnoDB"
@@ -204,16 +251,16 @@ function init_followers_table($con) {
   }
 }
 
-function init_subscribers_table($con) {
-  $tablename='subscribers';
+function init_favorites_table($con) {
+  $tablename='favorites';
   $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
-        ."`sbrid` VARCHAR(32) UNIQUE NOT NULL,"
+        ."`favid` VARCHAR(32) UNIQUE NOT NULL,"
         ."`deckid` VARCHAR(32) NOT NULL,"
-        ."`sbr_userid` VARCHAR(32) NOT NULL,"
-        ."PRIMARY KEY(`sbrid`),"
+        ."`fav_userid` VARCHAR(32) NOT NULL,"
+        ."PRIMARY KEY(`favid`),"
         ."FOREIGN KEY(`deckid`) REFERENCES decks(`deckid`)"
         ."   ON DELETE CASCADE,"
-        ."FOREIGN KEY(`sbr_userid`) REFERENCES users(`userid`)"
+        ."FOREIGN KEY(`fav_userid`) REFERENCES users(`userid`)"
         ."   ON DELETE CASCADE"
         .") ENGINE InnoDB"
         ."  CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
@@ -261,8 +308,6 @@ function init_members_table($con) {
         ."`role` INT(1) NOT NULL," // role of the user
         ."`join_time` DATETIME NOT NULL,"
         ."PRIMARY KEY(`memberid`),"
-        ."FOREIGN KEY(`userid`) REFERENCES users(`userid`)"
-        ."   ON DELETE CASCADE,"
         ."FOREIGN KEY(`circleid`) REFERENCES circles(`circleid`)"
         ."   ON DELETE CASCADE"
         .") ENGINE InnoDB"
@@ -348,7 +393,7 @@ function init_activity_tables($con) {
   init_activity_card_new_del_table($con);
   init_activity_tags_changed_table($con);
   init_activity_deck_share_table($con);
-  init_activity_deck_subscribe_table($con);
+  init_activity_deck_favorites_table($con);
   init_activity_group_join_table($con);
   init_activity_user_follow_table($con);
   init_activity_deck_updated_table($con);
@@ -356,6 +401,7 @@ function init_activity_tables($con) {
   init_activity_user_comments_table($con);
   init_activity_user_likes_table($con);
   init_activity_user_view_deck_table($con);
+  init_activity_user_updates_board($con);
 }
 
 function init_activity_user_register_table($con) {
@@ -477,17 +523,17 @@ function init_activity_deck_share_table($con) {
   }
 }
 
-// Stores the activity of subscribing or unsubscribing a deck
-// `subscribing` is true if user subscribes a deck,
+// Stores the activity of favorite or unfavorite a deck
+// `favorites` is true if user favorites a deck,
 // false otherwise
-function init_activity_deck_subscribe_table($con) {
-  $tablename='activity_deck_subscribe';
+function init_activity_deck_favorites_table($con) {
+  $tablename='activity_deck_favorites';
   $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
         ."`actid` VARCHAR(32) UNIQUE NOT NULL,"
         ."`userid` VARCHAR(32) NOT NULL,"
         ."`deckid` VARCHAR(32) NOT NULL,"
         ."`circleid` VARCHAR(32),"
-        ."`subscribing` BOOL NOT NULL,"
+        ."`favorites` BOOL NOT NULL,"
         ."`time` DATETIME NOT NULL,"
         ."PRIMARY KEY(`actid`),"
         ."FOREIGN KEY(`userid`) REFERENCES users(`userid`)"
@@ -666,6 +712,36 @@ function init_activity_user_view_deck_table($con) {
         ."`userid` VARCHAR(32) NOT NULL,"
 	."`deckid` VARCHAR(32) NOT NULL,"
 	."`cardid` VARCHAR(32) NOT NULL,"
+        ."`circleid` VARCHAR(32),"
+        ."`time` DATETIME NOT NULL,"
+        ."PRIMARY KEY(`actid`),"
+        ."FOREIGN KEY(`userid`) REFERENCES users(`userid`)"
+        ."   ON DELETE CASCADE"
+        .") ENGINE InnoDB"
+        ."  CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
+
+  if (!mysqli_query($con, $query))
+  {
+    die ("Unable to create table $tablename " . mysqli_error($con) . " The query was: " . $query . "\n");
+  }
+}
+
+// Stores activity that a user updates the board
+// type:
+// 0 - update relates to a card
+// 1 - update relates to a deck
+// targetid: the id of the thing that is liked. 
+// For example, if the type is '0', then the targetid should be a cardid
+function init_activity_user_updates_board($con) {
+  $tablename='activity_user_updates_board';
+
+  $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
+        ."`actid` VARCHAR(32) UNIQUE NOT NULL,"
+        ."`userid` VARCHAR(32) NOT NULL,"
+        ."`boardid` VARCHAR(32) NOT NULL,"
+	."`type` INT(1) NOT NULL,"
+	."`targetid` VARCHAR(32) NOT NULL,"
+  	."`add` BOOL NOT NULL,"
         ."`circleid` VARCHAR(32),"
         ."`time` DATETIME NOT NULL,"
         ."PRIMARY KEY(`actid`),"

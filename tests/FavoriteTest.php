@@ -3,8 +3,8 @@ require_once "../models.php";
 require_once "../database.php";
 require_once "../tables.php";
 
-/* Test class for user subscribing functionality */
-class SubscriberTest extends PHPUnit_Framework_Testcase 
+/* Test class for user favorites functionality */
+class FavoriteTest extends PHPUnit_Framework_Testcase 
 {
   private $con;
   private $user1;
@@ -76,30 +76,30 @@ class SubscriberTest extends PHPUnit_Framework_Testcase
     $tags = array("ccc", "bbb", "ddd");
     $this->deckids[] = $this->user2->add_deck($title, $tags, false, $this->con);
 
-    // let user1 and user3 subscribe to deck1, and user3 subscribe to deck2
-    $this->sbrid1 = Subscriber::subscribe($this->deckids[0], $this->user1->get_id(), NULL, $this->con);
-    $this->sbrid2 = Subscriber::subscribe($this->deckids[0], $this->user3->get_id(), NULL, $this->con);
-    $this->sbrid3 = Subscriber::subscribe($this->deckids[1], $this->user3->get_id(), NULL, $this->con);
+    // let user1 and user3 favorite to deck1, and user3 favorite to deck2
+    $this->favid1 = Favorite::favorite($this->deckids[0], $this->user1->get_id(), NULL, $this->con);
+    $this->favid2 = Favorite::favorite($this->deckids[0], $this->user3->get_id(), NULL, $this->con);
+    $this->favid3 = Favorite::favorite($this->deckids[1], $this->user3->get_id(), NULL, $this->con);
   }
 
-  public function testSubscribeTable() {
-    $result = select_from("subscribers", "*", "", $this->con);
-    $has1 = false; // has sbrid1
+  public function testFavoriteTable() {
+    $result = select_from("favorites", "*", "", $this->con);
+    $has1 = false; // has favid1
     $has2 = false; // ...
     $has3 = false;
     while ($row = mysqli_fetch_assoc($result)) {
-      if ($row['sbrid'] == $this->sbrid1) {
+      if ($row['favid'] == $this->favid1) {
         $has1 = true;
         $this->assertEquals($this->deckids[0], $row['deckid']);
-        $this->assertEquals($this->user1->get_id(), $row['sbr_userid']);
-      } else if ($row['sbrid'] == $this->sbrid2) {
+        $this->assertEquals($this->user1->get_id(), $row['fav_userid']);
+      } else if ($row['favid'] == $this->favid2) {
         $has2 = true;
         $this->assertEquals($this->deckids[0], $row['deckid']);
-        $this->assertEquals($this->user3->get_id(), $row['sbr_userid']);
-      } else if ($row['sbrid'] == $this->sbrid3) {
+        $this->assertEquals($this->user3->get_id(), $row['fav_userid']);
+      } else if ($row['favid'] == $this->favid3) {
         $has3 = true;
         $this->assertEquals($this->deckids[1], $row['deckid']);
-        $this->assertEquals($this->user3->get_id(), $row['sbr_userid']);
+        $this->assertEquals($this->user3->get_id(), $row['fav_userid']);
       }
     }
     $this->assertEquals(true, $has1);
@@ -107,43 +107,43 @@ class SubscriberTest extends PHPUnit_Framework_Testcase
     $this->assertEquals(true, $has3);
   }
 
-  public function testSubscribeUnopenDeck() {
-    // deck3 is unopen, try to let user1 to subscribe it
-    $sbrid = Subscriber::subscribe($this->deckids[2], $this->user1->get_id(), NULL, $this->con);
+  public function testFavoriteUnopenDeck() {
+    // deck3 is unopen, try to let user1 to favorite it
+    $favid = Favorite::favorite($this->deckids[2], $this->user1->get_id(), NULL, $this->con);
     // should return null
-    $this->assertEquals(NULL, $sbrid);
+    $this->assertEquals(NULL, $favid);
   }
 
-  public function testDeckAndUserSubscribingCount() {
-    $sbg_num1 = User::num_subscribing($this->user1->get_id(), $this->con);
-    $sbg_num2 = User::num_subscribing($this->user2->get_id(), $this->con);
-    $sbg_num3 = User::num_subscribing($this->user3->get_id(), $this->con);
+  public function testDeckAndUserFavoritesCount() {
+    $fav_num1 = User::num_favorites($this->user1->get_id(), $this->con);
+    $fav_num2 = User::num_favorites($this->user2->get_id(), $this->con);
+    $fav_num3 = User::num_favorites($this->user3->get_id(), $this->con);
 
-    $this->assertEquals(1, $sbg_num1); // sbg == subscribing
-    $this->assertEquals(0, $sbg_num2);
-    $this->assertEquals(2, $sbg_num3);
+    $this->assertEquals(1, $fav_num1); // fav == favorites
+    $this->assertEquals(0, $fav_num2);
+    $this->assertEquals(2, $fav_num3);
 
-    $sb_num1 = Deck::num_subscribers($this->deckids[0], $this->con);
-    $sb_num2 = Deck::num_subscribers($this->deckids[1], $this->con);
-    $sb_num3 = Deck::num_subscribers($this->deckids[2], $this->con);
+    $fav_num1 = Deck::num_favorites($this->deckids[0], $this->con);
+    $fav_num2 = Deck::num_favorites($this->deckids[1], $this->con);
+    $fav_num3 = Deck::num_favorites($this->deckids[2], $this->con);
 
-    $this->assertEquals(2, $sb_num1);
-    $this->assertEquals(1, $sb_num2);
-    $this->assertEquals(0, $sb_num3);
+    $this->assertEquals(2, $fav_num1);
+    $this->assertEquals(1, $fav_num2);
+    $this->assertEquals(0, $fav_num3);
   }
 
-  public function testUnsubscribe() {
-    Subscriber::unsubscribe($this->deckids[0], $this->user1->get_id(), $this->con);
+  public function testUnfavorite() {
+    Favorite::unfavorite($this->deckids[0], $this->user1->get_id(), $this->con);
 
-    $sbg_num1 = User::num_subscribing($this->user1->get_id(), $this->con);
-    $this->assertEquals(0, $sbg_num1); // sbg == subscribing
+    $fav_num1 = User::num_favorites($this->user1->get_id(), $this->con);
+    $this->assertEquals(0, $fav_num1); // fav == favorites
 
-    $sb_num1 = Deck::num_subscribers($this->deckids[0], $this->con);
-    $this->assertEquals(1, $sb_num1);
+    $fav_num1 = Deck::num_favorites($this->deckids[0], $this->con);
+    $this->assertEquals(1, $fav_num1);
   }
 
   public function tearDown() {
-    delete_from("subscribers", "", "", $this->con);
+    delete_from("favorites", "", "", $this->con);
     delete_from("decks", "", "", $this->con);
     delete_from("users", "", "", $this->con);
   }
