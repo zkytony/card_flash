@@ -66,15 +66,40 @@ class BoardTest extends PHPUnit_Framework_Testcase
     $boardid = Board::create_board($this->user1->get_id(), NULL, $this->con);
 
     // Add a deck to the board
-    $brdwthid1 = Board::add($boardid, 1, $this->deckid1, NULL, $this->con);
+    $brdwthid1 = Board::add($this->user1->get_id(), $boardid, 1, $this->deckid1, NULL, $this->con);
     $this->assertEquals($brdwthid1,
 			Board::exists_on_board($boardid, 1, $this->deckid1, $this->con));
 
     // Add a card to the board
-    $brdwthid2 = Board::add($boardid, 0, $this->deckid1, NULL, $this->con);
+    $brdwthid2 = Board::add($this->user1->get_id(), $boardid, 0, $this->deckid1, NULL, $this->con);
     $this->assertEquals($brdwthid2,
 			Board::exists_on_board($boardid, 0, $this->deckid1, $this->con));
 
+  }
+
+  public function testActivity() {
+    // create a board first
+    $boardid = Board::create_board($this->user1->get_id(), NULL, $this->con);
+
+    // Add a deck to the board
+    $brdwthid1 = Board::add($this->user1->get_id(), $boardid, 1, $this->deckid1, NULL, $this->con);
+    $this->assertEquals($brdwthid1,
+			Board::exists_on_board($boardid, 1, $this->deckid1, $this->con));
+
+    // Now there should be activity for this adding a deck:
+    $result = select_from("activity_user_updates_board", "*", "WHERE `boardid` = '$boardid'", $this->con);
+    $actid = "";
+    while ($row = mysqli_fetch_assoc($result)) {
+      $this->assertEquals($this->deckid1, $row['targetid']);
+      $this->assertEquals(1, $row['type']); // 0 is for adding a deck
+      $this->assertEquals('1', $row['add']);
+      $actid = $row['actid'];
+    }
+
+    $result = select_from("timeline", "*", "WHERE `refid` = '$actid'", $this->con);
+    while ($row = mysqli_fetch_assoc($result)) {
+      $this->assertEquals("activity_user_updates_board", $row['reftable']);
+    }
   }
 
   /*
