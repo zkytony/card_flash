@@ -270,13 +270,13 @@ class User
     update_table("users", array("`following`"), array("`following`-1"), $restrict_str, $con);
   }
 
-  // adds one to the number of decks favorite this user has
+  // adds one to the number of decks that a given user favorite
   public static function favorites_add_one($userid, $con) {
     $restrict_str="WHERE `userid`='$userid'";
     update_table("users", array("`favorites`"), array("`favorites`+1"), $restrict_str, $con);
   }
 
-  // subtracts one to the decks favorite this user has
+  // subtracts one to the number of decks that a given user favorite
   public static function favorites_subtract_one($userid, $con) {
     $restrict_str="WHERE `userid`='$userid'";
     update_table("users", array("`favorites`"), array("`favorites`-1"), $restrict_str, $con);
@@ -302,7 +302,7 @@ class User
     return $num;
   }
 
-  // Returns the number of people that a user is favorite
+  // Returns the number of decks that a user favorite
   public static function num_favorites($userid, $con) {
     $num = 0;
     $result = select_from("users", "`favorites`", "WHERE `userid` = '$userid'", $con);

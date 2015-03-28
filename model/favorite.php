@@ -42,7 +42,7 @@ class Favorite
     return NULL;
   }
 
-  // Called when userid favorites to deckid
+  // Called when a given user favorites a given deck
   // $circleid is not NULL if the deck to be favorited is related to a circle
   public static function favorite($deckid, $userid, $circleid, $con) {
     $favid = Favorite::get_favid($deckid, $userid, $con);
@@ -91,7 +91,7 @@ class Favorite
     }
   }
 
-  // Returns an array of the users that are favorate the deck
+  // Returns an array of the users that favorate the deck
   public static function favorites($deckid, $con) {
     $return_ids = array();
     $result = select_from("favorites", "`fav_userid`", "WHERE `userid` = '$userid'", $con);
@@ -101,7 +101,7 @@ class Favorite
     return $return_ids;
   }
 
-  // Returns an array of all the decks that a user is favorites
+  // Returns an array of all the decks that a user favorites
   public static function users_favorites($fav_userid, $con) {
     $return_ids = array();
     $result = select_from("favorites", "`userid`", "WHERE `fav_userid` = '$fav_userid'", $con);

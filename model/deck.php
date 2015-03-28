@@ -194,7 +194,7 @@ class Deck
     update_table("decks", array("`favorites`"), array("`favorites`+1"), $restrict_str, $con);
   }
 
-  // subtracts one to the number of favoriters this deck has
+  // subtracts one to the number of favorites this deck has
   public static function favorite_subtract_one($deckid, $con) {
     $restrict_str="WHERE `deckid`='$deckid'";
     update_table("decks", array("`favorites`"), array("`favorites`-1"), $restrict_str, $con);

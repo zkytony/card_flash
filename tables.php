@@ -528,7 +528,7 @@ function init_activity_deck_share_table($con) {
 }
 
 // Stores the activity of favorite or unfavorite a deck
-// `subscribing` is true if user favorites a deck,
+// `favorites` is true if user favorites a deck,
 // false otherwise
 function init_activity_deck_favorites_table($con) {
   $tablename='activity_deck_favorites';
