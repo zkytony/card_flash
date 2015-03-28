@@ -44,7 +44,7 @@ class Board
 
     $boardid = make_id("board", "boards", "boardid", $con);
     insert_into("boards", "`boardid`,`userid`,`create_time`",
-		"'$boardid', 'userid', STR_TO_DATE(\"$datetime\", \"%H:%i:%S,%m-%d-%Y\")",
+		"'$boardid', '$userid', STR_TO_DATE(\"$datetime\", \"%H:%i:%S,%m-%d-%Y\")",
 		$con);
     return $boardid;
   }
@@ -58,7 +58,7 @@ class Board
   public static function add($boardid, $type, $targetid, $circleid, $con) {
     $brdwthid = Board::exists_on_board($boardid, $type, $targetid, $con);
     if (is_null($brdwthid)) {
-      $brdwthid = make_id("brdwth", "board_with", "brdwth", $con);
+      $brdwthid = make_id("brdwth", "board_with", "brdwthid", $con);
       insert_into("board_with", "`brdwthid`,`boardid`,`type`,`targetid`,`circleid`",
 		  "'$brdwthid','$boardid','$type','$targetid','$circleid'", $con);
     }
@@ -69,7 +69,7 @@ class Board
   // Otherwise returns NULL
   public static function exists_on_board($boardid, $type, $targetid, $con) {
     $result = select_from("board_with", "`brdwthid`", 
-			  "WHERE `boardid` = '$boardid' AND `type` = '$type' AND `targetid` = '$targetid'", $con);
+			  "WHERE `boardid` = '$boardid' AND `targetid` = '$targetid'", $con);
     if ($result->num_rows > 0) {
       while ($row = mysqli_fetch_assoc($result)) {
 	return $row['brdwthid'];
@@ -83,7 +83,7 @@ class Board
   // 0 - card
   // 1 - deck
   public static function remove($boardid, $type, $targetid, $con) {
-    delete_from("board_with", "WHERE `boardid` = '$boardid' AND `type` = '$type' AND `targetid` = '$targetid'",
+    delete_from("board_with", "WHERE `boardid` = '$boardid' AND `targetid` = '$targetid'",
 		"", $con);
   }
 
