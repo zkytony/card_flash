@@ -57,10 +57,27 @@ class Board
   // $circleid is not NULL if the board is actually associated with a circle
   public static function add($boardid, $type, $targetid, $circleid, $con) {
     $brdwthid = Board::exists_on_board($boardid, $type, $targetid, $con);
+
     if (is_null($brdwthid)) {
+      // use MYSQL's STR_TO_DATE() to convert it to MySQL datetime format
+      $datetime = date("H:i:s,m-d-Y"); // the format is specified in activity.php:add_activity()
+
       $brdwthid = make_id("brdwth", "board_with", "brdwthid", $con);
       insert_into("board_with", "`brdwthid`,`boardid`,`type`,`targetid`,`circleid`",
 		  "'$brdwthid','$boardid','$type','$targetid','$circleid'", $con);
+
+      // Add user updates board activity
+      $act_type = 13;
+      $data = array(
+	'userid' => $userid,
+	'time' => $datetime,
+	'circleid' => $circleid
+      );
+      $data['board']['type'] = $type;
+      $data['board']['targetid'] = $targetid;
+      $data['board']['add'] = true;
+      Activity::add_activity($act_type, $data, $con);
+
     }
     return $brdwthid;
   }
@@ -83,8 +100,23 @@ class Board
   // 0 - card
   // 1 - deck
   public static function remove($boardid, $type, $targetid, $con) {
+    // use MYSQL's STR_TO_DATE() to convert it to MySQL datetime format
+    $datetime = date("H:i:s,m-d-Y"); // the format is specified in activity.php:add_activity()
+
     delete_from("board_with", "WHERE `boardid` = '$boardid' AND `targetid` = '$targetid'",
 		"", $con);
+
+    // Add user updates board activity
+    $act_type = 13;
+    $data = array(
+      'userid' => $userid,
+      'time' => $datetime,
+      'circleid' => $circleid
+    );
+    $data['board']['type'] = $type;
+    $data['board']['targetid'] = $targetid;
+    $data['board']['add'] = false;
+    Activity::add_activity($act_type, $data, $con);
   }
 
   public static function delete_board($boardid, $con) {
