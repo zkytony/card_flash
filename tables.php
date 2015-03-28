@@ -10,7 +10,7 @@ function init_tables($con)
   init_folders_table($con);
   init_shares_table($con);
   init_followers_table($con);
-  init_subscribers_table($con);
+  init_favorites_table($con);
   init_circles_table($con);
   init_members_table($con);
   init_comments_table($con);
@@ -61,7 +61,7 @@ function init_decks_table($con)
         ."`last_edit` DATETIME NOT NULL," // Is this necessary?
         ."`deleted` BOOL NOT NULL,"
         ."`open` BOOL NOT NULL,"
-        ."`subscribers` INT(16) NOT NULL,"
+        ."`favorites` INT(16) NOT NULL,"
 	."`folderid` VARCHAR(32),"
 	."`like` INT(10) NOT NULL DEFAULT '0',"
 	."`flips` INT(10) NOT NULL DEFAULT '0',"
@@ -253,13 +253,13 @@ function init_followers_table($con) {
   }
 }
 
-function init_subscribers_table($con) {
-  $tablename='subscribers';
+function init_favorites_table($con) {
+  $tablename='favorites';
   $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
-        ."`sbrid` VARCHAR(32) UNIQUE NOT NULL,"
+        ."`favid` VARCHAR(32) UNIQUE NOT NULL,"
         ."`deckid` VARCHAR(32) NOT NULL,"
         ."`sbr_userid` VARCHAR(32) NOT NULL,"
-        ."PRIMARY KEY(`sbrid`),"
+        ."PRIMARY KEY(`favid`),"
         ."FOREIGN KEY(`deckid`) REFERENCES decks(`deckid`)"
         ."   ON DELETE CASCADE,"
         ."FOREIGN KEY(`sbr_userid`) REFERENCES users(`userid`)"
