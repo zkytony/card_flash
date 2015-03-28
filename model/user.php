@@ -142,7 +142,7 @@ class User
         // ensure uniqueness
         $userid = ensure_unique_id($userid, "users", "userid", $con); 
 
-        $columns = "`userid`,`email`,`first`,`last`,`password`,`birth`,`register_time`,`activate`, `online`, `followers`,`following`, `subscribing`";
+        $columns = "`userid`,`email`,`first`,`last`,`password`,`birth`,`register_time`,`activate`, `online`, `followers`,`following`, `favorites`";
         $values = "'$userid','{$info['email']}','{$info['first']}','{$info['last']}','{$info['password']}',STR_TO_DATE(\"{$info['birth']}\", \"%m-%d-%Y\"), STR_TO_DATE(\"{$datetime}\", \"%H:%i:%s,%m-%d-%Y\"), '1', '0', '0', '0', '0'";
         insert_into('users', $columns, $values, $con); // insert into 'users'
       } else {
@@ -270,16 +270,16 @@ class User
     update_table("users", array("`following`"), array("`following`-1"), $restrict_str, $con);
   }
 
-  // adds one to the number of decks subscribing this user has
-  public static function subscribing_add_one($userid, $con) {
+  // adds one to the number of decks favorite this user has
+  public static function favorites_add_one($userid, $con) {
     $restrict_str="WHERE `userid`='$userid'";
-    update_table("users", array("`subscribing`"), array("`subscribing`+1"), $restrict_str, $con);
+    update_table("users", array("`favorites`"), array("`favorites`+1"), $restrict_str, $con);
   }
 
-  // subtracts one to the decks subscribing this user has
-  public static function subscribing_subtract_one($userid, $con) {
+  // subtracts one to the decks favorite this user has
+  public static function favorites_subtract_one($userid, $con) {
     $restrict_str="WHERE `userid`='$userid'";
-    update_table("users", array("`subscribing`"), array("`subscribing`-1"), $restrict_str, $con);
+    update_table("users", array("`favorites`"), array("`favorites`-1"), $restrict_str, $con);
   }
 
   // Returns the number of followers a user has
@@ -302,23 +302,23 @@ class User
     return $num;
   }
 
-  // Returns the number of people that a user is subscribing
-  public static function num_subscribing($userid, $con) {
+  // Returns the number of people that a user is favorite
+  public static function num_favorites($userid, $con) {
     $num = 0;
-    $result = select_from("users", "`subscribing`", "WHERE `userid` = '$userid'", $con);
+    $result = select_from("users", "`favorites`", "WHERE `userid` = '$userid'", $con);
     while ($row = mysqli_fetch_assoc($result)) {
-      $num = $row['subscribing'];
+      $num = $row['favorites'];
     }
     return $num;
   }
 
   // Returns an array storing the information about a user given the userid
   // Information contains:
-  // email, first, last, birth, online, followers, following, subscribing
+  // email, first, last, birth, online, followers, following, favorites
   // Returns NULL if not found any information given the userid
   public static function user_info($userid, $con) {
     $result = select_from("users", 
-			  "`email`, `first`, `last`, `birth`, `online`, `followers`, `following`, `subscribing`",
+			  "`email`, `first`, `last`, `birth`, `online`, `followers`, `following`, `favorites`",
 			  "WHERE `userid` = '$userid'", $con);
     while ($row = mysqli_fetch_assoc($result)) {
       return $row;

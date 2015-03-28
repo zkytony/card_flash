@@ -17,7 +17,7 @@ class Activity
   // 2 - card(s) added to a deck
   // 3 - tag(s) of a deck is changed
   // 4 - a deck is shared to other users
-  // 5 - a user subscribes to a deck
+  // 5 - a user favorites to a deck
   // 6 - a user joins a group
   // 7 - a user follows another user
   // 8 - a deck's information is edited (title, description, open, close)
@@ -72,8 +72,8 @@ class Activity
   //      - 'from_user' : the userid from whom the deck is shared
   //      - 'to_user' : the userid to whom the deck is shared
   //      - 'sharing' : (BOOL) true if 'share', false if 'unshare'
-  // 'subscribe' : specific data for subscribe deck activity
-  //      - 'subscribing' : (BOOL) true if subscribing; false if unsubscribe;
+  // 'favorite' : specific data for favorite deck activity
+  //      - 'favorites' : (BOOL) true if favorite; false if unfavorite;
   // 'joingroup' : specific data for user join group activity
   //      - 'init' : (BOOL) true if the user is the creator
   // 'userfollow' : specific data for user follow activity
@@ -145,11 +145,11 @@ class Activity
         insert_into($tablename, $columns, $values, $con);
         break;
 
-      case 5: // a user subscribes to a deckb
-        $tablename = "activity_deck_subscribe";
+      case 5: // a user favorites a deck
+        $tablename = "activity_deck_favorites";
         $id = make_id("sub", $tablename, "actid", $con);
-        $columns = "`actid`, `userid`, `deckid`, `circleid`, `subscribing`, `time`";
-        $values = "'$id', '{$data['userid']}', '{$data['deckid']}', '{$data['circleid']}', '{$data['subscribe']['subscribing']}', STR_TO_DATE(\"{$data['time']}\", \"%H:%i:%S,%m-%d-%Y\")";
+        $columns = "`actid`, `userid`, `deckid`, `circleid`, `favorites`, `time`";
+        $values = "'$id', '{$data['userid']}', '{$data['deckid']}', '{$data['circleid']}', '{$data['favorite']['favorites']}', STR_TO_DATE(\"{$data['time']}\", \"%H:%i:%S,%m-%d-%Y\")";
         insert_into($tablename, $columns, $values, $con);
         break;
 

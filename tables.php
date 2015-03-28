@@ -38,7 +38,7 @@ function init_users_table($con)
         ."`online` BOOL NOT NULL,"
         ."`followers` INT(16) NOT NULL,"
         ."`following` INT(16) NOT NULL,"
-        ."`subscribing` INT(16) NOT NULL,"
+        ."`favorites` INT(16) NOT NULL,"
         ."PRIMARY KEY(`userid`)"
         .") ENGINE InnoDB"
         ."  CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
@@ -258,11 +258,11 @@ function init_favorites_table($con) {
   $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
         ."`favid` VARCHAR(32) UNIQUE NOT NULL,"
         ."`deckid` VARCHAR(32) NOT NULL,"
-        ."`sbr_userid` VARCHAR(32) NOT NULL,"
+        ."`fav_userid` VARCHAR(32) NOT NULL,"
         ."PRIMARY KEY(`favid`),"
         ."FOREIGN KEY(`deckid`) REFERENCES decks(`deckid`)"
         ."   ON DELETE CASCADE,"
-        ."FOREIGN KEY(`sbr_userid`) REFERENCES users(`userid`)"
+        ."FOREIGN KEY(`fav_userid`) REFERENCES users(`userid`)"
         ."   ON DELETE CASCADE"
         .") ENGINE InnoDB"
         ."  CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
@@ -397,7 +397,7 @@ function init_activity_tables($con) {
   init_activity_card_new_del_table($con);
   init_activity_tags_changed_table($con);
   init_activity_deck_share_table($con);
-  init_activity_deck_subscribe_table($con);
+  init_activity_deck_favorites_table($con);
   init_activity_group_join_table($con);
   init_activity_user_follow_table($con);
   init_activity_deck_updated_table($con);
@@ -527,17 +527,17 @@ function init_activity_deck_share_table($con) {
   }
 }
 
-// Stores the activity of subscribing or unsubscribing a deck
-// `subscribing` is true if user subscribes a deck,
+// Stores the activity of favorite or unfavorite a deck
+// `subscribing` is true if user favorites a deck,
 // false otherwise
-function init_activity_deck_subscribe_table($con) {
-  $tablename='activity_deck_subscribe';
+function init_activity_deck_favorites_table($con) {
+  $tablename='activity_deck_favorites';
   $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
         ."`actid` VARCHAR(32) UNIQUE NOT NULL,"
         ."`userid` VARCHAR(32) NOT NULL,"
         ."`deckid` VARCHAR(32) NOT NULL,"
         ."`circleid` VARCHAR(32),"
-        ."`subscribing` BOOL NOT NULL,"
+        ."`favorites` BOOL NOT NULL,"
         ."`time` DATETIME NOT NULL,"
         ."PRIMARY KEY(`actid`),"
         ."FOREIGN KEY(`userid`) REFERENCES users(`userid`)"

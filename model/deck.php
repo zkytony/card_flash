@@ -61,7 +61,7 @@ class Deck
       $deckid = 'deck_' . $num_rows;
       $deckid = ensure_unique_id($deckid, "decks", "deckid", $con);
 
-      $columns = "`deckid`,`title`,`userid`,`create_time`,`deleted`,`open`,`subscribers`";
+      $columns = "`deckid`,`title`,`userid`,`create_time`,`deleted`,`open`,`favorites`";
       $values = "'$deckid','$title','$userid',STR_TO_DATE(\"{$datetime}\", \"%H:%i:%s,%m-%d-%Y\"), '0', '$open', '0'";
       insert_into('decks', $columns, $values, $con);
 
@@ -188,24 +188,24 @@ class Deck
     return false;
   }
 
-  // adds one to the number of subscribers this deck has
-  public static function subscriber_add_one($deckid, $con) {
+  // adds one to the number of favorites this deck has
+  public static function favorite_add_one($deckid, $con) {
     $restrict_str="WHERE `deckid`='$deckid'";
-    update_table("decks", array("`subscribers`"), array("`subscribers`+1"), $restrict_str, $con);
+    update_table("decks", array("`favorites`"), array("`favorites`+1"), $restrict_str, $con);
   }
 
-  // subtracts one to the number of subscriberrs this deck has
-  public static function subscriber_subtract_one($deckid, $con) {
+  // subtracts one to the number of favoriters this deck has
+  public static function favorite_subtract_one($deckid, $con) {
     $restrict_str="WHERE `deckid`='$deckid'";
-    update_table("decks", array("`subscribers`"), array("`subscribers`-1"), $restrict_str, $con);
+    update_table("decks", array("`favorites`"), array("`favorites`-1"), $restrict_str, $con);
   }
   
-  // returns the number of subscribers to a specified deck
-  public static function num_subscribers($deckid, $con) {
+  // returns the number of favorites to a specified deck
+  public static function num_favorites($deckid, $con) {
     $num = 0;
-    $result = select_from("decks", "`subscribers`", "WHERE `deckid` = '$deckid'", $con);
+    $result = select_from("decks", "`favorites`", "WHERE `deckid` = '$deckid'", $con);
     while ($row = mysqli_fetch_assoc($result)) {
-      $num = $row['subscribers'];
+      $num = $row['favorites'];
     }
     return $num;
   }
@@ -297,11 +297,11 @@ class Deck
 
   // Returns an array storing the information about a deck given the deckid
   // Information contains:
-  // title, create_time, open, subscribers
+  // title, create_time, open, favorites
   // Returns NULL if not found any information given the userid
   public static function deck_info($deckid, $con) {
     $result = select_from("decks", 
-			  "`title`, `create_time`, `open`, `subscribers`",
+			  "`title`, `create_time`, `open`, `favorites`",
 			  "WHERE `deckid` = '$deckid'", $con);
     while ($row = mysqli_fetch_assoc($result)) {
       return $row;
