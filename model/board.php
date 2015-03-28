@@ -37,32 +37,58 @@ class Board
 
   // Creates a board by adding a row in the boards table
   // This function may need to be called in User::register() function
-  public static function create_board($userid, $con) {
-    if (!Board::already_has($userid, $con)) {
-      // use MYSQL's STR_TO_DATE() to convert it to MySQL datetime format
-      $datetime = date("H:i:s,m-d-Y"); // the format is specified in activity.php:add_activity()
+  // $circleid is not NULL if the board is actually associated with a circle
+  public static function create_board($userid, $circleid, $con) {
+    // use MYSQL's STR_TO_DATE() to convert it to MySQL datetime format
+    $datetime = date("H:i:s,m-d-Y"); // the format is specified in activity.php:add_activity()
 
-      $boardid = make_id("board", "boards", "boardid", $con);
-      insert_into("boards", "`boardid`,`userid`,`create_time`",
-		  "'$boardid', 'userid', STR_TO_DATE(\"$datetime\", \"%H:%i:%S,%m-%d-%Y\")",
-		  $con);
-      return $boardid;
-    } else {
-      return NULL; // boarder already exists for this user
+    $boardid = make_id("board", "boards", "boardid", $con);
+    insert_into("boards", "`boardid`,`userid`,`create_time`",
+		"'$boardid', 'userid', STR_TO_DATE(\"$datetime\", \"%H:%i:%S,%m-%d-%Y\")",
+		$con);
+    return $boardid;
+  }
+
+  // Returns the brdwthid
+  // add something to the board
+  // $type is the type of "thing"
+  // 0 - card
+  // 1 - deck
+  // $circleid is not NULL if the board is actually associated with a circle
+  public static function add($boardid, $type, $targetid, $circleid, $con) {
+    $brdwthid = Board::exists_on_board($boardid, $type, $targetid, $con);
+    if (is_null($brdwthid)) {
+      $brdwthid = make_id("brdwth", "board_with", "brdwth", $con);
+      insert_into("board_with", "`brdwthid`,`boardid`,`type`,`targetid`,`circleid`",
+		  "'$brdwthid','$boardid','$type','$targetid','$circleid'", $con);
     }
+    return $brdwthid;
   }
 
-  public static function already_has($userid, $con) {
-    $result = select_from("boards", "`boardid`", "WHERE `userid` = '$userid'", $con);
-    return $result->num_rows == 1; // expect to be 1
+  // Returns brdwthid if the thing is on the board already
+  // Otherwise returns NULL
+  public static function exists_on_board($boardid, $type, $targetid, $con) {
+    $result = select_from("board_with", "`brdwthid`", 
+			  "WHERE `boardid` = '$boardid' AND `type` = '$type' AND `targetid` = '$targetid'", $con);
+    if ($result->num_rows > 0) {
+      while ($row = mysqli_fetch_assoc($result)) {
+	return $row['brdwthid'];
+      }
+    }
+    return NULL;
   }
 
-  public static function add($userid, $type, $targetid, $con) {
-    // because each user has only one board thenwe can use a user as
-    // the condition for queries
+  // Remove a "thing" from the given board
+  // $type:
+  // 0 - card
+  // 1 - deck
+  public static function remove($boardid, $type, $targetid, $con) {
+    delete_from("board_with", "WHERE `boardid` = '$boardid' AND `type` = '$type' AND `targetid` = '$targetid'",
+		"", $con);
   }
 
-  public static function remove($userid, $type, $targetid, $con) {
+  public static function delete_board($boardid, $con) {
+    delete_from("boards", "WHERE `boardid` = '$boardid'", "", $con);
   }
 }
 ?>
