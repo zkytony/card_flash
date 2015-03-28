@@ -73,6 +73,7 @@ class Board
 	'time' => $datetime,
 	'circleid' => $circleid
       );
+      $data['board']['boardid'] = $boardid;
       $data['board']['type'] = $type;
       $data['board']['targetid'] = $targetid;
       $data['board']['add'] = true;
@@ -113,6 +114,7 @@ class Board
       'time' => $datetime,
       'circleid' => $circleid
     );
+    $data['board']['boardid'] = $boardid;
     $data['board']['type'] = $type;
     $data['board']['targetid'] = $targetid;
     $data['board']['add'] = false;

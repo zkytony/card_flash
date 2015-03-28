@@ -742,6 +742,7 @@ function init_activity_user_updates_board($con) {
   $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
         ."`actid` VARCHAR(32) UNIQUE NOT NULL,"
         ."`userid` VARCHAR(32) NOT NULL,"
+        ."`boardid` VARCHAR(32) NOT NULL,"
 	."`type` INT(1) NOT NULL,"
 	."`targetid` VARCHAR(32) NOT NULL,"
   	."`add` BOOL(1) NOT NULL,"

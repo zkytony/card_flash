@@ -87,6 +87,7 @@ class Activity
   //      - 'type' : the type of thing that is liked.
   //      - 'targetid' : the id of the thing that is liked
   // 'board' : specific data for user update board activity
+  //      - 'boardid' : the id of the board where things are put
   //      - 'type' : the type of thing that added or removed
   //      - 'targetid' : the id of the thing that is added or removed
   //      - 'add' : true if user adds stuff to the board
@@ -235,8 +236,8 @@ class Activity
       case 13: // user updates board
 	$tablename = "activity_user_updates_board";
 	$id = make_id("upb", $tablename, "actid", $con);
-	$columns = "`actid`,`userid`,`type`,`targetid`,`add`,`circleid`,`time`";
-	$values = "'$id','{$data['userid']}','{$data['board']['add']}','{$data['board']['targetid']}','{$data['board']['type']}','{$data['circleid']}', STR_TO_DATE(\"{$data['time']}\", \"%H:%i:%S,%m-%d-%Y\")";
+	$columns = "`actid`,`userid`,`boardid`,`type`,`targetid`,`add`,`circleid`,`time`";
+	$values = "'$id','{$data['userid']}','{$data['board']['boardid']}','{$data['board']['add']}','{$data['board']['targetid']}','{$data['board']['type']}','{$data['circleid']}', STR_TO_DATE(\"{$data['time']}\", \"%H:%i:%S,%m-%d-%Y\")";
         insert_into($tablename, $columns, $values, $con);
 	break;
 
