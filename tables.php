@@ -220,8 +220,6 @@ function init_shares_table($con)
         ."`userid` VARCHAR(32) NOT NULL,"
         ."`type` INT(1) NOT NULL,"
         ."PRIMARY KEY(`shareid`),"
-        ."FOREIGN KEY(`userid`) REFERENCES users(`userid`)"
-        ."   ON DELETE CASCADE,"
         ."FOREIGN KEY(`deckid`) REFERENCES decks(`deckid`)"
         ."   ON DELETE CASCADE"
         .") ENGINE InnoDB"
@@ -310,8 +308,6 @@ function init_members_table($con) {
         ."`role` INT(1) NOT NULL," // role of the user
         ."`join_time` DATETIME NOT NULL,"
         ."PRIMARY KEY(`memberid`),"
-        ."FOREIGN KEY(`userid`) REFERENCES users(`userid`)"
-        ."   ON DELETE CASCADE,"
         ."FOREIGN KEY(`circleid`) REFERENCES circles(`circleid`)"
         ."   ON DELETE CASCADE"
         .") ENGINE InnoDB"
