@@ -745,7 +745,7 @@ function init_activity_user_updates_board($con) {
         ."`boardid` VARCHAR(32) NOT NULL,"
 	."`type` INT(1) NOT NULL,"
 	."`targetid` VARCHAR(32) NOT NULL,"
-  	."`add` BOOL(1) NOT NULL,"
+  	."`add` BOOL NOT NULL,"
         ."`circleid` VARCHAR(32),"
         ."`time` DATETIME NOT NULL,"
         ."PRIMARY KEY(`actid`),"
