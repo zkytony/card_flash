@@ -405,6 +405,7 @@ function init_activity_tables($con) {
   init_activity_user_comments_table($con);
   init_activity_user_likes_table($con);
   init_activity_user_view_deck_table($con);
+  init_activity_user_updates_board($con);
 }
 
 function init_activity_user_register_table($con) {
@@ -715,6 +716,35 @@ function init_activity_user_view_deck_table($con) {
         ."`userid` VARCHAR(32) NOT NULL,"
 	."`deckid` VARCHAR(32) NOT NULL,"
 	."`cardid` VARCHAR(32) NOT NULL,"
+        ."`circleid` VARCHAR(32),"
+        ."`time` DATETIME NOT NULL,"
+        ."PRIMARY KEY(`actid`),"
+        ."FOREIGN KEY(`userid`) REFERENCES users(`userid`)"
+        ."   ON DELETE CASCADE"
+        .") ENGINE InnoDB"
+        ."  CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
+
+  if (!mysqli_query($con, $query))
+  {
+    die ("Unable to create table $tablename " . mysqli_error($con) . " The query was: " . $query . "\n");
+  }
+}
+
+// Stores activity that a user updates the board
+// type:
+// 0 - update relates to a card
+// 1 - update relates to a deck
+// targetid: the id of the thing that is liked. 
+// For example, if the type is '0', then the targetid should be a cardid
+function init_activity_user_updates_board($con) {
+  $tablename='activity_user_updates_board';
+
+  $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
+        ."`actid` VARCHAR(32) UNIQUE NOT NULL,"
+        ."`userid` VARCHAR(32) NOT NULL,"
+	."`type` INT(1) NOT NULL,"
+	."`targetid` VARCHAR(32) NOT NULL,"
+  	."`add` BOOL(1) NOT NULL,"
         ."`circleid` VARCHAR(32),"
         ."`time` DATETIME NOT NULL,"
         ."PRIMARY KEY(`actid`),"
