@@ -11,7 +11,7 @@ require_once "model/deck.php";
 require_once "model/tag.php";
 require_once "model/share.php";
 require_once "model/follower.php";
-require_once "model/subscriber.php";
+require_once "model/favorite.php";
 require_once "model/circle.php";
 require_once "model/activity.php";
 require_once "model/comment.php";
