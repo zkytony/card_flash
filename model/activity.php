@@ -25,6 +25,7 @@ class Activity
   // 10 - user comments on something
   // 11 - user likes something
   // 12 - user views cards in a deck
+  // 13 - user updates his board
   private $timeid;
   // An array that stores information about this user
   private $info; 
@@ -85,6 +86,10 @@ class Activity
   // 'likes' : specific data for user likes activity
   //      - 'type' : the type of thing that is liked.
   //      - 'targetid' : the id of the thing that is liked
+  // 'board' : specific data for user update board activity
+  //      - 'type' : the type of thing that added or removed
+  //      - 'targetid' : the id of the thing that is added or removed
+  //      - 'add' : true if user adds stuff to the board
   // Returns the timeid for this activity in timeline table, if successfully added;
   // otherwise, returns NULL
   public static function add_activity($type, $data, $con) {
@@ -225,6 +230,14 @@ class Activity
           $values = "'$id', '{$data['userid']}', '{$data['deckid']}','{$data['cardid']}','{$data['circleid']}', STR_TO_DATE(\"{$data['time']}\", \"%H:%i:%S,%m-%d-%Y\")";
           insert_into($tablename, $columns, $values, $con);
 	}
+	break;
+
+      case 13: // user updates board
+	$tablename = "activity_user_updates_board";
+	$id = make_id("upb", $tablename, "actid", $con);
+	$columns = "`actid`,`userid`,`type`,`targetid`,`add`,`circleid`,`time`";
+	$values = "'$id','{$data['userid']}','{$data['board']['add']}','{$data['board']['targetid']}','{$data['board']['type']}','{$data['circleid']}', STR_TO_DATE(\"{$data['time']}\", \"%H:%i:%S,%m-%d-%Y\")";
+        insert_into($tablename, $columns, $values, $con);
 	break;
 
       default:
