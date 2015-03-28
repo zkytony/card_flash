@@ -181,8 +181,8 @@ function init_boards_table($con) {
 // `targetid` is the id of the thing (e.g. if type is 0, then targetid
 // should be card_XX
 // circleid here is not null if the board is created for a circle with that id
-function init_boards_with_table($con) {
-  $tablename='boards_with';
+function init_board_with_table($con) {
+  $tablename='board_with';
   $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
 	."`brdwthid` VARCHAR(32) UNIQUE NOT NULL,"
 	."`boardid` VARCHAR(32) NOT NULL,"
@@ -190,7 +190,7 @@ function init_boards_with_table($con) {
 	."`targetid` VARCHAR(32) NOT NULL,"
 	."`circleid` VARCHAR(32)`,"
 	."PRIMARY KEY(`brdwthid`),"
-        ."FOREIGN KEY(`userid`) REFERENCES users(`userid`)"
+        ."FOREIGN KEY(`boardid`) REFERENCES boards(`boardid`)"
         ."   ON DELETE CASCADE"
         .") ENGINE InnoDB"
         ."  CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
