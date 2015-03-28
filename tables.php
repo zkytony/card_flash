@@ -5,6 +5,8 @@ function init_tables($con)
   init_decks_table($con);
   init_cards_table($con);
   init_tags_table($con);
+  init_boards_table($con);
+  init_board_with_table($con);
   init_folders_table($con);
   init_shares_table($con);
   init_followers_table($con);
@@ -164,13 +166,17 @@ function init_boards_table($con) {
   $query="CREATE TABLE IF NOT EXISTS `$tablename` ("
 	."`boardid` VARCHAR(32) UNIQUE NOT NULL,"
 	."`userid` VARCHAR(32) NOT NULL,"
-	."`circleid` VARCHAR(32)`,"
-	."`create_time DATETIME NOT NULL,`"
+	."`circleid` VARCHAR(32),"
+	."`create_time` DATETIME NOT NULL,"
 	."PRIMARY KEY(`boardid`),"
         ."FOREIGN KEY(`userid`) REFERENCES users(`userid`)"
         ."   ON DELETE CASCADE"
         .") ENGINE InnoDB"
         ."  CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
+  if (!mysqli_query($con, $query))
+  {
+    die ("Unable to create table $tablename " . mysqli_error($con) . " The query was: " . $query . "\n");
+  }
 }
 
 // Stores the relationships between decks, or cards, with the board
@@ -188,12 +194,16 @@ function init_board_with_table($con) {
 	."`boardid` VARCHAR(32) NOT NULL,"
 	."`type` INT(1) NOT NULL,"
 	."`targetid` VARCHAR(32) NOT NULL,"
-	."`circleid` VARCHAR(32)`,"
+	."`circleid` VARCHAR(32),"
 	."PRIMARY KEY(`brdwthid`),"
         ."FOREIGN KEY(`boardid`) REFERENCES boards(`boardid`)"
         ."   ON DELETE CASCADE"
         .") ENGINE InnoDB"
         ."  CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
+  if (!mysqli_query($con, $query))
+  {
+    die ("Unable to create table $tablename " . mysqli_error($con) . " The query was: " . $query . "\n");
+  }
 }
 
 
